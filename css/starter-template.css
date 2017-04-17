@@ -1,0 +1,114 @@
+body {
+  padding-top: 34px;
+  overflow-y:hidden;
+}
+.starter-template {
+  text-align: center;
+}
+
+.full-width{
+  /*width:50% !important;*/
+  margin-bottom: 10px;
+  font-size: 20px;
+}
+
+h1 {
+   font-size: 80px;
+}
+
+.btn-success{
+  display: none;
+}
+
+.nav > li > a {
+    padding: 5px 5px !important;
+    margin-right: 0 !important;
+    color: black;
+}
+
+.nav-tabs > li {
+    /* width = (100 / number of tabs). This example assumes 3 tabs. */
+    width:33.33333%;
+    text-align: center;
+}
+
+.nav-tabs>li.active>a{
+  font-weight:bold;
+}
+
+.custom-btn{
+  color: #fff;
+
+}
+
+.custom-btn:hover{
+  color: #fff;
+}
+
+.navbar {
+  min-height:26px;
+  line-height:26px;
+  background-color:#F0525E;
+  border-bottom: 1px solid transparent;
+}
+
+.navbar-brand{
+  float: none;
+  text-align: center;
+  height: 30px;
+  padding: 10px 15px;
+  line-height: 33px;
+  color: white;
+}
+
+.navbar-inverse .navbar-brand {
+    color: white;
+}
+
+.navbar-brand>img {
+    display: inline;
+}
+
+.btn-primary {
+  background-color: #38D96C;
+  border:1px solid transparent;
+}
+
+.btn-primary:hover {
+  background-color: #4CDA8E;
+  border: 1px solid transparent;
+}
+
+.navbar-toggle{
+  padding: 0px 8px;
+  margin-top: 4px;
+  margin-bottom: 3px;
+}
+
+/* xs < 768 */
+@media screen and (max-width: 767px) {
+    h1 {
+        font-size: 5em;
+    }
+}
+
+/* sm */
+@media screen and (min-width: 768px) {
+    h1 {
+        font-size: 5em;
+    }
+}
+
+/* md */
+@media screen and (min-width: 992px) {
+    h1 {
+        font-size: 5em;
+    }
+}
+
+/* lg */
+@media screen and (min-width: 1200px) {
+    h1 {
+        font-size: 5em;
+    }
+}

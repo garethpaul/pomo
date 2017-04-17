@@ -1,0 +1,45 @@
+{
+  "name": "pomo",
+  "version": "1.0.0",
+  "description": "A pomodoro app.",
+  "main": "index.js",
+  "productName": "Pomo",
+  "scripts": {
+    "start": "electron index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/garethpaul/pomo",
+    "docs": "https://github.com/garethpaul/pomo/blob/master/README.md"
+  },
+  "keywords": [
+    "electron",
+    "pomodoro",
+    "productivity",
+    "menubar",
+    "taskbar",
+    "tray",
+    "timer",
+    "html",
+    "desktop"
+  ],
+  "author": "Gareth Paul Jones <gareth@garethpaul.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/garethpaul/pomo/issues"
+  },
+  "homepage": "https://github.com/garethpaul/pomo#readme",
+  "_npmUser": {
+    "name": "garethpaul",
+    "email": "gareth@garethpaul.com"
+  },
+  "devDependencies": {
+    "devtron": "^1.1.2",
+    "electron-packager": "^7.0.3",
+    "electron": "latest",
+    "gulp": "^3.9.1"
+  },
+  "dependencies": {
+    "menubar": "latest"
+  }
+}
