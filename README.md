@@ -12,18 +12,21 @@ This README is based on the checked-in source, manifests, scripts, and repositor
 ## Repository Contents
 
 - `README.md` - project overview and local usage notes
+- `CHANGES.md` - notable maintenance changes
 - `package.json` - JavaScript dependency and script metadata
 - `css` - source or example code
 - `js` - source or example code
+- `plans` - completed maintenance plans
+- `scripts` - deterministic regression tests
 - `SECURITY.md` - security reporting and disclosure guidance
 - `VISION.md` - project direction and maintenance guardrails
 
 Additional scan context:
 
-- Source directories: css, js
+- Source directories: css, js, scripts
 - Dependency and build manifests: package.json
 - Entry points or build surfaces: index.js, package.json
-- Test-looking files: no obvious test files detected
+- Test-looking files: scripts/test-timer.js
 
 ## Getting Started
 
@@ -49,10 +52,14 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 Detected npm scripts:
 
 - `npm run start` - `electron index.js`
+- `npm run lint` - `node --check index.js && node --check js/notification.js && node --check js/timer.js && node --check js/app.js && node --check scripts/test-timer.js`
+- `npm run test` - `node scripts/test-timer.js`
+- `npm run verify` - `npm run lint && npm test`
 
 ## Testing and Verification
 
-- No dedicated automated test command was identified from the checked-in files. Verify changes by running the relevant build or manually exercising the sample.
+- Run `npm test` for deterministic timer regression coverage.
+- Run `npm run verify` before committing; it checks JavaScript syntax and runs the timer tests.
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
 

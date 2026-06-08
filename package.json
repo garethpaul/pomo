@@ -5,7 +5,10 @@
   "main": "index.js",
   "productName": "Pomo",
   "scripts": {
-    "start": "electron index.js"
+    "start": "electron index.js",
+    "lint": "node --check index.js && node --check js/notification.js && node --check js/timer.js && node --check js/app.js && node --check scripts/test-timer.js",
+    "test": "node scripts/test-timer.js",
+    "verify": "npm run lint && npm test"
   },
   "repository": {
     "type": "git",

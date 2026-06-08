@@ -16,13 +16,14 @@ Priority:
 
 - Preserve the 25-minute, 5-minute, and 10-minute timer flows
 - Keep start, stop, and reset behavior predictable
+- Maintain `npm run verify` for syntax checks and timer regression coverage
 - Maintain local notification behavior without network dependencies
 - Keep tray/menu behavior visible in the main process
 
 Next priorities:
 
 - Document supported Electron and Node versions
-- Add tests or manual verification notes for timer transitions
+- Expand tests and manual verification notes for renderer timer transitions
 - Review notification behavior on macOS, Windows, and Linux
 - Modernize dependencies in a dedicated pass
 
