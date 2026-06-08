@@ -8,3 +8,5 @@
 - Extracted the Pomodoro timer class into `js/timer.js` so it can be tested without launching Electron.
 - Added `npm test` coverage for time formatting, duration calculation, countdown ticks, completion notification, and interval cleanup.
 - Added `npm run verify` to run JavaScript syntax checks and timer regression tests.
+- Added `npm run contracts`, canonical `docs/plans` coverage, and local-only
+  renderer checks that reject hidden remote script loads.

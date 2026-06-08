@@ -10,6 +10,9 @@ and simple IPC for quitting the app.
 The goal is to keep the timer reliable, lightweight, and understandable while
 making Electron and dependency age explicit.
 
+Current baseline: `make check` runs syntax checks, timer and notification
+regression tests, and local-only desktop contracts without launching Electron.
+
 The current focus is:
 
 Priority:
@@ -17,6 +20,7 @@ Priority:
 - Preserve the 25-minute, 5-minute, and 10-minute timer flows
 - Keep start, stop, and reset behavior predictable
 - Maintain `make check` and `npm run verify` for syntax checks, timer tests, and notification tests
+- Maintain `npm run contracts` for local-only renderer and plan guardrails
 - Maintain local notification behavior without network dependencies
 - Keep tray/menu behavior visible in the main process
 
