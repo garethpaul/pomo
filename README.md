@@ -1,5 +1,8 @@
 # pomo
 
+<!-- README-OVERVIEW-IMAGE -->
+![Project overview](docs/readme-overview.svg)
+
 ## Overview
 
 `garethpaul/pomo` is a Node.js or JavaScript project. A Pomodoro Electron App
@@ -79,4 +82,3 @@ Keep changes small and tied to the project that is already present in this repos
 Prior README summary:
 
 > A Pomodoro Electron App <!-- README-OVERVIEW-IMAGE --> To get started `npm install` To start running the app `npm start`
-
