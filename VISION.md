@@ -45,3 +45,6 @@ outside the menubar app behavior.
 - Network-backed timer state
 - Dependency rewrites mixed with UI changes
 - Auto-start behavior without explicit user opt-in
+
+This list is a roadmap guardrail, not a permanent rule.
+Strong user demand and strong technical rationale can change it.
