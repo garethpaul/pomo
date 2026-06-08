@@ -13,6 +13,7 @@ This README is based on the checked-in source, manifests, scripts, and repositor
 
 - `README.md` - project overview and local usage notes
 - `CHANGES.md` - notable maintenance changes
+- `Makefile` - local verification entry points
 - `package.json` - JavaScript dependency and script metadata
 - `css` - source or example code
 - `js` - source or example code
@@ -25,7 +26,7 @@ Additional scan context:
 
 - Source directories: css, js, scripts
 - Dependency and build manifests: package.json
-- Entry points or build surfaces: index.js, package.json
+- Entry points or build surfaces: Makefile, index.js, package.json
 - Test-looking files: scripts/test-notification.js, scripts/test-timer.js
 
 ## Getting Started
@@ -34,6 +35,7 @@ Additional scan context:
 
 - Git
 - Node.js and npm
+- `make` for the local verification wrapper
 
 ### Setup
 
@@ -60,12 +62,13 @@ Detected npm scripts:
 
 - Run `npm test` for deterministic timer and notification regression coverage.
 - Run `npm run verify` before committing; it checks JavaScript syntax and runs the timer and notification tests.
+- Run `make check` as the repository-standard wrapper around `npm run verify`.
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
 
 ## Configuration and Secrets
 
-- Detected references to Twitter. Keep API keys, OAuth credentials, tokens, and account-specific values in local configuration only.
+- No required secret or credential file was identified. Keep the app local-only unless a future integration explicitly documents its configuration and privacy behavior.
 
 ## Security and Privacy Notes
 
