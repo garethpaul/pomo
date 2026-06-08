@@ -39,7 +39,7 @@ Desktop timer apps should stay local by default. Pomo should not collect usage
 data, open external links without user action, or run hidden background tasks
 outside the menubar app behavior.
 
-## What We Will Not Merge For Now
+## What We Will Not Merge (For Now)
 
 - Hidden telemetry
 - Network-backed timer state
