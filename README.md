@@ -81,4 +81,4 @@ Keep changes small and tied to the project that is already present in this repos
 
 Prior README summary:
 
-> A Pomodoro Electron App <!-- README-OVERVIEW-IMAGE --> To get started `npm install` To start running the app `npm start`
+> A Pomodoro Electron App To get started `npm install` To start running the app `npm start`
