@@ -1,5 +1,8 @@
 # A Pomodoro Electron App
 
+<!-- README-OVERVIEW-IMAGE -->
+![Project overview](docs/readme-overview.svg)
+
 To get started
 
 `npm install`
