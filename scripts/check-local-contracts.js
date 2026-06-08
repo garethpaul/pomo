@@ -7,6 +7,7 @@ const path = require('node:path');
 const ROOT = path.resolve(__dirname, '..');
 const LOCAL_ONLY_PLAN = 'docs/plans/2026-06-08-local-only-contracts.md';
 const MAIN_PROCESS_PLAN = 'docs/plans/2026-06-08-main-process-guards.md';
+const RENDERER_WIRING_PLAN = 'docs/plans/2026-06-08-renderer-wiring-tests.md';
 
 function read(relativePath) {
   return fs.readFileSync(path.join(ROOT, relativePath), 'utf8');
@@ -19,6 +20,7 @@ function assertFile(relativePath) {
 [
   LOCAL_ONLY_PLAN,
   MAIN_PROCESS_PLAN,
+  RENDERER_WIRING_PLAN,
   'index.html',
   'index.js',
   'js/app.js',
@@ -28,6 +30,7 @@ function assertFile(relativePath) {
   'package.json',
   'README.md',
   'SECURITY.md',
+  'scripts/test-app-wiring.js',
   'scripts/test-main-process.js',
   'VISION.md'
 ].forEach(assertFile);
@@ -36,7 +39,9 @@ const pkg = JSON.parse(read('package.json'));
 assert.equal(pkg.scripts.contracts, 'node scripts/check-local-contracts.js');
 assert.ok(pkg.scripts.lint.includes('node --check js/main-process.js'));
 assert.ok(pkg.scripts.lint.includes('node --check scripts/test-main-process.js'));
+assert.ok(pkg.scripts.lint.includes('node --check scripts/test-app-wiring.js'));
 assert.ok(pkg.scripts.test.includes('node scripts/test-main-process.js'));
+assert.ok(pkg.scripts.test.includes('node scripts/test-app-wiring.js'));
 assert.ok(pkg.scripts.lint.includes('node --check scripts/check-local-contracts.js'));
 assert.ok(pkg.scripts.verify.includes('npm run contracts'));
 
@@ -67,7 +72,7 @@ for (const phrase of ['npm run contracts', 'local-only', 'remote script', 'user 
   assert.ok(docs.toLowerCase().includes(phrase.toLowerCase()), `docs must mention ${phrase}`);
 }
 
-for (const planPath of [LOCAL_ONLY_PLAN, MAIN_PROCESS_PLAN]) {
+for (const planPath of [LOCAL_ONLY_PLAN, MAIN_PROCESS_PLAN, RENDERER_WIRING_PLAN]) {
   const plan = read(planPath);
   assert.ok(plan.includes('Status: Completed'));
   assert.ok(plan.includes('make check'));
@@ -75,5 +80,6 @@ for (const planPath of [LOCAL_ONLY_PLAN, MAIN_PROCESS_PLAN]) {
 
 assert.ok(read(LOCAL_ONLY_PLAN).includes('npm run contracts'));
 assert.ok(read(MAIN_PROCESS_PLAN).includes('test-main-process'));
+assert.ok(read(RENDERER_WIRING_PLAN).includes('test-app-wiring'));
 
 console.log('local-only contract checks passed.');

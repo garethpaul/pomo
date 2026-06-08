@@ -55,19 +55,22 @@ Detected npm scripts:
 
 - `npm run start` - `electron index.js`
 - `npm run contracts` - `node scripts/check-local-contracts.js`
-- `npm run lint` - `node --check index.js && node --check js/notification.js && node --check js/timer.js && node --check js/app.js && node --check scripts/test-timer.js && node --check scripts/test-notification.js`
-- `npm run test` - `node scripts/test-timer.js && node scripts/test-notification.js`
+- `npm run lint` - `node --check index.js && node --check js/main-process.js && node --check js/notification.js && node --check js/timer.js && node --check js/app.js && node --check scripts/test-timer.js && node --check scripts/test-notification.js && node --check scripts/test-main-process.js && node --check scripts/test-app-wiring.js && node --check scripts/check-local-contracts.js`
+- `npm run test` - `node scripts/test-timer.js && node scripts/test-notification.js && node scripts/test-main-process.js && node scripts/test-app-wiring.js`
 - `npm run verify` - `npm run lint && npm test && npm run contracts`
 
 ## Testing and Verification
 
-- Run `npm test` for deterministic timer and notification regression coverage.
+- Run `npm test` for deterministic timer, notification, main-process, and
+  renderer wiring regression coverage.
 - Run `npm run contracts` for the local-only renderer and canonical plan checks.
 - Main-process tests cover guarded close IPC handling and tray callback wiring
   without launching Electron.
+- Renderer wiring tests cover start, stop, reset, tab reset, external-link, and
+  close-command handlers without launching Electron.
 - Run `npm run verify` before committing; it checks JavaScript syntax, runs the
-  timer, notification, and main-process tests, and verifies local-only desktop
-  contracts.
+  timer, notification, main-process, and renderer wiring tests, and verifies
+  local-only desktop contracts.
 - Run `make check` as the repository-standard wrapper around `npm run verify`.
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
@@ -95,6 +98,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   canonical completed engineering plan.
 - See `docs/plans/2026-06-08-main-process-guards.md` for the close IPC guard
   baseline.
+- See `docs/plans/2026-06-08-renderer-wiring-tests.md` for the renderer wiring
+  regression baseline.
 - See `plans/2026-06-08-notification-regression-tests.md` for the notification
   regression baseline.
 

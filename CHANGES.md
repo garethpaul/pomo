@@ -2,6 +2,8 @@
 
 ## 2026-06-08
 
+- Added dependency-free renderer wiring tests for timer buttons, tab resets,
+  external-link gating, and close-command IPC.
 - Added close IPC guard coverage and tray shared-object tests for the Electron
   main process.
 - Added deterministic desktop notification regression tests and made the
