@@ -7,8 +7,8 @@
   "scripts": {
     "start": "electron index.js",
     "contracts": "node scripts/check-local-contracts.js",
-    "lint": "node --check index.js && node --check js/notification.js && node --check js/timer.js && node --check js/app.js && node --check scripts/test-timer.js && node --check scripts/test-notification.js && node --check scripts/check-local-contracts.js",
-    "test": "node scripts/test-timer.js && node scripts/test-notification.js",
+    "lint": "node --check index.js && node --check js/main-process.js && node --check js/notification.js && node --check js/timer.js && node --check js/app.js && node --check scripts/test-timer.js && node --check scripts/test-notification.js && node --check scripts/test-main-process.js && node --check scripts/check-local-contracts.js",
+    "test": "node scripts/test-timer.js && node scripts/test-notification.js && node scripts/test-main-process.js",
     "verify": "npm run lint && npm test && npm run contracts"
   },
   "repository": {

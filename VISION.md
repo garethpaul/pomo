@@ -21,6 +21,7 @@ Priority:
 - Keep start, stop, and reset behavior predictable
 - Maintain `make check` and `npm run verify` for syntax checks, timer tests, and notification tests
 - Maintain `npm run contracts` for local-only renderer and plan guardrails
+- Keep close IPC commands explicit and covered by deterministic tests
 - Maintain local notification behavior without network dependencies
 - Keep tray/menu behavior visible in the main process
 

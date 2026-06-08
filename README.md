@@ -63,8 +63,11 @@ Detected npm scripts:
 
 - Run `npm test` for deterministic timer and notification regression coverage.
 - Run `npm run contracts` for the local-only renderer and canonical plan checks.
+- Main-process tests cover guarded close IPC handling and tray callback wiring
+  without launching Electron.
 - Run `npm run verify` before committing; it checks JavaScript syntax, runs the
-  timer and notification tests, and verifies local-only desktop contracts.
+  timer, notification, and main-process tests, and verifies local-only desktop
+  contracts.
 - Run `make check` as the repository-standard wrapper around `npm run verify`.
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
@@ -90,6 +93,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - See `CHANGES.md` for maintenance history.
 - See `docs/plans/2026-06-08-local-only-contracts.md` for the current
   canonical completed engineering plan.
+- See `docs/plans/2026-06-08-main-process-guards.md` for the close IPC guard
+  baseline.
 - See `plans/2026-06-08-notification-regression-tests.md` for the notification
   regression baseline.
 

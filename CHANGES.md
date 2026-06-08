@@ -2,6 +2,8 @@
 
 ## 2026-06-08
 
+- Added close IPC guard coverage and tray shared-object tests for the Electron
+  main process.
 - Added deterministic desktop notification regression tests and made the
   notification helper safe to load outside Electron.
 - Added `make check` as a repository-standard wrapper around `npm run verify`.

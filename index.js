@@ -1,6 +1,10 @@
 'use strict';
 const electron = require('electron');
 var menubar = require('menubar');
+const {
+  createSharedObject,
+  handleCloseApp
+} = require('./js/main-process');
 
 const ipcMain = require('electron').ipcMain;
 
@@ -26,15 +30,11 @@ const contextMenu = electron.Menu.buildFromTemplate([
 ]);
 
 ipcMain.on('closeApp', (event, close) => {
-  mb.app.quit();
+  handleCloseApp(mb.app, close);
 });
 
 mb.on('ready', function ready () {
-  global.sharedObj = {
-    hide: mb.hideWindow,
-    quit: mb.app.quit,
-    pinned: false
-  }
+  global.sharedObj = createSharedObject(mb);
 
   console.log('Pomo is ready to serve in the menubar.');
 

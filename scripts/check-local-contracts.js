@@ -5,7 +5,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const ROOT = path.resolve(__dirname, '..');
-const PLAN = 'docs/plans/2026-06-08-local-only-contracts.md';
+const LOCAL_ONLY_PLAN = 'docs/plans/2026-06-08-local-only-contracts.md';
+const MAIN_PROCESS_PLAN = 'docs/plans/2026-06-08-main-process-guards.md';
 
 function read(relativePath) {
   return fs.readFileSync(path.join(ROOT, relativePath), 'utf8');
@@ -16,21 +17,35 @@ function assertFile(relativePath) {
 }
 
 [
-  PLAN,
+  LOCAL_ONLY_PLAN,
+  MAIN_PROCESS_PLAN,
   'index.html',
+  'index.js',
   'js/app.js',
+  'js/main-process.js',
   'js/notification.js',
   'js/timer.js',
   'package.json',
   'README.md',
   'SECURITY.md',
+  'scripts/test-main-process.js',
   'VISION.md'
 ].forEach(assertFile);
 
 const pkg = JSON.parse(read('package.json'));
 assert.equal(pkg.scripts.contracts, 'node scripts/check-local-contracts.js');
+assert.ok(pkg.scripts.lint.includes('node --check js/main-process.js'));
+assert.ok(pkg.scripts.lint.includes('node --check scripts/test-main-process.js'));
+assert.ok(pkg.scripts.test.includes('node scripts/test-main-process.js'));
 assert.ok(pkg.scripts.lint.includes('node --check scripts/check-local-contracts.js'));
 assert.ok(pkg.scripts.verify.includes('npm run contracts'));
+
+const main = read('index.js');
+assert.ok(main.includes("require('./js/main-process')"));
+assert.ok(main.includes('handleCloseApp(mb.app, close);'));
+
+const mainProcess = read('js/main-process.js');
+assert.ok(mainProcess.includes("command !== 'close'"), 'close IPC must require the explicit close command');
 
 const index = read('index.html');
 assert.ok(!/<script[^>]+src=["']https?:\/\//i.test(index), 'index.html must not load remote scripts');
@@ -48,13 +63,17 @@ assert.ok(notification.includes('requestPermission'), 'notification permission p
 assert.ok(!notification.includes('fetch(') && !notification.includes('XMLHttpRequest'), 'notifications must stay local-only');
 
 const docs = ['README.md', 'SECURITY.md', 'VISION.md', 'CHANGES.md'].map(read).join('\n');
-for (const phrase of ['npm run contracts', 'local-only', 'remote script', 'user action']) {
+for (const phrase of ['npm run contracts', 'local-only', 'remote script', 'user action', 'close IPC']) {
   assert.ok(docs.toLowerCase().includes(phrase.toLowerCase()), `docs must mention ${phrase}`);
 }
 
-const plan = read(PLAN);
-assert.ok(plan.includes('Status: Completed'));
-assert.ok(plan.includes('npm run contracts'));
-assert.ok(plan.includes('make check'));
+for (const planPath of [LOCAL_ONLY_PLAN, MAIN_PROCESS_PLAN]) {
+  const plan = read(planPath);
+  assert.ok(plan.includes('Status: Completed'));
+  assert.ok(plan.includes('make check'));
+}
+
+assert.ok(read(LOCAL_ONLY_PLAN).includes('npm run contracts'));
+assert.ok(read(MAIN_PROCESS_PLAN).includes('test-main-process'));
 
 console.log('local-only contract checks passed.');
