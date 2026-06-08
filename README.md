@@ -26,7 +26,7 @@ Additional scan context:
 - Source directories: css, js, scripts
 - Dependency and build manifests: package.json
 - Entry points or build surfaces: index.js, package.json
-- Test-looking files: scripts/test-timer.js
+- Test-looking files: scripts/test-notification.js, scripts/test-timer.js
 
 ## Getting Started
 
@@ -52,14 +52,14 @@ The setup commands above are derived from repository files. Legacy mobile, Pytho
 Detected npm scripts:
 
 - `npm run start` - `electron index.js`
-- `npm run lint` - `node --check index.js && node --check js/notification.js && node --check js/timer.js && node --check js/app.js && node --check scripts/test-timer.js`
-- `npm run test` - `node scripts/test-timer.js`
+- `npm run lint` - `node --check index.js && node --check js/notification.js && node --check js/timer.js && node --check js/app.js && node --check scripts/test-timer.js && node --check scripts/test-notification.js`
+- `npm run test` - `node scripts/test-timer.js && node scripts/test-notification.js`
 - `npm run verify` - `npm run lint && npm test`
 
 ## Testing and Verification
 
-- Run `npm test` for deterministic timer regression coverage.
-- Run `npm run verify` before committing; it checks JavaScript syntax and runs the timer tests.
+- Run `npm test` for deterministic timer and notification regression coverage.
+- Run `npm run verify` before committing; it checks JavaScript syntax and runs the timer and notification tests.
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
 
@@ -79,6 +79,9 @@ When the required SDK or runtime is unavailable, use static checks and source re
 
 - See `SECURITY.md` for vulnerability reporting and safe research guidance.
 - See `VISION.md` for project direction and contribution guardrails.
+- See `CHANGES.md` for maintenance history.
+- See `plans/2026-06-08-notification-regression-tests.md` for the notification
+  regression baseline.
 
 ## Contributing
 

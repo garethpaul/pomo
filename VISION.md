@@ -16,7 +16,7 @@ Priority:
 
 - Preserve the 25-minute, 5-minute, and 10-minute timer flows
 - Keep start, stop, and reset behavior predictable
-- Maintain `npm run verify` for syntax checks and timer regression coverage
+- Maintain `npm run verify` for syntax checks, timer tests, and notification tests
 - Maintain local notification behavior without network dependencies
 - Keep tray/menu behavior visible in the main process
 

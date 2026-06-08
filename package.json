@@ -6,8 +6,8 @@
   "productName": "Pomo",
   "scripts": {
     "start": "electron index.js",
-    "lint": "node --check index.js && node --check js/notification.js && node --check js/timer.js && node --check js/app.js && node --check scripts/test-timer.js",
-    "test": "node scripts/test-timer.js",
+    "lint": "node --check index.js && node --check js/notification.js && node --check js/timer.js && node --check js/app.js && node --check scripts/test-timer.js && node --check scripts/test-notification.js",
+    "test": "node scripts/test-timer.js && node scripts/test-notification.js",
     "verify": "npm run lint && npm test"
   },
   "repository": {

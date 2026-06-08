@@ -1,26 +1,73 @@
-var ipc = require('electron').ipcRenderer;
+var ipc;
 
-document.addEventListener('DOMContentLoaded', function () {
-  if (!Notification) {
-    alert('Desktop notifications not available in your browser. Try Chromium.');
+try {
+  ipc = require('electron').ipcRenderer;
+} catch (error) {
+  ipc = {
+    send: function () {}
+  };
+}
+
+function ensureNotificationPermission(NotificationApi, alertUser) {
+  if (!NotificationApi) {
+    if (typeof alertUser === 'function') {
+      alertUser('Desktop notifications not available in your browser. Try Chromium.');
+    }
+    return false;
+  }
+
+  if (NotificationApi.permission !== "granted") {
+    NotificationApi.requestPermission();
+    return false;
+  }
+
+  return true;
+}
+
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', function () {
+    /* global Notification, alert */
+    var notificationApi = typeof Notification !== 'undefined' ? Notification : undefined;
+    var alertUser = typeof alert === 'function' ? alert : undefined;
+    ensureNotificationPermission(notificationApi, alertUser);
+  });
+}
+
+function notifyUser(NotificationApi) {
+  var notificationApi = NotificationApi || (typeof Notification !== 'undefined' ? Notification : undefined);
+
+  if (!notificationApi) {
+    if (typeof alert === 'function') {
+      alert('Desktop notifications not available in your browser. Try Chromium.');
+    }
     return;
   }
 
-  if (Notification.permission !== "granted")
-    Notification.requestPermission();
-});
-
-function notifyUser() {
-  if (Notification.permission !== "granted")
-    Notification.requestPermission();
-  else {
-    var notification = new Notification('Wow! Time\'s up', {
-      icon: 'res/big_pomo.png',
-      body: "Hey there! You've been notified!"
-    });
-
-    notification.onclose = function(){
-      //notiSound.pause();
-    }
+  if (notificationApi.permission !== "granted") {
+    notificationApi.requestPermission();
+    return;
   }
+
+  var notification = new notificationApi('Wow! Time\'s up', {
+    icon: 'res/big_pomo.png',
+    body: "Hey there! You've been notified!"
+  });
+
+  notification.onclose = function(){
+    //notiSound.pause();
+  }
+
+  return notification;
+}
+
+if (typeof window !== 'undefined') {
+  window.ipc = ipc;
+  window.notifyUser = notifyUser;
+}
+
+if (typeof module === 'object' && module.exports) {
+  module.exports = {
+    ensureNotificationPermission: ensureNotificationPermission,
+    notifyUser: notifyUser
+  };
 }

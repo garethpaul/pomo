@@ -30,4 +30,4 @@ could only be checked by manually running the desktop app.
 
 - Add DOM-level tests for start, stop, reset, and tab-switch wiring.
 - Pin a supported Electron version and add a package lock.
-- Add manual verification notes for notifications on macOS, Windows, and Linux.
+- Add manual platform notes for notification rendering on macOS, Windows, and Linux.
