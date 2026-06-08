@@ -35,6 +35,11 @@ Contribution rules:
 
 ## Security And Responsible Use
 
+Canonical security policy and reporting:
+
+- [`SECURITY.md`](SECURITY.md)
+
+
 Desktop timer apps should stay local by default. Pomo should not collect usage
 data, open external links without user action, or run hidden background tasks
 outside the menubar app behavior.
