@@ -69,6 +69,7 @@ Detected npm scripts:
 - Renderer wiring tests cover start, stop, reset, tab reset, external-link, and
   close-command handlers without launching Electron.
 - Renderer wiring tests also confirm unknown tab hashes do not reset a timer.
+- Local contract checks confirm the app window title stays branded as Pomo.
 - Run `npm run verify` before committing; it checks JavaScript syntax, runs the
   timer, notification, main-process, and renderer wiring tests, and verifies
   local-only desktop contracts.
@@ -89,6 +90,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - Review changes touching shell execution, subprocess, or dynamic evaluation; examples from the scan include js/jquery.min.js.
 - `npm run contracts` verifies that the renderer does not load remote scripts
   and that external links stay behind explicit user clicks.
+- `npm run contracts` also checks the renderer window title so placeholder
+  Bootstrap titles do not ship.
 
 ## Maintenance Notes
 
@@ -103,6 +106,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   regression baseline.
 - See `docs/plans/2026-06-09-renderer-tab-reset-guard.md` for the unknown tab
   reset guard.
+- See `docs/plans/2026-06-09-window-title-contract.md` for the renderer window
+  title contract.
 - See `plans/2026-06-08-notification-regression-tests.md` for the notification
   regression baseline.
 

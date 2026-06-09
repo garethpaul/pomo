@@ -5,6 +5,8 @@
 - Added dependency-free renderer wiring tests for timer buttons, tab resets,
   external-link gating, and close-command IPC.
 - Guarded renderer tab resets so unknown tab hashes do not reset the long timer.
+- Added a renderer window title contract so `index.html` stays branded as Pomo
+  instead of a Bootstrap starter placeholder.
 - Added close IPC guard coverage and tray shared-object tests for the Electron
   main process.
 - Added deterministic desktop notification regression tests and made the
