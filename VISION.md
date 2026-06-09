@@ -25,6 +25,7 @@ Priority:
 - Keep close IPC commands explicit and covered by deterministic tests
 - Keep renderer button and tab wiring covered without launching Electron
 - Keep unknown tab hashes from resetting any timer
+- Keep renderer external-link opening limited to explicit http/https URLs
 - Keep the renderer window title aligned with the Pomo app name
 - Keep renderer local asset references checked in and relative
 - Keep the desktop notification icon checked in and relative

@@ -139,6 +139,15 @@ externalLinkHandler.handler.call({ href: 'https://example.com/docs' }, {
 assert.equal(defaultPrevented, true);
 assert.deepEqual(openedUrls, ['https://example.com/docs']);
 
+defaultPrevented = false;
+externalLinkHandler.handler.call({ href: 'httpnot-a-real-url' }, {
+  preventDefault() {
+    defaultPrevented = true;
+  }
+});
+assert.equal(defaultPrevented, true);
+assert.deepEqual(openedUrls, ['https://example.com/docs']);
+
 clickHandlers.get('#start')();
 assert.deepEqual(timers[0].startCalls, [displays['#time']]);
 assert.equal(visibility.get('#stop'), 'shown');

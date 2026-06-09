@@ -68,6 +68,8 @@ Detected npm scripts:
   without launching Electron.
 - Renderer wiring tests cover start, stop, reset, tab reset, external-link, and
   close-command handlers without launching Electron.
+- Renderer wiring tests verify external links only open explicit http/https
+  URLs after user clicks.
 - Renderer wiring tests also confirm unknown tab hashes do not reset a timer.
 - Local contract checks confirm the app window title stays branded as Pomo.
 - Local contract checks also verify renderer local asset references point to
@@ -94,6 +96,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - Review changes touching shell execution, subprocess, or dynamic evaluation; examples from the scan include js/jquery.min.js.
 - `npm run contracts` verifies that the renderer does not load remote scripts
   and that external links stay behind explicit user clicks.
+- `npm run contracts` verifies external-link handling keeps an explicit
+  http/https protocol guard.
 - `npm run contracts` also checks the renderer window title so placeholder
   Bootstrap titles do not ship.
 - `npm run contracts` verifies renderer local asset references stay relative
@@ -119,6 +123,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   renderer local asset contract.
 - See `docs/plans/2026-06-09-notification-icon-asset-contract.md` for the
   notification icon asset contract.
+- See `docs/plans/2026-06-09-external-link-protocol-guard.md` for the
+  renderer external-link http/https guard.
 - See `plans/2026-06-08-notification-regression-tests.md` for the notification
   regression baseline.
 

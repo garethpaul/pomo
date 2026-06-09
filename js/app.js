@@ -6,9 +6,16 @@ var display = document.querySelector('#time');
 var display_short = document.querySelector('#time_short');
 var display_long = document.querySelector('#time_long');
 
+function isExternalHttpUrl(url) {
+    return /^https?:\/\//i.test(url);
+}
+
 $(document).on('click', 'a[href^="http"]', function (event) {
     event.preventDefault();
-    shell.openExternal(this.href);
+
+    if (isExternalHttpUrl(this.href)) {
+        shell.openExternal(this.href);
+    }
 });
 
 

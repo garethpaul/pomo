@@ -42,6 +42,7 @@ Pomo should remain local-first: do not add hidden remote script loads,
 network-backed timer state, analytics, or external navigation without explicit
 user action. Run `npm run contracts` before changing renderer script loading or
 external-link behavior.
+External links should only open explicit http/https URLs after user clicks.
 
 Renderer local asset references should stay relative and point to checked-in
 CSS, JavaScript, image, and audio files. This keeps packaging failures and

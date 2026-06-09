@@ -2,6 +2,8 @@
 
 ## 2026-06-08
 
+- Added an external-link protocol guard so the renderer only opens explicit
+  http/https URLs after user clicks.
 - Added dependency-free renderer wiring tests for timer buttons, tab resets,
   external-link gating, and close-command IPC.
 - Added renderer local asset reference validation so checked-in CSS,

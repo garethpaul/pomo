@@ -93,6 +93,7 @@ for (const reference of rendererAssets) {
 const app = read('js/app.js');
 assert.ok(app.includes("$(document).on('click', 'a[href^=\"http\"]'"), 'external links must stay user-click gated');
 assert.ok(app.includes('event.preventDefault();'));
+assert.ok(app.includes('isExternalHttpUrl(this.href)'), 'external links must stay protocol guarded');
 assert.ok(app.includes('shell.openExternal(this.href);'));
 assert.ok(app.includes("nameActiveTab[1] == 'long'"), 'long timer reset must require the long tab');
 assert.ok(!app.includes('setInterval(shell.openExternal'), 'external links must not be opened from background timers');
@@ -111,7 +112,7 @@ assert.ok(notificationIconPath && !path.isAbsolute(notificationIconPath), 'notif
 assertFile(notificationIconPath);
 
 const docs = ['README.md', 'SECURITY.md', 'VISION.md', 'CHANGES.md'].map(read).join('\n');
-for (const phrase of ['npm run contracts', 'local-only', 'remote script', 'local asset', 'notification icon', 'user action', 'close IPC', 'unknown tab', 'window title']) {
+for (const phrase of ['npm run contracts', 'local-only', 'remote script', 'local asset', 'notification icon', 'user action', 'close IPC', 'unknown tab', 'window title', 'http/https']) {
   assert.ok(docs.toLowerCase().includes(phrase.toLowerCase()), `docs must mention ${phrase}`);
 }
 
@@ -128,5 +129,10 @@ assert.ok(read(TAB_RESET_PLAN).includes('unknown tabs'));
 assert.ok(read(WINDOW_TITLE_PLAN).includes('<title>Pomo</title>'));
 assert.ok(read(LOCAL_ASSET_PLAN).includes('local asset references'));
 assert.ok(read(NOTIFICATION_ICON_PLAN).includes('notification icon'));
+assertFile('docs/plans/2026-06-09-external-link-protocol-guard.md');
+const externalLinkPlan = read('docs/plans/2026-06-09-external-link-protocol-guard.md');
+assert.ok(externalLinkPlan.includes('Status: Completed'));
+assert.ok(externalLinkPlan.includes('make check'));
+assert.ok(externalLinkPlan.includes('http/https'));
 
 console.log('local-only contract checks passed.');
