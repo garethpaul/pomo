@@ -8,6 +8,7 @@ const ROOT = path.resolve(__dirname, '..');
 const LOCAL_ONLY_PLAN = 'docs/plans/2026-06-08-local-only-contracts.md';
 const MAIN_PROCESS_PLAN = 'docs/plans/2026-06-08-main-process-guards.md';
 const RENDERER_WIRING_PLAN = 'docs/plans/2026-06-08-renderer-wiring-tests.md';
+const TAB_RESET_PLAN = 'docs/plans/2026-06-09-renderer-tab-reset-guard.md';
 
 function read(relativePath) {
   return fs.readFileSync(path.join(ROOT, relativePath), 'utf8');
@@ -21,6 +22,7 @@ function assertFile(relativePath) {
   LOCAL_ONLY_PLAN,
   MAIN_PROCESS_PLAN,
   RENDERER_WIRING_PLAN,
+  TAB_RESET_PLAN,
   'index.html',
   'index.js',
   'js/app.js',
@@ -61,6 +63,7 @@ const app = read('js/app.js');
 assert.ok(app.includes("$(document).on('click', 'a[href^=\"http\"]'"), 'external links must stay user-click gated');
 assert.ok(app.includes('event.preventDefault();'));
 assert.ok(app.includes('shell.openExternal(this.href);'));
+assert.ok(app.includes("nameActiveTab[1] == 'long'"), 'long timer reset must require the long tab');
 assert.ok(!app.includes('setInterval(shell.openExternal'), 'external links must not be opened from background timers');
 
 const notification = read('js/notification.js');
@@ -68,11 +71,11 @@ assert.ok(notification.includes('requestPermission'), 'notification permission p
 assert.ok(!notification.includes('fetch(') && !notification.includes('XMLHttpRequest'), 'notifications must stay local-only');
 
 const docs = ['README.md', 'SECURITY.md', 'VISION.md', 'CHANGES.md'].map(read).join('\n');
-for (const phrase of ['npm run contracts', 'local-only', 'remote script', 'user action', 'close IPC']) {
+for (const phrase of ['npm run contracts', 'local-only', 'remote script', 'user action', 'close IPC', 'unknown tab']) {
   assert.ok(docs.toLowerCase().includes(phrase.toLowerCase()), `docs must mention ${phrase}`);
 }
 
-for (const planPath of [LOCAL_ONLY_PLAN, MAIN_PROCESS_PLAN, RENDERER_WIRING_PLAN]) {
+for (const planPath of [LOCAL_ONLY_PLAN, MAIN_PROCESS_PLAN, RENDERER_WIRING_PLAN, TAB_RESET_PLAN]) {
   const plan = read(planPath);
   assert.ok(plan.includes('Status: Completed'));
   assert.ok(plan.includes('make check'));
@@ -81,5 +84,6 @@ for (const planPath of [LOCAL_ONLY_PLAN, MAIN_PROCESS_PLAN, RENDERER_WIRING_PLAN
 assert.ok(read(LOCAL_ONLY_PLAN).includes('npm run contracts'));
 assert.ok(read(MAIN_PROCESS_PLAN).includes('test-main-process'));
 assert.ok(read(RENDERER_WIRING_PLAN).includes('test-app-wiring'));
+assert.ok(read(TAB_RESET_PLAN).includes('unknown tabs'));
 
 console.log('local-only contract checks passed.');

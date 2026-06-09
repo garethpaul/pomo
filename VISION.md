@@ -24,6 +24,7 @@ Priority:
 - Maintain `npm run contracts` for local-only renderer and plan guardrails
 - Keep close IPC commands explicit and covered by deterministic tests
 - Keep renderer button and tab wiring covered without launching Electron
+- Keep unknown tab hashes from resetting any timer
 - Maintain local notification behavior without network dependencies
 - Keep tray/menu behavior visible in the main process
 

@@ -68,6 +68,7 @@ Detected npm scripts:
   without launching Electron.
 - Renderer wiring tests cover start, stop, reset, tab reset, external-link, and
   close-command handlers without launching Electron.
+- Renderer wiring tests also confirm unknown tab hashes do not reset a timer.
 - Run `npm run verify` before committing; it checks JavaScript syntax, runs the
   timer, notification, main-process, and renderer wiring tests, and verifies
   local-only desktop contracts.
@@ -100,6 +101,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   baseline.
 - See `docs/plans/2026-06-08-renderer-wiring-tests.md` for the renderer wiring
   regression baseline.
+- See `docs/plans/2026-06-09-renderer-tab-reset-guard.md` for the unknown tab
+  reset guard.
 - See `plans/2026-06-08-notification-regression-tests.md` for the notification
   regression baseline.
 

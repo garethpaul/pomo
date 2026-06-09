@@ -177,6 +177,14 @@ assert.equal(last(timers[0].resetCalls), '#time');
 assert.equal(last(timers[1].resetCalls), '#time_short');
 assert.equal(last(timers[2].resetCalls), '#time_long');
 
+const resetCounts = timers.map(timer => timer.resetCalls.length);
+tabHandler({ target: { toString: () => 'pomo://app#unknown' } });
+assert.deepEqual(
+  timers.map(timer => timer.resetCalls.length),
+  resetCounts,
+  'unknown tabs must not reset a timer'
+);
+
 context.__closeApp();
 assert.deepEqual(ipcMessages, [{ channel: 'closeApp', payload: 'close' }]);
 

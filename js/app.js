@@ -93,7 +93,7 @@ $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
     else if (nameActiveTab[1] == 'short') {
         shortTimer.resetTimer('#time_short');
     }
-    else {
+    else if (nameActiveTab[1] == 'long') {
         longTimer.resetTimer('#time_long');
     }
 })
