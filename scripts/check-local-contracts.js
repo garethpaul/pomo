@@ -13,6 +13,7 @@ const WINDOW_TITLE_PLAN = 'docs/plans/2026-06-09-window-title-contract.md';
 const LOCAL_ASSET_PLAN = 'docs/plans/2026-06-09-local-asset-reference-contract.md';
 const NOTIFICATION_ICON_PLAN = 'docs/plans/2026-06-09-notification-icon-asset-contract.md';
 const GATE_WRAPPER_PLAN = 'docs/plans/2026-06-09-gate-wrapper-contract.md';
+const ACCESSIBLE_CONTROL_PLAN = 'docs/plans/2026-06-09-renderer-accessible-controls.md';
 
 function read(relativePath) {
   return fs.readFileSync(path.join(ROOT, relativePath), 'utf8');
@@ -20,6 +21,27 @@ function read(relativePath) {
 
 function assertFile(relativePath) {
   assert.ok(fs.existsSync(path.join(ROOT, relativePath)), `${relativePath} must exist`);
+}
+
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function openingTagByAttribute(markup, tagName, attributeName, attributeValue) {
+  const pattern = new RegExp(
+    `<${tagName}\\b(?=[^>]*\\b${escapeRegExp(attributeName)}=["']${escapeRegExp(attributeValue)}["'])[^>]*>`,
+    'i'
+  );
+  const match = markup.match(pattern);
+
+  return match ? match[0] : undefined;
+}
+
+function attributeValue(openingTag, attributeName) {
+  const pattern = new RegExp(`\\b${escapeRegExp(attributeName)}=(["'])(.*?)\\1`, 'i');
+  const match = openingTag.match(pattern);
+
+  return match ? match[2] : undefined;
 }
 
 function rendererAssetReferences(markup) {
@@ -43,6 +65,7 @@ function rendererAssetReferences(markup) {
   LOCAL_ASSET_PLAN,
   NOTIFICATION_ICON_PLAN,
   GATE_WRAPPER_PLAN,
+  ACCESSIBLE_CONTROL_PLAN,
   'index.html',
   'index.js',
   'js/app.js',
@@ -89,6 +112,30 @@ assert.ok(!index.includes('oss.maxcdn.com'), 'legacy CDN shims must stay removed
 assert.ok(index.includes('<title>Pomo</title>'), 'index.html window title must use the app name');
 assert.ok(index.includes('js/notification.js') && index.includes('js/timer.js') && index.includes('js/app.js'));
 
+const rendererButtonLabels = {
+  close_app: 'Close Pomo',
+  start: 'Start Pomodoro timer',
+  stop: 'Pause Pomodoro timer',
+  reset: 'Reset Pomodoro timer',
+  short_start: 'Start short break timer',
+  short_stop: 'Pause short break timer',
+  short_reset: 'Reset short break timer',
+  long_start: 'Start long break timer',
+  long_stop: 'Pause long break timer',
+  long_reset: 'Reset long break timer'
+};
+
+for (const [buttonId, expectedLabel] of Object.entries(rendererButtonLabels)) {
+  const button = openingTagByAttribute(index, 'button', 'id', buttonId);
+  assert.ok(button, `renderer button #${buttonId} must exist`);
+  assert.equal(attributeValue(button, 'aria-label'), expectedLabel, `renderer button #${buttonId} must expose an accessible label`);
+  assert.equal(attributeValue(button, 'title'), expectedLabel, `renderer button #${buttonId} must expose a tooltip title`);
+}
+
+const brandLogo = openingTagByAttribute(index, 'img', 'src', 'res/pomo_logo.png');
+assert.ok(brandLogo, 'renderer brand logo must stay present');
+assert.equal(attributeValue(brandLogo, 'alt'), 'Pomo', 'renderer brand logo must expose alt text');
+
 const rendererAssets = rendererAssetReferences(index);
 assert.ok(rendererAssets.includes('css/bootstrap.min.css'), 'renderer must reference local Bootstrap CSS');
 assert.ok(rendererAssets.includes('audio/alert.wav'), 'renderer must reference the local alert audio');
@@ -123,11 +170,11 @@ assert.ok(notificationIconPath && !path.isAbsolute(notificationIconPath), 'notif
 assertFile(notificationIconPath);
 
 const docs = ['README.md', 'SECURITY.md', 'VISION.md', 'CHANGES.md'].map(read).join('\n');
-for (const phrase of ['npm run contracts', 'local-only', 'remote script', 'local asset', 'notification icon', 'user action', 'close IPC', 'unknown tab', 'window title', 'http/https']) {
+for (const phrase of ['npm run contracts', 'local-only', 'remote script', 'local asset', 'notification icon', 'user action', 'close IPC', 'unknown tab', 'window title', 'http/https', 'accessible label']) {
   assert.ok(docs.toLowerCase().includes(phrase.toLowerCase()), `docs must mention ${phrase}`);
 }
 
-for (const planPath of [LOCAL_ONLY_PLAN, MAIN_PROCESS_PLAN, RENDERER_WIRING_PLAN, TAB_RESET_PLAN, WINDOW_TITLE_PLAN, LOCAL_ASSET_PLAN, NOTIFICATION_ICON_PLAN, GATE_WRAPPER_PLAN]) {
+for (const planPath of [LOCAL_ONLY_PLAN, MAIN_PROCESS_PLAN, RENDERER_WIRING_PLAN, TAB_RESET_PLAN, WINDOW_TITLE_PLAN, LOCAL_ASSET_PLAN, NOTIFICATION_ICON_PLAN, GATE_WRAPPER_PLAN, ACCESSIBLE_CONTROL_PLAN]) {
   const plan = read(planPath);
   assert.ok(plan.includes('Status: Completed'));
   assert.ok(plan.includes('make check'));
@@ -141,6 +188,7 @@ assert.ok(read(WINDOW_TITLE_PLAN).includes('<title>Pomo</title>'));
 assert.ok(read(LOCAL_ASSET_PLAN).includes('local asset references'));
 assert.ok(read(NOTIFICATION_ICON_PLAN).includes('notification icon'));
 assert.ok(read(GATE_WRAPPER_PLAN).includes('make build'));
+assert.ok(read(ACCESSIBLE_CONTROL_PLAN).includes('icon-only controls'));
 assertFile('docs/plans/2026-06-09-external-link-protocol-guard.md');
 const externalLinkPlan = read('docs/plans/2026-06-09-external-link-protocol-guard.md');
 assert.ok(externalLinkPlan.includes('Status: Completed'));

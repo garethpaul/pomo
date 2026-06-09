@@ -77,6 +77,8 @@ Detected npm scripts:
   checked-in CSS, JavaScript, image, and audio files.
 - Local contract checks verify the desktop notification icon stays a checked-in
   relative asset.
+- Local contract checks verify icon-only renderer controls keep accessible
+  labels and matching tooltip titles.
 - Local contract checks verify the npm and Makefile gate wrappers expose lint,
   test, build, verify, and check commands.
 - Run `npm run verify` before committing; it checks JavaScript syntax, runs the
@@ -131,6 +133,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   renderer external-link http/https guard.
 - See `docs/plans/2026-06-09-gate-wrapper-contract.md` for the npm and Makefile
   gate wrapper contract.
+- See `docs/plans/2026-06-09-renderer-accessible-controls.md` for icon-only
+  renderer control accessible label coverage.
 - See `plans/2026-06-08-notification-regression-tests.md` for the notification
   regression baseline.
 

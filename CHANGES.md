@@ -2,6 +2,7 @@
 
 ## 2026-06-09
 
+- Added accessible label validation for icon-only renderer controls.
 - Added a static `npm run build` gate for local-only desktop contracts.
 - Added Makefile `lint` and `build` wrappers and contract coverage for the
   repository-standard gate commands.

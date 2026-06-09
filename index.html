@@ -26,11 +26,11 @@
     <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container">
         <div class="navbar-header">
-          <button type="button" class="navbar-toggle custom-btn" onclick="closeApp();" title="Close Pomo">
+          <button type="button" class="navbar-toggle custom-btn" id="close_app" onclick="closeApp();" aria-label="Close Pomo" title="Close Pomo">
             <i class="glyphicon glyphicon-off"></i>
           </button>
           <a class="navbar-brand" href="#">
-            <img src="res/pomo_logo.png" style="width:30px;"/>
+            <img src="res/pomo_logo.png" alt="Pomo" style="width:30px;"/>
           </a>
         </div>
       </div>
@@ -57,11 +57,11 @@
           <div class="starter-template">
             <div class="row">
               <div>
-                <button type="button" class="btn btn-large btn-primary full-width" id="start"><span class="glyphicon glyphicon-play"></span></button>
+                <button type="button" class="btn btn-large btn-primary full-width" id="start" aria-label="Start Pomodoro timer" title="Start Pomodoro timer"><span class="glyphicon glyphicon-play"></span></button>
 
-                <button type="button" id="stop" class="btn btn-large btn-success full-width"><span class="glyphicon glyphicon-pause"></span></button>
+                <button type="button" id="stop" class="btn btn-large btn-success full-width" aria-label="Pause Pomodoro timer" title="Pause Pomodoro timer"><span class="glyphicon glyphicon-pause"></span></button>
 
-                <button type="button" class="btn btn-large btn-danger full-width" id="reset"><span class="glyphicon glyphicon-repeat"></span></button>
+                <button type="button" class="btn btn-large btn-danger full-width" id="reset" aria-label="Reset Pomodoro timer" title="Reset Pomodoro timer"><span class="glyphicon glyphicon-repeat"></span></button>
               </div>
             </div>
           </div>
@@ -83,11 +83,11 @@
           <div class="starter-template">
             <div class="row">
               <div>
-                <button type="button" class="btn btn-large btn-primary full-width" id="short_start"><span class="glyphicon glyphicon-play"></span></button>
+                <button type="button" class="btn btn-large btn-primary full-width" id="short_start" aria-label="Start short break timer" title="Start short break timer"><span class="glyphicon glyphicon-play"></span></button>
 
-                <button type="button" class="btn btn-large btn-success full-width" id="short_stop"><span class="glyphicon glyphicon-pause"></span></button>
+                <button type="button" class="btn btn-large btn-success full-width" id="short_stop" aria-label="Pause short break timer" title="Pause short break timer"><span class="glyphicon glyphicon-pause"></span></button>
 
-                <button type="button" class="btn btn-large btn-danger full-width" id="short_reset"><span class="glyphicon glyphicon-repeat"></span></button>
+                <button type="button" class="btn btn-large btn-danger full-width" id="short_reset" aria-label="Reset short break timer" title="Reset short break timer"><span class="glyphicon glyphicon-repeat"></span></button>
               </div>
             </div>
           </div>
@@ -109,11 +109,11 @@
           <div class="starter-template">
             <div class="row">
               <div>
-                <button type="button" class="btn btn-large btn-primary full-width" id="long_start"><span class="glyphicon glyphicon-play"></span></button>
+                <button type="button" class="btn btn-large btn-primary full-width" id="long_start" aria-label="Start long break timer" title="Start long break timer"><span class="glyphicon glyphicon-play"></span></button>
 
-                <button type="button" class="btn btn-large btn-success full-width" id="long_stop"><span class="glyphicon glyphicon-pause"></span></button>
+                <button type="button" class="btn btn-large btn-success full-width" id="long_stop" aria-label="Pause long break timer" title="Pause long break timer"><span class="glyphicon glyphicon-pause"></span></button>
 
-                <button type="button" class="btn btn-large btn-danger full-width" id="long_reset"><span class="glyphicon glyphicon-repeat"></span></button>
+                <button type="button" class="btn btn-large btn-danger full-width" id="long_reset" aria-label="Reset long break timer" title="Reset long break timer"><span class="glyphicon glyphicon-repeat"></span></button>
               </div>
             </div>
           </div>

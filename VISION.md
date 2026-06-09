@@ -12,7 +12,8 @@ making Electron and dependency age explicit.
 
 Current baseline: `make check` runs syntax checks, timer, notification,
 main-process, and renderer wiring regression tests, and local-only desktop
-contracts, including local asset reference checks, without launching Electron.
+contracts, including local asset reference checks and accessible label checks,
+without launching Electron.
 
 The current focus is:
 
@@ -25,6 +26,7 @@ Priority:
 - Maintain `npm run contracts` for local-only renderer and plan guardrails
 - Keep close IPC commands explicit and covered by deterministic tests
 - Keep renderer button and tab wiring covered without launching Electron
+- Keep icon-only renderer controls labelled for assistive tooling
 - Keep unknown tab hashes from resetting any timer
 - Keep renderer external-link opening limited to explicit http/https URLs
 - Keep the renderer window title aligned with the Pomo app name
