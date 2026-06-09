@@ -70,6 +70,8 @@ Detected npm scripts:
   close-command handlers without launching Electron.
 - Renderer wiring tests also confirm unknown tab hashes do not reset a timer.
 - Local contract checks confirm the app window title stays branded as Pomo.
+- Local contract checks also verify renderer local asset references point to
+  checked-in CSS, JavaScript, image, and audio files.
 - Run `npm run verify` before committing; it checks JavaScript syntax, runs the
   timer, notification, main-process, and renderer wiring tests, and verifies
   local-only desktop contracts.
@@ -92,6 +94,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   and that external links stay behind explicit user clicks.
 - `npm run contracts` also checks the renderer window title so placeholder
   Bootstrap titles do not ship.
+- `npm run contracts` verifies renderer local asset references stay relative
+  and point to checked-in files.
 
 ## Maintenance Notes
 
@@ -108,6 +112,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   reset guard.
 - See `docs/plans/2026-06-09-window-title-contract.md` for the renderer window
   title contract.
+- See `docs/plans/2026-06-09-local-asset-reference-contract.md` for the
+  renderer local asset contract.
 - See `plans/2026-06-08-notification-regression-tests.md` for the notification
   regression baseline.
 

@@ -12,7 +12,7 @@ making Electron and dependency age explicit.
 
 Current baseline: `make check` runs syntax checks, timer, notification,
 main-process, and renderer wiring regression tests, and local-only desktop
-contracts without launching Electron.
+contracts, including local asset reference checks, without launching Electron.
 
 The current focus is:
 
@@ -26,6 +26,7 @@ Priority:
 - Keep renderer button and tab wiring covered without launching Electron
 - Keep unknown tab hashes from resetting any timer
 - Keep the renderer window title aligned with the Pomo app name
+- Keep renderer local asset references checked in and relative
 - Maintain local notification behavior without network dependencies
 - Keep tray/menu behavior visible in the main process
 

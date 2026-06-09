@@ -43,6 +43,10 @@ network-backed timer state, analytics, or external navigation without explicit
 user action. Run `npm run contracts` before changing renderer script loading or
 external-link behavior.
 
+Renderer local asset references should stay relative and point to checked-in
+CSS, JavaScript, image, and audio files. This keeps packaging failures and
+surprise remote fallbacks out of the desktop app.
+
 ## Dependency and Supply Chain Security
 
 Dependency updates should come from trusted package managers and should keep lockfiles in sync when lockfiles exist. Do not commit credentials, private keys, tokens, generated secrets, or machine-local configuration. If a vulnerability depends on a compromised package, typosquatting risk, insecure transitive dependency, or unsafe build step, include the package name, affected version, and the path through which it is used.
