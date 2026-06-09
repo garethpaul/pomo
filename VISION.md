@@ -27,6 +27,7 @@ Priority:
 - Keep unknown tab hashes from resetting any timer
 - Keep the renderer window title aligned with the Pomo app name
 - Keep renderer local asset references checked in and relative
+- Keep the desktop notification icon checked in and relative
 - Maintain local notification behavior without network dependencies
 - Keep tray/menu behavior visible in the main process
 
@@ -34,7 +35,7 @@ Next priorities:
 
 - Document supported Electron and Node versions
 - Add manual verification notes for renderer timer transitions
-- Review notification behavior on macOS, Windows, and Linux
+- Review notification behavior and icon rendering on macOS, Windows, and Linux
 - Modernize dependencies in a dedicated pass
 
 Contribution rules:

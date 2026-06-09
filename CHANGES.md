@@ -6,6 +6,8 @@
   external-link gating, and close-command IPC.
 - Added renderer local asset reference validation so checked-in CSS,
   JavaScript, image, and audio files cannot drift from `index.html`.
+- Added notification icon asset validation so desktop notifications keep using
+  a checked-in relative image.
 - Guarded renderer tab resets so unknown tab hashes do not reset the long timer.
 - Added a renderer window title contract so `index.html` stays branded as Pomo
   instead of a Bootstrap starter placeholder.

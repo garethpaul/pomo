@@ -46,6 +46,8 @@ external-link behavior.
 Renderer local asset references should stay relative and point to checked-in
 CSS, JavaScript, image, and audio files. This keeps packaging failures and
 surprise remote fallbacks out of the desktop app.
+The desktop notification icon should also stay relative and checked in, so
+notifications do not fetch remote artwork.
 
 ## Dependency and Supply Chain Security
 

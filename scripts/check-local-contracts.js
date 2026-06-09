@@ -11,6 +11,7 @@ const RENDERER_WIRING_PLAN = 'docs/plans/2026-06-08-renderer-wiring-tests.md';
 const TAB_RESET_PLAN = 'docs/plans/2026-06-09-renderer-tab-reset-guard.md';
 const WINDOW_TITLE_PLAN = 'docs/plans/2026-06-09-window-title-contract.md';
 const LOCAL_ASSET_PLAN = 'docs/plans/2026-06-09-local-asset-reference-contract.md';
+const NOTIFICATION_ICON_PLAN = 'docs/plans/2026-06-09-notification-icon-asset-contract.md';
 
 function read(relativePath) {
   return fs.readFileSync(path.join(ROOT, relativePath), 'utf8');
@@ -39,6 +40,7 @@ function rendererAssetReferences(markup) {
   TAB_RESET_PLAN,
   WINDOW_TITLE_PLAN,
   LOCAL_ASSET_PLAN,
+  NOTIFICATION_ICON_PLAN,
   'index.html',
   'index.js',
   'js/app.js',
@@ -99,12 +101,21 @@ const notification = read('js/notification.js');
 assert.ok(notification.includes('requestPermission'), 'notification permission prompts must stay explicit');
 assert.ok(!notification.includes('fetch(') && !notification.includes('XMLHttpRequest'), 'notifications must stay local-only');
 
+const notificationIconMatch = notification.match(/\bicon:\s*['"]([^'"]+)['"]/);
+assert.ok(notificationIconMatch, 'notification icon must stay configured');
+const notificationIcon = notificationIconMatch[1];
+assert.ok(!/^[a-z][a-z0-9+.-]*:/i.test(notificationIcon), 'notification icon must be a local asset');
+assert.ok(!notificationIcon.startsWith('//'), 'notification icon must be a local asset');
+const notificationIconPath = notificationIcon.split(/[?#]/)[0];
+assert.ok(notificationIconPath && !path.isAbsolute(notificationIconPath), 'notification icon must use a relative local path');
+assertFile(notificationIconPath);
+
 const docs = ['README.md', 'SECURITY.md', 'VISION.md', 'CHANGES.md'].map(read).join('\n');
-for (const phrase of ['npm run contracts', 'local-only', 'remote script', 'local asset', 'user action', 'close IPC', 'unknown tab', 'window title']) {
+for (const phrase of ['npm run contracts', 'local-only', 'remote script', 'local asset', 'notification icon', 'user action', 'close IPC', 'unknown tab', 'window title']) {
   assert.ok(docs.toLowerCase().includes(phrase.toLowerCase()), `docs must mention ${phrase}`);
 }
 
-for (const planPath of [LOCAL_ONLY_PLAN, MAIN_PROCESS_PLAN, RENDERER_WIRING_PLAN, TAB_RESET_PLAN, WINDOW_TITLE_PLAN, LOCAL_ASSET_PLAN]) {
+for (const planPath of [LOCAL_ONLY_PLAN, MAIN_PROCESS_PLAN, RENDERER_WIRING_PLAN, TAB_RESET_PLAN, WINDOW_TITLE_PLAN, LOCAL_ASSET_PLAN, NOTIFICATION_ICON_PLAN]) {
   const plan = read(planPath);
   assert.ok(plan.includes('Status: Completed'));
   assert.ok(plan.includes('make check'));
@@ -116,5 +127,6 @@ assert.ok(read(RENDERER_WIRING_PLAN).includes('test-app-wiring'));
 assert.ok(read(TAB_RESET_PLAN).includes('unknown tabs'));
 assert.ok(read(WINDOW_TITLE_PLAN).includes('<title>Pomo</title>'));
 assert.ok(read(LOCAL_ASSET_PLAN).includes('local asset references'));
+assert.ok(read(NOTIFICATION_ICON_PLAN).includes('notification icon'));
 
 console.log('local-only contract checks passed.');

@@ -72,6 +72,8 @@ Detected npm scripts:
 - Local contract checks confirm the app window title stays branded as Pomo.
 - Local contract checks also verify renderer local asset references point to
   checked-in CSS, JavaScript, image, and audio files.
+- Local contract checks verify the desktop notification icon stays a checked-in
+  relative asset.
 - Run `npm run verify` before committing; it checks JavaScript syntax, runs the
   timer, notification, main-process, and renderer wiring tests, and verifies
   local-only desktop contracts.
@@ -96,6 +98,7 @@ When the required SDK or runtime is unavailable, use static checks and source re
   Bootstrap titles do not ship.
 - `npm run contracts` verifies renderer local asset references stay relative
   and point to checked-in files.
+- `npm run contracts` verifies the notification icon stays local and checked in.
 
 ## Maintenance Notes
 
@@ -114,6 +117,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   title contract.
 - See `docs/plans/2026-06-09-local-asset-reference-contract.md` for the
   renderer local asset contract.
+- See `docs/plans/2026-06-09-notification-icon-asset-contract.md` for the
+  notification icon asset contract.
 - See `plans/2026-06-08-notification-regression-tests.md` for the notification
   regression baseline.
 
