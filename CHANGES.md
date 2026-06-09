@@ -1,5 +1,11 @@
 # Changes
 
+## 2026-06-09
+
+- Added a static `npm run build` gate for local-only desktop contracts.
+- Added Makefile `lint` and `build` wrappers and contract coverage for the
+  repository-standard gate commands.
+
 ## 2026-06-08
 
 - Added an external-link protocol guard so the renderer only opens explicit

@@ -57,7 +57,8 @@ Detected npm scripts:
 - `npm run contracts` - `node scripts/check-local-contracts.js`
 - `npm run lint` - `node --check index.js && node --check js/main-process.js && node --check js/notification.js && node --check js/timer.js && node --check js/app.js && node --check scripts/test-timer.js && node --check scripts/test-notification.js && node --check scripts/test-main-process.js && node --check scripts/test-app-wiring.js && node --check scripts/check-local-contracts.js`
 - `npm run test` - `node scripts/test-timer.js && node scripts/test-notification.js && node scripts/test-main-process.js && node scripts/test-app-wiring.js`
-- `npm run verify` - `npm run lint && npm test && npm run contracts`
+- `npm run build` - `npm run contracts`
+- `npm run verify` - `npm run lint && npm test && npm run build`
 
 ## Testing and Verification
 
@@ -76,10 +77,13 @@ Detected npm scripts:
   checked-in CSS, JavaScript, image, and audio files.
 - Local contract checks verify the desktop notification icon stays a checked-in
   relative asset.
+- Local contract checks verify the npm and Makefile gate wrappers expose lint,
+  test, build, verify, and check commands.
 - Run `npm run verify` before committing; it checks JavaScript syntax, runs the
-  timer, notification, main-process, and renderer wiring tests, and verifies
-  local-only desktop contracts.
-- Run `make check` as the repository-standard wrapper around `npm run verify`.
+  timer, notification, main-process, and renderer wiring tests, then runs the
+  static build gate for local-only desktop contracts.
+- Run `make lint`, `make test`, `make build`, and `make check` as the
+  repository-standard wrappers around the matching npm scripts.
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
 
@@ -125,6 +129,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   notification icon asset contract.
 - See `docs/plans/2026-06-09-external-link-protocol-guard.md` for the
   renderer external-link http/https guard.
+- See `docs/plans/2026-06-09-gate-wrapper-contract.md` for the npm and Makefile
+  gate wrapper contract.
 - See `plans/2026-06-08-notification-regression-tests.md` for the notification
   regression baseline.
 

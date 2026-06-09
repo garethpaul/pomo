@@ -20,7 +20,8 @@ Priority:
 
 - Preserve the 25-minute, 5-minute, and 10-minute timer flows
 - Keep start, stop, and reset behavior predictable
-- Maintain `make check` and `npm run verify` for syntax checks, timer tests, and notification tests
+- Maintain `make lint`, `make test`, `make build`, `make check`, and
+  `npm run verify` for syntax checks, tests, and local desktop contracts
 - Maintain `npm run contracts` for local-only renderer and plan guardrails
 - Keep close IPC commands explicit and covered by deterministic tests
 - Keep renderer button and tab wiring covered without launching Electron

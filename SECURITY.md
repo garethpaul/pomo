@@ -43,6 +43,9 @@ network-backed timer state, analytics, or external navigation without explicit
 user action. Run `npm run contracts` before changing renderer script loading or
 external-link behavior.
 External links should only open explicit http/https URLs after user clicks.
+The static `npm run build` gate also runs local-only desktop contracts, and the
+Makefile wrappers should keep lint, test, build, verify, and check commands
+available for repository automation.
 
 Renderer local asset references should stay relative and point to checked-in
 CSS, JavaScript, image, and audio files. This keeps packaging failures and

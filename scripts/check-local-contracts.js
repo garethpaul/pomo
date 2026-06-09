@@ -12,6 +12,7 @@ const TAB_RESET_PLAN = 'docs/plans/2026-06-09-renderer-tab-reset-guard.md';
 const WINDOW_TITLE_PLAN = 'docs/plans/2026-06-09-window-title-contract.md';
 const LOCAL_ASSET_PLAN = 'docs/plans/2026-06-09-local-asset-reference-contract.md';
 const NOTIFICATION_ICON_PLAN = 'docs/plans/2026-06-09-notification-icon-asset-contract.md';
+const GATE_WRAPPER_PLAN = 'docs/plans/2026-06-09-gate-wrapper-contract.md';
 
 function read(relativePath) {
   return fs.readFileSync(path.join(ROOT, relativePath), 'utf8');
@@ -41,6 +42,7 @@ function rendererAssetReferences(markup) {
   WINDOW_TITLE_PLAN,
   LOCAL_ASSET_PLAN,
   NOTIFICATION_ICON_PLAN,
+  GATE_WRAPPER_PLAN,
   'index.html',
   'index.js',
   'js/app.js',
@@ -48,6 +50,7 @@ function rendererAssetReferences(markup) {
   'js/notification.js',
   'js/timer.js',
   'package.json',
+  'Makefile',
   'README.md',
   'SECURITY.md',
   'scripts/test-app-wiring.js',
@@ -57,13 +60,21 @@ function rendererAssetReferences(markup) {
 
 const pkg = JSON.parse(read('package.json'));
 assert.equal(pkg.scripts.contracts, 'node scripts/check-local-contracts.js');
+assert.equal(pkg.scripts.build, 'npm run contracts');
 assert.ok(pkg.scripts.lint.includes('node --check js/main-process.js'));
 assert.ok(pkg.scripts.lint.includes('node --check scripts/test-main-process.js'));
 assert.ok(pkg.scripts.lint.includes('node --check scripts/test-app-wiring.js'));
 assert.ok(pkg.scripts.test.includes('node scripts/test-main-process.js'));
 assert.ok(pkg.scripts.test.includes('node scripts/test-app-wiring.js'));
 assert.ok(pkg.scripts.lint.includes('node --check scripts/check-local-contracts.js'));
-assert.ok(pkg.scripts.verify.includes('npm run contracts'));
+assert.ok(pkg.scripts.verify.includes('npm run build'));
+
+const makefile = read('Makefile');
+assert.ok(/^check: verify$/m.test(makefile), 'Makefile must expose make check');
+assert.ok(/^lint:\n\tnpm run lint$/m.test(makefile), 'Makefile must expose npm lint');
+assert.ok(/^test:\n\tnpm test$/m.test(makefile), 'Makefile must expose npm test');
+assert.ok(/^build:\n\tnpm run build$/m.test(makefile), 'Makefile must expose npm build');
+assert.ok(/^verify:\n\tnpm run verify$/m.test(makefile), 'Makefile must expose npm verify');
 
 const main = read('index.js');
 assert.ok(main.includes("require('./js/main-process')"));
@@ -116,7 +127,7 @@ for (const phrase of ['npm run contracts', 'local-only', 'remote script', 'local
   assert.ok(docs.toLowerCase().includes(phrase.toLowerCase()), `docs must mention ${phrase}`);
 }
 
-for (const planPath of [LOCAL_ONLY_PLAN, MAIN_PROCESS_PLAN, RENDERER_WIRING_PLAN, TAB_RESET_PLAN, WINDOW_TITLE_PLAN, LOCAL_ASSET_PLAN, NOTIFICATION_ICON_PLAN]) {
+for (const planPath of [LOCAL_ONLY_PLAN, MAIN_PROCESS_PLAN, RENDERER_WIRING_PLAN, TAB_RESET_PLAN, WINDOW_TITLE_PLAN, LOCAL_ASSET_PLAN, NOTIFICATION_ICON_PLAN, GATE_WRAPPER_PLAN]) {
   const plan = read(planPath);
   assert.ok(plan.includes('Status: Completed'));
   assert.ok(plan.includes('make check'));
@@ -129,6 +140,7 @@ assert.ok(read(TAB_RESET_PLAN).includes('unknown tabs'));
 assert.ok(read(WINDOW_TITLE_PLAN).includes('<title>Pomo</title>'));
 assert.ok(read(LOCAL_ASSET_PLAN).includes('local asset references'));
 assert.ok(read(NOTIFICATION_ICON_PLAN).includes('notification icon'));
+assert.ok(read(GATE_WRAPPER_PLAN).includes('make build'));
 assertFile('docs/plans/2026-06-09-external-link-protocol-guard.md');
 const externalLinkPlan = read('docs/plans/2026-06-09-external-link-protocol-guard.md');
 assert.ok(externalLinkPlan.includes('Status: Completed'));
