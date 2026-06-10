@@ -52,6 +52,8 @@ CSS, JavaScript, image, and audio files. This keeps packaging failures and
 surprise remote fallbacks out of the desktop app.
 The desktop notification icon should also stay relative and checked in, so
 notifications do not fetch remote artwork.
+Timer durations should stay positive integers so malformed local state cannot
+produce broken countdown behavior.
 
 ## Dependency and Supply Chain Security
 

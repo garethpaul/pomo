@@ -72,6 +72,8 @@ Detected npm scripts:
 - Renderer wiring tests verify external links only open explicit http/https
   URLs after user clicks.
 - Renderer wiring tests also confirm unknown tab hashes do not reset a timer.
+- Timer tests reject invalid timer durations so zero, negative, fractional, or
+  non-numeric values cannot enter countdown state.
 - Local contract checks confirm the app window title stays branded as Pomo.
 - Local contract checks also verify renderer local asset references point to
   checked-in CSS, JavaScript, image, and audio files.
@@ -135,6 +137,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   gate wrapper contract.
 - See `docs/plans/2026-06-09-renderer-accessible-controls.md` for icon-only
   renderer control accessible label coverage.
+- See `docs/plans/2026-06-10-timer-duration-validation.md` for timer duration
+  validation.
 - See `plans/2026-06-08-notification-regression-tests.md` for the notification
   regression baseline.
 

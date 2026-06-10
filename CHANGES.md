@@ -1,5 +1,10 @@
 # Changes
 
+## 2026-06-10
+
+- Added timer duration validation so invalid local countdown values are rejected
+  before interval state is created.
+
 ## 2026-06-09
 
 - Added accessible label validation for icon-only renderer controls.

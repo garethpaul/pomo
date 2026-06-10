@@ -14,6 +14,7 @@ const LOCAL_ASSET_PLAN = 'docs/plans/2026-06-09-local-asset-reference-contract.m
 const NOTIFICATION_ICON_PLAN = 'docs/plans/2026-06-09-notification-icon-asset-contract.md';
 const GATE_WRAPPER_PLAN = 'docs/plans/2026-06-09-gate-wrapper-contract.md';
 const ACCESSIBLE_CONTROL_PLAN = 'docs/plans/2026-06-09-renderer-accessible-controls.md';
+const TIMER_DURATION_PLAN = 'docs/plans/2026-06-10-timer-duration-validation.md';
 
 function read(relativePath) {
   return fs.readFileSync(path.join(ROOT, relativePath), 'utf8');
@@ -66,6 +67,7 @@ function rendererAssetReferences(markup) {
   NOTIFICATION_ICON_PLAN,
   GATE_WRAPPER_PLAN,
   ACCESSIBLE_CONTROL_PLAN,
+  TIMER_DURATION_PLAN,
   'index.html',
   'index.js',
   'js/app.js',
@@ -169,12 +171,18 @@ const notificationIconPath = notificationIcon.split(/[?#]/)[0];
 assert.ok(notificationIconPath && !path.isAbsolute(notificationIconPath), 'notification icon must use a relative local path');
 assertFile(notificationIconPath);
 
+const timer = read('js/timer.js');
+assert.ok(timer.includes('assertPositiveIntegerDuration'), 'timer durations must be validated');
+assert.ok(timer.includes("'minutes'"), 'timer minutes must reject invalid durations');
+assert.ok(timer.includes("'seconds'"), 'timer seconds must reject invalid durations');
+assert.ok(timer.includes('must be a positive integer'), 'timer duration errors must stay explicit');
+
 const docs = ['README.md', 'SECURITY.md', 'VISION.md', 'CHANGES.md'].map(read).join('\n');
-for (const phrase of ['npm run contracts', 'local-only', 'remote script', 'local asset', 'notification icon', 'user action', 'close IPC', 'unknown tab', 'window title', 'http/https', 'accessible label']) {
+for (const phrase of ['npm run contracts', 'local-only', 'remote script', 'local asset', 'notification icon', 'user action', 'close IPC', 'unknown tab', 'window title', 'http/https', 'accessible label', 'timer durations']) {
   assert.ok(docs.toLowerCase().includes(phrase.toLowerCase()), `docs must mention ${phrase}`);
 }
 
-for (const planPath of [LOCAL_ONLY_PLAN, MAIN_PROCESS_PLAN, RENDERER_WIRING_PLAN, TAB_RESET_PLAN, WINDOW_TITLE_PLAN, LOCAL_ASSET_PLAN, NOTIFICATION_ICON_PLAN, GATE_WRAPPER_PLAN, ACCESSIBLE_CONTROL_PLAN]) {
+for (const planPath of [LOCAL_ONLY_PLAN, MAIN_PROCESS_PLAN, RENDERER_WIRING_PLAN, TAB_RESET_PLAN, WINDOW_TITLE_PLAN, LOCAL_ASSET_PLAN, NOTIFICATION_ICON_PLAN, GATE_WRAPPER_PLAN, ACCESSIBLE_CONTROL_PLAN, TIMER_DURATION_PLAN]) {
   const plan = read(planPath);
   assert.ok(plan.includes('Status: Completed'));
   assert.ok(plan.includes('make check'));
@@ -189,6 +197,7 @@ assert.ok(read(LOCAL_ASSET_PLAN).includes('local asset references'));
 assert.ok(read(NOTIFICATION_ICON_PLAN).includes('notification icon'));
 assert.ok(read(GATE_WRAPPER_PLAN).includes('make build'));
 assert.ok(read(ACCESSIBLE_CONTROL_PLAN).includes('icon-only controls'));
+assert.ok(read(TIMER_DURATION_PLAN).includes('positive integer'));
 assertFile('docs/plans/2026-06-09-external-link-protocol-guard.md');
 const externalLinkPlan = read('docs/plans/2026-06-09-external-link-protocol-guard.md');
 assert.ok(externalLinkPlan.includes('Status: Completed'));

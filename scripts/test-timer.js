@@ -6,6 +6,11 @@ const Timer = require('../js/timer');
 
 assert.equal(new Timer(5)._getDoubleDigit(5), '05');
 assert.equal(new Timer(12)._getDoubleDigit(12), '12');
+assert.throws(() => new Timer(0), /minutes must be a positive integer/);
+assert.throws(() => new Timer(-1), /minutes must be a positive integer/);
+assert.throws(() => new Timer(1.5), /minutes must be a positive integer/);
+assert.throws(() => new Timer('5'), /minutes must be a positive integer/);
+assert.throws(() => new Timer(5, 0), /seconds must be a positive integer/);
 
 const timer = new Timer(25);
 timer._initializePomotime();
