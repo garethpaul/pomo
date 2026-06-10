@@ -2,6 +2,10 @@
 
 ## 2026-06-10
 
+- Added pinned, read-only hosted validation on Node 20 and Node 24 without
+  installing the legacy Electron dependency tree.
+- Extended local contracts to preserve the CI action pins, runtime matrix,
+  canonical command, and no-install boundary.
 - Added timer duration validation so invalid local countdown values are rejected
   before interval state is created.
 

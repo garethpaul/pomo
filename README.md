@@ -14,6 +14,7 @@ This README is based on the checked-in source, manifests, scripts, and repositor
 - `README.md` - project overview and local usage notes
 - `CHANGES.md` - notable maintenance changes
 - `Makefile` - local verification entry points
+- `.github/workflows/check.yml` - hosted no-install Node verification
 - `package.json` - JavaScript dependency and script metadata
 - `css` - source or example code
 - `js` - source or example code
@@ -42,14 +43,18 @@ Additional scan context:
 ```bash
 git clone https://github.com/garethpaul/pomo.git
 cd pomo
-npm install
+make check
 ```
 
-The setup commands above are derived from repository files. Legacy mobile, Python, or JavaScript samples may require older SDKs or package versions than a modern workstation uses by default.
+The verification suite uses Node built-ins and checked-in files, so it does not
+require dependency installation. Running the Electron app still requires its
+legacy, unlocked dependencies; review and pin compatible versions in an
+isolated environment before using `npm install` and `npm start`.
 
 ## Running or Using the Project
 
-- Run `npm start` for the default development command.
+- After deliberately installing compatible legacy dependencies in an isolated
+  environment, run `npm start` for the desktop app.
 
 Detected npm scripts:
 
@@ -62,6 +67,10 @@ Detected npm scripts:
 
 ## Testing and Verification
 
+- GitHub Actions runs the dependency-free gate on Node 20 and Node 24 for
+  pushes to `master` and pull requests.
+- Hosted checks intentionally do not install the legacy Electron dependencies;
+  syntax, behavior, wiring, and asset contracts use Node built-ins only.
 - Run `npm test` for deterministic timer, notification, main-process, and
   renderer wiring regression coverage.
 - Run `npm run contracts` for the local-only renderer and canonical plan checks.
@@ -139,6 +148,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   renderer control accessible label coverage.
 - See `docs/plans/2026-06-10-timer-duration-validation.md` for timer duration
   validation.
+- See `docs/plans/2026-06-10-hosted-node-validation.md` for the pinned,
+  read-only Node 20/24 no-install matrix.
 - See `plans/2026-06-08-notification-regression-tests.md` for the notification
   regression baseline.
 

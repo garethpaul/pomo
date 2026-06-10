@@ -24,6 +24,9 @@ Priority:
 - Keep start, stop, and reset behavior predictable
 - Maintain `make lint`, `make test`, `make build`, `make check`, and
   `npm run verify` for syntax checks, tests, and local desktop contracts
+- Run dependency-free verification on Node 20 and Node 24 in hosted CI with
+  read-only permissions and pinned actions
+- Keep hosted verification independent of the legacy unlocked Electron tree
 - Maintain `npm run contracts` for local-only renderer and plan guardrails
 - Keep close IPC commands explicit and covered by deterministic tests
 - Keep renderer button and tab wiring covered without launching Electron

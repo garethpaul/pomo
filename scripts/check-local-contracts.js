@@ -15,6 +15,8 @@ const NOTIFICATION_ICON_PLAN = 'docs/plans/2026-06-09-notification-icon-asset-co
 const GATE_WRAPPER_PLAN = 'docs/plans/2026-06-09-gate-wrapper-contract.md';
 const ACCESSIBLE_CONTROL_PLAN = 'docs/plans/2026-06-09-renderer-accessible-controls.md';
 const TIMER_DURATION_PLAN = 'docs/plans/2026-06-10-timer-duration-validation.md';
+const CI_PLAN = 'docs/plans/2026-06-10-hosted-node-validation.md';
+const CI_WORKFLOW = '.github/workflows/check.yml';
 
 function read(relativePath) {
   return fs.readFileSync(path.join(ROOT, relativePath), 'utf8');
@@ -68,6 +70,8 @@ function rendererAssetReferences(markup) {
   GATE_WRAPPER_PLAN,
   ACCESSIBLE_CONTROL_PLAN,
   TIMER_DURATION_PLAN,
+  CI_PLAN,
+  CI_WORKFLOW,
   'index.html',
   'index.js',
   'js/app.js',
@@ -82,6 +86,20 @@ function rendererAssetReferences(markup) {
   'scripts/test-main-process.js',
   'VISION.md'
 ].forEach(assertFile);
+
+const workflow = read(CI_WORKFLOW);
+assert.ok(/^permissions:\n  contents: read$/m.test(workflow), 'hosted checks must use read-only contents permission');
+assert.ok(
+  workflow.includes('actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10'),
+  'hosted checks must pin the reviewed actions/checkout v6.0.3 commit'
+);
+assert.ok(
+  workflow.includes('actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e'),
+  'hosted checks must pin the reviewed actions/setup-node v6.4.0 commit'
+);
+assert.ok(workflow.includes('node: [20.x, 24.x]'), 'hosted checks must cover Node 20 and 24');
+assert.ok(/^\s+run: make check$/m.test(workflow), 'hosted checks must run the canonical make check gate');
+assert.ok(!/\bnpm (?:ci|install)\b/.test(workflow), 'hosted checks must not install the legacy Electron dependency tree');
 
 const pkg = JSON.parse(read('package.json'));
 assert.equal(pkg.scripts.contracts, 'node scripts/check-local-contracts.js');
@@ -182,7 +200,7 @@ for (const phrase of ['npm run contracts', 'local-only', 'remote script', 'local
   assert.ok(docs.toLowerCase().includes(phrase.toLowerCase()), `docs must mention ${phrase}`);
 }
 
-for (const planPath of [LOCAL_ONLY_PLAN, MAIN_PROCESS_PLAN, RENDERER_WIRING_PLAN, TAB_RESET_PLAN, WINDOW_TITLE_PLAN, LOCAL_ASSET_PLAN, NOTIFICATION_ICON_PLAN, GATE_WRAPPER_PLAN, ACCESSIBLE_CONTROL_PLAN, TIMER_DURATION_PLAN]) {
+for (const planPath of [LOCAL_ONLY_PLAN, MAIN_PROCESS_PLAN, RENDERER_WIRING_PLAN, TAB_RESET_PLAN, WINDOW_TITLE_PLAN, LOCAL_ASSET_PLAN, NOTIFICATION_ICON_PLAN, GATE_WRAPPER_PLAN, ACCESSIBLE_CONTROL_PLAN, TIMER_DURATION_PLAN, CI_PLAN]) {
   const plan = read(planPath);
   assert.ok(plan.includes('Status: Completed'));
   assert.ok(plan.includes('make check'));
@@ -198,6 +216,7 @@ assert.ok(read(NOTIFICATION_ICON_PLAN).includes('notification icon'));
 assert.ok(read(GATE_WRAPPER_PLAN).includes('make build'));
 assert.ok(read(ACCESSIBLE_CONTROL_PLAN).includes('icon-only controls'));
 assert.ok(read(TIMER_DURATION_PLAN).includes('positive integer'));
+assert.ok(read(CI_PLAN).includes('Node 20 and Node 24'));
 assertFile('docs/plans/2026-06-09-external-link-protocol-guard.md');
 const externalLinkPlan = read('docs/plans/2026-06-09-external-link-protocol-guard.md');
 assert.ok(externalLinkPlan.includes('Status: Completed'));
