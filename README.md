@@ -83,6 +83,8 @@ Detected npm scripts:
 - Renderer wiring tests also confirm unknown tab hashes do not reset a timer.
 - Timer tests reject invalid timer durations so zero, negative, fractional, or
   non-numeric values cannot enter countdown state.
+- Timer tests confirm a completed timer restarts from its initial duration
+  instead of immediately firing another completion notification.
 - Local contract checks confirm the app window title stays branded as Pomo.
 - Local contract checks also verify renderer local asset references point to
   checked-in CSS, JavaScript, image, and audio files.

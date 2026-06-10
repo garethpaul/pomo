@@ -8,6 +8,8 @@
   canonical command, and no-install boundary.
 - Added timer duration validation so invalid local countdown values are rejected
   before interval state is created.
+- Fixed completed timers so pressing Start begins a fresh interval instead of
+  immediately completing again from zero.
 
 ## 2026-06-09
 
