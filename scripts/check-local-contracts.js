@@ -78,18 +78,25 @@ function rendererAssetReferences(markup) {
   CI_BASELINE_PLAN,
   HOSTED_NODE_PLAN,
   CI_WORKFLOW,
+  '.nvmrc',
   'index.html',
   'index.js',
+  'preload.js',
   'js/app.js',
+  'js/electron-app.js',
   'js/main-process.js',
   'js/notification.js',
   'js/timer.js',
   'package.json',
+  'package-lock.json',
   'Makefile',
   'README.md',
   'SECURITY.md',
   'scripts/test-app-wiring.js',
+  'scripts/test-electron-app.js',
   'scripts/test-main-process.js',
+  'scripts/test-preload-api.js',
+  'scripts/smoke-electron.js',
   'VISION.md'
 ].forEach(assertFile);
 
@@ -107,30 +114,57 @@ const checkoutContract = [
 assert.ok(workflow.includes(checkoutContract), 'hosted checkout must stay pinned and credential-free');
 assert.deepEqual(workflowActions, [
   'actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10',
+  'actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e',
+  'actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10',
   'actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e'
-], 'hosted checks must keep only the reviewed checkout and setup-node actions');
-assert.equal((workflow.match(/persist-credentials:/g) || []).length, 1, 'hosted checkout credentials must be configured once');
+], 'hosted jobs must keep only the reviewed checkout and setup-node actions');
+assert.equal((workflow.match(/persist-credentials:/g) || []).length, 2, 'both hosted checkouts must disable credential persistence');
 assert.equal((workflow.match(/^permissions:$/gm) || []).length, 1, 'hosted permissions must be configured once');
 assert.ok(/^permissions:\n  contents: read$/m.test(workflow), 'hosted checks must use read-only contents permission');
 assert.ok(!/^\s+[A-Za-z-]+:\s+write\s*$/m.test(workflow), 'hosted checks must not request write permissions');
-assert.ok(workflow.includes('node: [20.x, 24.x]'), 'hosted checks must cover Node 20 and 24');
+assert.ok(workflow.includes('node: [22.x, 24.x]'), 'hosted checks must cover Node 22 and 24');
 assert.ok(workflow.includes('workflow_dispatch:'), 'hosted checks must allow manual dispatch');
 assert.ok(workflow.includes('cancel-in-progress: true'), 'hosted checks must cancel superseded runs');
 assert.ok(workflow.includes('runs-on: ubuntu-24.04'), 'hosted checks must use the fixed Ubuntu runner');
-assert.ok(workflow.includes('timeout-minutes: 10'), 'hosted checks must stay bounded');
+assert.ok(workflow.includes('timeout-minutes: 10'), 'hosted contract checks must stay bounded');
+assert.ok(workflow.includes('timeout-minutes: 15'), 'hosted Electron smoke must stay bounded');
 assert.ok(/^\s+run: make check$/m.test(workflow), 'hosted checks must run the canonical make check gate');
-assert.ok(!/\bnpm (?:ci|install)\b/.test(workflow), 'hosted checks must not install the legacy Electron dependency tree');
+assert.ok(workflow.includes('npm ci --ignore-scripts --no-audit --no-fund'), 'hosted contract checks must install the lockfile without scripts');
+assert.ok(workflow.includes('npm ci --no-audit --no-fund'), 'hosted smoke must install Electron from the lockfile');
+assert.ok(workflow.includes('run: npm audit'), 'hosted checks must audit the dependency graph');
+assert.ok(workflow.includes('run: npm run smoke'), 'hosted checks must launch the Electron smoke test');
 
 const pkg = JSON.parse(read('package.json'));
 assert.equal(pkg.scripts.contracts, 'node scripts/check-local-contracts.js');
 assert.equal(pkg.scripts.build, 'npm run contracts');
+assert.equal(pkg.scripts.smoke, 'xvfb-run -a node scripts/smoke-electron.js');
+assert.deepEqual(pkg.engines, { node: '>=22.12.0' });
+assert.deepEqual(pkg.devDependencies, { electron: '42.4.0' });
+assert.equal(pkg.dependencies, undefined);
+assert.equal(read('.nvmrc').trim(), '22');
 assert.ok(pkg.scripts.lint.includes('node --check js/main-process.js'));
+assert.ok(pkg.scripts.lint.includes('node --check js/electron-app.js'));
+assert.ok(pkg.scripts.lint.includes('node --check preload.js'));
+assert.ok(pkg.scripts.lint.includes('node --check scripts/smoke-electron.js'));
 assert.ok(pkg.scripts.lint.includes('node --check scripts/test-main-process.js'));
 assert.ok(pkg.scripts.lint.includes('node --check scripts/test-app-wiring.js'));
+assert.ok(pkg.scripts.lint.includes('node --check scripts/test-electron-app.js'));
+assert.ok(pkg.scripts.lint.includes('node --check scripts/test-preload-api.js'));
 assert.ok(pkg.scripts.test.includes('node scripts/test-main-process.js'));
 assert.ok(pkg.scripts.test.includes('node scripts/test-app-wiring.js'));
+assert.ok(pkg.scripts.test.includes('node scripts/test-electron-app.js'));
+assert.ok(pkg.scripts.test.includes('node scripts/test-preload-api.js'));
 assert.ok(pkg.scripts.lint.includes('node --check scripts/check-local-contracts.js'));
 assert.ok(pkg.scripts.verify.includes('npm run build'));
+
+const lock = JSON.parse(read('package-lock.json'));
+assert.equal(lock.lockfileVersion, 3);
+assert.deepEqual(lock.packages[''].devDependencies, pkg.devDependencies);
+assert.deepEqual(lock.packages[''].engines, pkg.engines);
+assert.equal(Boolean(lock.packages['node_modules/menubar']), false, 'lockfile must not restore menubar');
+assert.equal(Boolean(lock.packages['node_modules/devtron']), false, 'lockfile must not restore devtron');
+assert.equal(Boolean(lock.packages['node_modules/gulp']), false, 'lockfile must not restore gulp');
+assert.equal(Boolean(lock.packages['node_modules/electron-packager']), false, 'lockfile must not restore electron-packager');
 
 const makefile = read('Makefile');
 assert.ok(/^check: verify$/m.test(makefile), 'Makefile must expose make check');
@@ -140,8 +174,26 @@ assert.ok(/^build:\n\tnpm run build$/m.test(makefile), 'Makefile must expose npm
 assert.ok(/^verify:\n\tnpm run verify$/m.test(makefile), 'Makefile must expose npm verify');
 
 const main = read('index.js');
-assert.ok(main.includes("require('./js/main-process')"));
-assert.ok(main.includes('handleCloseApp(mb.app, close);'));
+assert.ok(main.includes("require('./js/electron-app')"));
+assert.ok(main.includes('createPomoApplication(electron'));
+assert.ok(!main.includes("require('menubar')"));
+
+const electronApp = read('js/electron-app.js');
+for (const phrase of [
+  'new electron.BrowserWindow',
+  'new electron.Tray',
+  'contextIsolation: true',
+  'nodeIntegration: false',
+  'sandbox: true',
+  "electron.ipcMain.handle('openExternal'",
+  'isExternalHttpUrl(url)',
+  "electron.ipcMain.on('closeApp'",
+  "tray.on('click', toggleWindow)",
+  "window.on('blur'",
+  "window.webContents.once('did-finish-load'"
+]) {
+  assert.ok(electronApp.includes(phrase), `Electron app must include ${phrase}`);
+}
 
 const mainProcess = read('js/main-process.js');
 assert.ok(mainProcess.includes("command !== 'close'"), 'close IPC must require the explicit close command');
@@ -151,6 +203,11 @@ assert.ok(!/<script[^>]+src=["']https?:\/\//i.test(index), 'index.html must not 
 assert.ok(!index.includes('oss.maxcdn.com'), 'legacy CDN shims must stay removed');
 assert.ok(index.includes('<title>Pomo</title>'), 'index.html window title must use the app name');
 assert.ok(index.includes('js/notification.js') && index.includes('js/timer.js') && index.includes('js/app.js'));
+assert.ok(index.includes('Content-Security-Policy'), 'renderer must declare a Content Security Policy');
+assert.ok(index.includes("script-src 'self'"), 'renderer CSP must allow only local scripts');
+assert.ok(index.includes("connect-src 'none'"), 'renderer CSP must disable network connections');
+assert.ok(!index.includes('onclick='), 'renderer must not depend on inline event handlers');
+assert.ok(!index.includes("require('electron')"), 'renderer HTML must not access Electron directly');
 
 const rendererButtonLabels = {
   close_app: 'Close Pomo',
@@ -192,9 +249,19 @@ const app = read('js/app.js');
 assert.ok(app.includes("$(document).on('click', 'a[href^=\"http\"]'"), 'external links must stay user-click gated');
 assert.ok(app.includes('event.preventDefault();'));
 assert.ok(app.includes('isExternalHttpUrl(this.href)'), 'external links must stay protocol guarded');
-assert.ok(app.includes('shell.openExternal(this.href);'));
+assert.ok(app.includes('desktop.openExternal(this.href);'));
+assert.ok(app.includes('desktop.close();'));
+assert.ok(app.includes("$('#close_app').click(closeApp);"));
+assert.ok(!app.includes("require('electron')"), 'renderer JavaScript must not access Electron directly');
 assert.ok(app.includes("nameActiveTab[1] == 'long'"), 'long timer reset must require the long tab');
 assert.ok(!app.includes('setInterval(shell.openExternal'), 'external links must not be opened from background timers');
+
+const preload = read('preload.js');
+assert.ok(preload.includes("require('electron')"));
+assert.ok(preload.includes("exposeInMainWorld('pomoDesktop'"));
+assert.ok(preload.includes("ipcRenderer.send('closeApp', 'close')"));
+assert.ok(preload.includes("ipcRenderer.invoke('openExternal', url)"));
+assert.ok(!preload.includes("require('./"), 'sandboxed preload must stay self-contained');
 
 const notification = read('js/notification.js');
 assert.ok(notification.includes('requestPermission'), 'notification permission prompts must stay explicit');

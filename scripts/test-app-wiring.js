@@ -18,7 +18,7 @@ const delegatedHandlers = [];
 const directHandlers = new Map();
 const visibility = new Map();
 const openedUrls = [];
-const ipcMessages = [];
+let closeCalls = 0;
 
 function last(values) {
   return values[values.length - 1];
@@ -96,23 +96,17 @@ function jqueryStub(target) {
 const context = {
   console,
   document: documentStub,
-  ipc: {
-    send(channel, payload) {
-      ipcMessages.push({ channel, payload });
-    }
-  },
-  require(moduleName) {
-    assert.equal(moduleName, 'electron');
-    return {
-      shell: {
-        openExternal(url) {
-          openedUrls.push(url);
-        }
-      }
-    };
-  },
   window: {
-    PomoTimer: FakeTimer
+    PomoTimer: FakeTimer,
+    pomoDesktop: {
+      close() {
+        closeCalls += 1;
+      },
+      openExternal(url) {
+        openedUrls.push(url);
+        return Promise.resolve(true);
+      }
+    }
   },
   $: jqueryStub
 };
@@ -195,6 +189,8 @@ assert.deepEqual(
 );
 
 context.__closeApp();
-assert.deepEqual(ipcMessages, [{ channel: 'closeApp', payload: 'close' }]);
+assert.equal(closeCalls, 1);
+clickHandlers.get('#close_app')();
+assert.equal(closeCalls, 2);
 
 console.log('renderer wiring tests passed.');

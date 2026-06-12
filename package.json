@@ -6,9 +6,10 @@
   "productName": "Pomo",
   "scripts": {
     "start": "electron index.js",
+    "smoke": "xvfb-run -a node scripts/smoke-electron.js",
     "contracts": "node scripts/check-local-contracts.js",
-    "lint": "node --check index.js && node --check js/main-process.js && node --check js/notification.js && node --check js/timer.js && node --check js/app.js && node --check scripts/test-timer.js && node --check scripts/test-notification.js && node --check scripts/test-main-process.js && node --check scripts/test-app-wiring.js && node --check scripts/check-local-contracts.js",
-    "test": "node scripts/test-timer.js && node scripts/test-notification.js && node scripts/test-main-process.js && node scripts/test-app-wiring.js",
+    "lint": "node --check index.js && node --check preload.js && node --check js/electron-app.js && node --check js/main-process.js && node --check js/notification.js && node --check js/timer.js && node --check js/app.js && node --check scripts/smoke-electron.js && node --check scripts/test-timer.js && node --check scripts/test-notification.js && node --check scripts/test-main-process.js && node --check scripts/test-app-wiring.js && node --check scripts/test-electron-app.js && node --check scripts/test-preload-api.js && node --check scripts/check-local-contracts.js",
+    "test": "node scripts/test-timer.js && node scripts/test-notification.js && node scripts/test-main-process.js && node scripts/test-app-wiring.js && node scripts/test-electron-app.js && node scripts/test-preload-api.js",
     "build": "npm run contracts",
     "verify": "npm run lint && npm test && npm run build"
   },
@@ -30,6 +31,9 @@
   ],
   "author": "Gareth Paul Jones <gareth@garethpaul.com>",
   "license": "MIT",
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "bugs": {
     "url": "https://github.com/garethpaul/pomo/issues"
   },
@@ -39,12 +43,6 @@
     "email": "gareth@garethpaul.com"
   },
   "devDependencies": {
-    "devtron": "^1.1.2",
-    "electron-packager": "^7.0.3",
-    "electron": "latest",
-    "gulp": "^3.9.1"
-  },
-  "dependencies": {
-    "menubar": "latest"
+    "electron": "42.4.0"
   }
 }
