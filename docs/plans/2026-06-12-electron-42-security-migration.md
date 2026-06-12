@@ -70,6 +70,9 @@ and direct `require('electron')` access.
   excluded `release-builds/` while retaining the preload and Electron runtime.
 - The local real smoke could not run on Ubuntu 20.04 because Electron 42's
   installer requires glibc 2.33 while the host provides glibc 2.31.
-- Canonical pull-request run `27429177300` passed Node 22, Node 24, and the real
-  Electron 42 Ubuntu 24.04 `xvfb` application smoke at implementation head
-  `947e73e612d9cbff2970820d7d892b8899b1e9a4`.
+- Canonical push run `27429429948` and pull-request run `27429431879` each
+  passed Node 22, Node 24, and the real Electron 42 Ubuntu 24.04 `xvfb`
+  application smoke at implementation head
+  `0909194ca77d8978601dfcb5702ae24bae0cbff5`.
+- CodeQL run `27429429487` passed both JavaScript/TypeScript and Actions
+  analysis at the same implementation head.
