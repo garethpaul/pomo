@@ -1,6 +1,6 @@
 # Electron 42 Security Migration
 
-Status: Planned
+Status: Completed
 
 ## Problem
 
@@ -41,6 +41,35 @@ and direct `require('electron')` access.
 7. Update maintenance/security documentation and enforce the completed plan,
    exact dependency graph, and hosted smoke contract through local checks.
 
+## Work Completed
+
+- Pinned Electron 42.4.0, Node 22.12+, and the complete npm graph; removed
+  menubar, devtron, gulp, electron-packager, and all floating ranges.
+- Replaced menubar with direct Tray, BrowserWindow, Menu, positioning, toggle,
+  hide, About, close, Quit, and smoke lifecycle ownership.
+- Added a self-contained sandbox-compatible preload exposing only close and
+  external-link commands; both commands are revalidated in the main process.
+- Enabled context isolation and sandboxing, disabled Node integration, denied
+  renderer navigation/window creation, removed inline Node/event hooks, and
+  added a restrictive renderer CSP.
+- Added pure lifecycle, preload, and renderer bridge tests plus locked Node
+  22/24 validation and a real Ubuntu 24.04 Electron smoke job.
+- Added an npm runtime file allowlist so stale release binaries cannot enter
+  package artifacts.
+- Updated repository contracts and maintenance/security documentation.
+
 ## Verification
 
-- Pending test-first implementation and verification.
+- The first expanded `npm test` failed because `js/electron-app.js` did not
+  exist, confirming the test-first boundary.
+- Node 22.22.2 and Node 24.16.0 passed `npm run verify`; `npm audit` reported
+  zero vulnerabilities for the exact lockfile.
+- `make lint`, `make test`, `make build`, `make check`, and `git diff --check`
+  passed with Node 22.22.2.
+- `npm pack --dry-run --json` reduced the package from 52 MB to 2.0 MB and
+  excluded `release-builds/` while retaining the preload and Electron runtime.
+- The local real smoke could not run on Ubuntu 20.04 because Electron 42's
+  installer requires glibc 2.33 while the host provides glibc 2.31.
+- Canonical pull-request run `27429177300` passed Node 22, Node 24, and the real
+  Electron 42 Ubuntu 24.04 `xvfb` application smoke at implementation head
+  `947e73e612d9cbff2970820d7d892b8899b1e9a4`.

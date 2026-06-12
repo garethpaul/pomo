@@ -61,11 +61,18 @@ class FakeWindow {
     this.options = options;
     this.visible = false;
     this.windowEvents = {};
+    this.webContentsEvents = {};
     this.webContents = {
+      on: (name, handler) => {
+        this.webContentsEvents[name] = handler;
+      },
       once: (name, handler) => {
         this.loadHandler = handler;
       },
-      isDevToolsOpened: () => false
+      isDevToolsOpened: () => false,
+      setWindowOpenHandler: (handler) => {
+        this.windowOpenHandler = handler;
+      }
     };
     windows.push(this);
   }
@@ -180,6 +187,10 @@ const electron = {
   assert.equal(windows.length, 1);
   assert.equal(trays.length, 1);
   assert.equal(windows[0].loadedFile, path.join(__dirname, '..', 'index.html'));
+  assert.deepEqual(windows[0].windowOpenHandler({ url: 'https://example.com/' }), { action: 'deny' });
+  const navigationEvent = { prevented: false, preventDefault() { this.prevented = true; } };
+  windows[0].webContentsEvents['will-navigate'](navigationEvent, 'https://example.com/');
+  assert.equal(navigationEvent.prevented, true);
   assert.equal(trays[0].tooltip, 'Pomo');
   assert.equal(trays[0].menu.template.length, 3);
 

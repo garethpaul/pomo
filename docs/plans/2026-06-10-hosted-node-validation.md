@@ -2,6 +2,11 @@
 
 Status: Completed
 
+> Historical boundary: the Node 20/24 no-install matrix was appropriate while
+> the repository declared an unlocked obsolete Electron tree. It was
+> superseded on June 12, 2026 by the locked Node 22/24 and Electron 42 smoke
+> contract in `2026-06-12-electron-42-security-migration.md`.
+
 ## Context
 
 The repository had dependency-free Node checks for syntax, timer behavior,

@@ -84,6 +84,12 @@ function createPomoApplication(electron, options) {
 
   function createWindow() {
     window = new electron.BrowserWindow(createWindowOptions(path.join(appRoot, 'preload.js')));
+    window.webContents.setWindowOpenHandler(function () {
+      return { action: 'deny' };
+    });
+    window.webContents.on('will-navigate', function (event) {
+      event.preventDefault();
+    });
     window.loadFile(path.join(appRoot, 'index.html'));
     window.on('blur', function () {
       if (!window.webContents.isDevToolsOpened()) {

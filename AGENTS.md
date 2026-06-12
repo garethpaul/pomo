@@ -20,13 +20,15 @@
 
 ## Development commands
 
-- Install dependencies: `npm install`
+- Install exact dependencies: `npm ci`
+- Audit dependencies: `npm audit`
 - Full baseline: `make check`
 - Combined verification: `make verify`
 - Lint/static checks: `make lint`
 - Tests: `make test`
 - Build: `make build`
 - package script `start`: `npm start`
+- package script `smoke`: `npm run smoke`
 - package script `build`: `npm run build`
 - package script `lint`: `npm run lint`
 - package script `test`: `npm test`
@@ -36,10 +38,11 @@
 ## Coding conventions
 
 - Language mix noted in the README: JavaScript (5).
+- Use Node 22.12 or newer; `.nvmrc` selects Node 22.
 
 ## Testing guidance
 
-- Test-related files detected: `docs/plans/2026-06-08-renderer-wiring-tests.md`, `plans/2026-06-08-notification-regression-tests.md`, `plans/2026-06-08-timer-regression-tests.md`, `scripts/test-app-wiring.js`, `scripts/test-main-process.js`, `scripts/test-notification.js`, `scripts/test-timer.js`
+- Test-related files detected: `docs/plans/2026-06-08-renderer-wiring-tests.md`, `plans/2026-06-08-notification-regression-tests.md`, `plans/2026-06-08-timer-regression-tests.md`, `scripts/test-app-wiring.js`, `scripts/test-electron-app.js`, `scripts/test-main-process.js`, `scripts/test-notification.js`, `scripts/test-preload-api.js`, `scripts/test-timer.js`
 - Start with the narrowest relevant test or Make target, then run `make check` before handing off if the change is not documentation-only.
 - Keep README verification notes in sync when commands, fixtures, or supported toolchains change.
 
@@ -60,8 +63,15 @@
 - `npm run contracts` verifies the notification icon stays local and checked in.
 - Timer durations must remain positive integers, and a completed timer must
   restart from its configured initial duration.
-- Hosted checks must remain dependency-free on Node 20 and Node 24 with pinned
-  actions, read-only permissions, and persisted checkout credentials disabled.
+- Keep Electron pinned with the lockfile; do not restore menubar or floating
+  dependency ranges.
+- BrowserWindow must keep context isolation and sandboxing enabled, Node
+  integration disabled, and renderer navigation/window creation denied.
+- Keep the self-contained preload bridge limited to close and validated
+  external-link commands.
+- Hosted checks must retain Node 22/24 locked/audited gates and the bounded
+  Ubuntu Electron smoke with pinned actions, read-only permissions, and
+  persisted checkout credentials disabled.
 
 ## Agent workflow
 

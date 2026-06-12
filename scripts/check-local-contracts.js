@@ -19,6 +19,7 @@ const TIMER_RESTART_PLAN = 'docs/plans/2026-06-10-completed-timer-restart.md';
 const TIMER_PAUSE_PLAN = 'docs/plans/2026-06-12-timer-pause-resume.md';
 const CI_BASELINE_PLAN = 'docs/plans/2026-06-10-ci-baseline.md';
 const HOSTED_NODE_PLAN = 'docs/plans/2026-06-10-hosted-node-validation.md';
+const ELECTRON_MIGRATION_PLAN = 'docs/plans/2026-06-12-electron-42-security-migration.md';
 const CI_WORKFLOW = '.github/workflows/check.yml';
 
 function read(relativePath) {
@@ -77,6 +78,7 @@ function rendererAssetReferences(markup) {
   TIMER_PAUSE_PLAN,
   CI_BASELINE_PLAN,
   HOSTED_NODE_PLAN,
+  ELECTRON_MIGRATION_PLAN,
   CI_WORKFLOW,
   '.nvmrc',
   'index.html',
@@ -124,6 +126,7 @@ assert.ok(/^permissions:\n  contents: read$/m.test(workflow), 'hosted checks mus
 assert.ok(!/^\s+[A-Za-z-]+:\s+write\s*$/m.test(workflow), 'hosted checks must not request write permissions');
 assert.ok(workflow.includes('node: [22.x, 24.x]'), 'hosted checks must cover Node 22 and 24');
 assert.ok(workflow.includes('workflow_dispatch:'), 'hosted checks must allow manual dispatch');
+assert.ok(!workflow.includes('branches: [master]'), 'hosted push checks must run on feature branches');
 assert.ok(workflow.includes('cancel-in-progress: true'), 'hosted checks must cancel superseded runs');
 assert.ok(workflow.includes('runs-on: ubuntu-24.04'), 'hosted checks must use the fixed Ubuntu runner');
 assert.ok(workflow.includes('timeout-minutes: 10'), 'hosted contract checks must stay bounded');
@@ -141,6 +144,7 @@ assert.equal(pkg.scripts.smoke, 'xvfb-run -a node scripts/smoke-electron.js');
 assert.deepEqual(pkg.engines, { node: '>=22.12.0' });
 assert.deepEqual(pkg.devDependencies, { electron: '42.4.0' });
 assert.equal(pkg.dependencies, undefined);
+assert.deepEqual(pkg.files, ['audio', 'css', 'fonts', 'index.html', 'index.js', 'js', 'preload.js', 'res/*.png']);
 assert.equal(read('.nvmrc').trim(), '22');
 assert.ok(pkg.scripts.lint.includes('node --check js/main-process.js'));
 assert.ok(pkg.scripts.lint.includes('node --check js/electron-app.js'));
@@ -190,10 +194,14 @@ for (const phrase of [
   "electron.ipcMain.on('closeApp'",
   "tray.on('click', toggleWindow)",
   "window.on('blur'",
-  "window.webContents.once('did-finish-load'"
+  "window.webContents.once('did-finish-load'",
+  'window.webContents.setWindowOpenHandler',
+  "window.webContents.on('will-navigate'"
 ]) {
   assert.ok(electronApp.includes(phrase), `Electron app must include ${phrase}`);
 }
+assert.ok(/setWindowOpenHandler[\s\S]*return \{ action: 'deny' \}/.test(electronApp), 'renderer-created windows must stay denied');
+assert.ok(/on\('will-navigate'[\s\S]*event\.preventDefault\(\)/.test(electronApp), 'renderer navigation must stay denied');
 
 const mainProcess = read('js/main-process.js');
 assert.ok(mainProcess.includes("command !== 'close'"), 'close IPC must require the explicit close command');
@@ -257,11 +265,14 @@ assert.ok(app.includes("nameActiveTab[1] == 'long'"), 'long timer reset must req
 assert.ok(!app.includes('setInterval(shell.openExternal'), 'external links must not be opened from background timers');
 
 const preload = read('preload.js');
-assert.ok(preload.includes("require('electron')"));
+const preloadRequires = Array.from(
+  preload.matchAll(/\brequire\s*\(\s*(['"])(.*?)\1\s*\)/g),
+  (match) => match[2]
+);
+assert.deepEqual(preloadRequires, ['electron'], 'sandboxed preload may only require Electron');
 assert.ok(preload.includes("exposeInMainWorld('pomoDesktop'"));
 assert.ok(preload.includes("ipcRenderer.send('closeApp', 'close')"));
 assert.ok(preload.includes("ipcRenderer.invoke('openExternal', url)"));
-assert.ok(!preload.includes("require('./"), 'sandboxed preload must stay self-contained');
 
 const notification = read('js/notification.js');
 assert.ok(notification.includes('requestPermission'), 'notification permission prompts must stay explicit');
@@ -292,7 +303,7 @@ const readme = read('README.md');
 assert.ok(readme.includes('paused timer with zero-padded seconds'), 'README must document the paused timer regression');
 
 const docs = ['README.md', 'SECURITY.md', 'VISION.md', 'CHANGES.md'].map(read).join('\n');
-for (const phrase of ['npm run contracts', 'local-only', 'remote script', 'local asset', 'notification icon', 'user action', 'close IPC', 'unknown tab', 'window title', 'http/https', 'accessible label', 'timer durations', 'completed timer', 'paused timer', 'GitHub Actions']) {
+for (const phrase of ['npm run contracts', 'local-only', 'remote script', 'local asset', 'notification icon', 'user action', 'close IPC', 'unknown tab', 'window title', 'http/https', 'accessible label', 'timer durations', 'completed timer', 'paused timer', 'GitHub Actions', 'Electron 42.4.0', 'Node 22', 'Node 24', 'package-lock.json', 'npm ci', 'context isolation', 'preload', 'Electron smoke']) {
   assert.ok(docs.toLowerCase().includes(phrase.toLowerCase()), `docs must mention ${phrase}`);
 }
 
@@ -316,6 +327,18 @@ assert.ok(read(TIMER_RESTART_PLAN).includes('initial duration'));
 assert.ok(read(TIMER_PAUSE_PLAN).includes('01:05'));
 assert.ok(read(CI_BASELINE_PLAN).includes('GitHub Actions'));
 assert.ok(read(HOSTED_NODE_PLAN).includes('Node 20 and Node 24'));
+assert.ok(read(HOSTED_NODE_PLAN).includes('superseded'));
+const electronMigrationPlan = read(ELECTRON_MIGRATION_PLAN);
+assert.deepEqual(electronMigrationPlan.match(/^Status:\s*(.+)$/gm), ['Status: Completed']);
+assert.ok(electronMigrationPlan.includes('## Work Completed'));
+assert.ok(electronMigrationPlan.includes('## Verification'));
+assert.ok(!/\b(?:Pending|TODO|TBD)\b/i.test(electronMigrationPlan));
+assert.ok(electronMigrationPlan.includes('Electron 42.4.0'));
+assert.ok(electronMigrationPlan.includes('glibc 2.31'));
+assert.ok(electronMigrationPlan.includes('27429177300'));
+assert.ok(electronMigrationPlan.includes('npm audit'));
+assert.ok(electronMigrationPlan.includes('make check'));
+assert.ok(electronMigrationPlan.includes('npm pack --dry-run --json'));
 assertFile('docs/plans/2026-06-09-external-link-protocol-guard.md');
 const externalLinkPlan = read('docs/plans/2026-06-09-external-link-protocol-guard.md');
 assert.ok(externalLinkPlan.includes('Status: Completed'));

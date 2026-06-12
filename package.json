@@ -4,6 +4,16 @@
   "description": "A pomodoro app.",
   "main": "index.js",
   "productName": "Pomo",
+  "files": [
+    "audio",
+    "css",
+    "fonts",
+    "index.html",
+    "index.js",
+    "js",
+    "preload.js",
+    "res/*.png"
+  ],
   "scripts": {
     "start": "electron index.js",
     "smoke": "xvfb-run -a node scripts/smoke-electron.js",

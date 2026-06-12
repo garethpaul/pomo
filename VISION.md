@@ -4,16 +4,15 @@ Pomo is a small Electron menubar Pomodoro timer with work, short-break, and
 long-break tabs, notifications, and a tray/menu integration.
 
 The repository is useful as a compact desktop app example: it shows Electron
-startup, menubar behavior, timer state, notification audio, Bootstrap-era UI,
-and simple IPC for quitting the app.
+startup, direct tray-window behavior, timer state, notification audio,
+Bootstrap-era UI, and narrow IPC for closing and external links.
 
 The goal is to keep the timer reliable, lightweight, and understandable while
 making Electron and dependency age explicit.
 
 Current baseline: `make check` runs syntax checks, timer, notification,
-main-process, and renderer wiring regression tests, and local-only desktop
-contracts, including local asset reference checks and accessible label checks,
-without launching Electron.
+main-process, preload, and renderer wiring regression tests plus local-only
+desktop contracts. Hosted validation also launches Electron 42 under `xvfb`.
 
 The current focus is:
 
@@ -26,12 +25,14 @@ Priority:
 - Keep start, stop, and reset behavior predictable
 - Maintain `make lint`, `make test`, `make build`, `make check`, and
   `npm run verify` for syntax checks, tests, and local desktop contracts
-- Run dependency-free verification on Node 20 and Node 24 in hosted CI with
+- Run locked and audited verification on Node 22 and Node 24 in hosted CI with
   credential-free checkout, read-only permissions, and pinned actions
-- Keep hosted verification independent of the legacy unlocked Electron tree
+- Keep a bounded Ubuntu Electron 42 smoke launch in hosted verification
 - Maintain `npm run contracts` for local-only renderer and plan guardrails
 - Keep GitHub Actions aligned with the local Node `make check` baseline
 - Keep close IPC commands explicit and covered by deterministic tests
+- Keep context isolation and sandboxing enabled, Node integration disabled,
+  renderer navigation/window creation denied, and the preload bridge narrow
 - Keep renderer button and tab wiring covered without launching Electron
 - Keep icon-only renderer controls labelled for assistive tooling
 - Keep unknown tab hashes from resetting any timer
@@ -44,10 +45,10 @@ Priority:
 
 Next priorities:
 
-- Document supported Electron and Node versions
+- Add packaging and release-signing validation for supported desktop platforms
 - Add manual verification notes for renderer timer transitions
 - Review notification behavior and icon rendering on macOS, Windows, and Linux
-- Modernize dependencies in a dedicated pass
+- Add a documented cadence for Electron and Node dependency updates
 
 Contribution rules:
 
