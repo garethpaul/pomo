@@ -61,6 +61,14 @@ try {
   assert.equal(display.textContent, '00:00');
   assert.equal(notifications, 1);
   assert.deepEqual(clearedIntervals, [undefined, 42]);
+
+  countdown.startTimer(display);
+  assert.equal(callbacks.length, 2);
+  assert.deepEqual(clearedIntervals, [undefined, 42, 42]);
+
+  callbacks[1]();
+  assert.equal(display.textContent, '00:59');
+  assert.equal(notifications, 1);
 } finally {
   global.setInterval = originalSetInterval;
   global.clearInterval = originalClearInterval;

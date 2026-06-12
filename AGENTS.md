@@ -58,6 +58,10 @@
 - `npm run contracts` also checks the renderer window title so placeholder Bootstrap titles do not ship.
 - `npm run contracts` verifies renderer local asset references stay relative and point to checked-in files.
 - `npm run contracts` verifies the notification icon stays local and checked in.
+- Timer durations must remain positive integers, and a completed timer must
+  restart from its configured initial duration.
+- Hosted checks must remain dependency-free on Node 20 and Node 24 with pinned
+  actions, read-only permissions, and persisted checkout credentials disabled.
 
 ## Agent workflow
 

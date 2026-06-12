@@ -21,9 +21,13 @@ Priority:
 
 - Preserve the 25-minute, 5-minute, and 10-minute timer flows
 - Keep timer durations validated as positive integers
+- Keep a completed timer restartable from its initial duration
 - Keep start, stop, and reset behavior predictable
 - Maintain `make lint`, `make test`, `make build`, `make check`, and
   `npm run verify` for syntax checks, tests, and local desktop contracts
+- Run dependency-free verification on Node 20 and Node 24 in hosted CI with
+  credential-free checkout, read-only permissions, and pinned actions
+- Keep hosted verification independent of the legacy unlocked Electron tree
 - Maintain `npm run contracts` for local-only renderer and plan guardrails
 - Keep GitHub Actions aligned with the local Node `make check` baseline
 - Keep close IPC commands explicit and covered by deterministic tests

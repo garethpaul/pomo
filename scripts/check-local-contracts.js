@@ -15,7 +15,9 @@ const NOTIFICATION_ICON_PLAN = 'docs/plans/2026-06-09-notification-icon-asset-co
 const GATE_WRAPPER_PLAN = 'docs/plans/2026-06-09-gate-wrapper-contract.md';
 const ACCESSIBLE_CONTROL_PLAN = 'docs/plans/2026-06-09-renderer-accessible-controls.md';
 const TIMER_DURATION_PLAN = 'docs/plans/2026-06-10-timer-duration-validation.md';
-const CI_PLAN = 'docs/plans/2026-06-10-ci-baseline.md';
+const TIMER_RESTART_PLAN = 'docs/plans/2026-06-10-completed-timer-restart.md';
+const CI_BASELINE_PLAN = 'docs/plans/2026-06-10-ci-baseline.md';
+const HOSTED_NODE_PLAN = 'docs/plans/2026-06-10-hosted-node-validation.md';
 const CI_WORKFLOW = '.github/workflows/check.yml';
 
 function read(relativePath) {
@@ -70,7 +72,9 @@ function rendererAssetReferences(markup) {
   GATE_WRAPPER_PLAN,
   ACCESSIBLE_CONTROL_PLAN,
   TIMER_DURATION_PLAN,
-  CI_PLAN,
+  TIMER_RESTART_PLAN,
+  CI_BASELINE_PLAN,
+  HOSTED_NODE_PLAN,
   CI_WORKFLOW,
   'index.html',
   'index.js',
@@ -87,6 +91,34 @@ function rendererAssetReferences(markup) {
   'VISION.md'
 ].forEach(assertFile);
 
+const workflow = read(CI_WORKFLOW);
+const workflowActions = Array.from(
+  workflow.matchAll(/^\s*(?:-\s*)?uses:\s*(\S+)(?:\s+#.*)?$/gm),
+  (match) => match[1]
+);
+const checkoutContract = [
+  '      - name: Check out repository',
+  '        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3',
+  '        with:',
+  '          persist-credentials: false'
+].join('\n');
+assert.ok(workflow.includes(checkoutContract), 'hosted checkout must stay pinned and credential-free');
+assert.deepEqual(workflowActions, [
+  'actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10',
+  'actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e'
+], 'hosted checks must keep only the reviewed checkout and setup-node actions');
+assert.equal((workflow.match(/persist-credentials:/g) || []).length, 1, 'hosted checkout credentials must be configured once');
+assert.equal((workflow.match(/^permissions:$/gm) || []).length, 1, 'hosted permissions must be configured once');
+assert.ok(/^permissions:\n  contents: read$/m.test(workflow), 'hosted checks must use read-only contents permission');
+assert.ok(!/^\s+[A-Za-z-]+:\s+write\s*$/m.test(workflow), 'hosted checks must not request write permissions');
+assert.ok(workflow.includes('node: [20.x, 24.x]'), 'hosted checks must cover Node 20 and 24');
+assert.ok(workflow.includes('workflow_dispatch:'), 'hosted checks must allow manual dispatch');
+assert.ok(workflow.includes('cancel-in-progress: true'), 'hosted checks must cancel superseded runs');
+assert.ok(workflow.includes('runs-on: ubuntu-24.04'), 'hosted checks must use the fixed Ubuntu runner');
+assert.ok(workflow.includes('timeout-minutes: 10'), 'hosted checks must stay bounded');
+assert.ok(/^\s+run: make check$/m.test(workflow), 'hosted checks must run the canonical make check gate');
+assert.ok(!/\bnpm (?:ci|install)\b/.test(workflow), 'hosted checks must not install the legacy Electron dependency tree');
+
 const pkg = JSON.parse(read('package.json'));
 assert.equal(pkg.scripts.contracts, 'node scripts/check-local-contracts.js');
 assert.equal(pkg.scripts.build, 'npm run contracts');
@@ -97,11 +129,6 @@ assert.ok(pkg.scripts.test.includes('node scripts/test-main-process.js'));
 assert.ok(pkg.scripts.test.includes('node scripts/test-app-wiring.js'));
 assert.ok(pkg.scripts.lint.includes('node --check scripts/check-local-contracts.js'));
 assert.ok(pkg.scripts.verify.includes('npm run build'));
-
-const workflow = read(CI_WORKFLOW);
-for (const phrase of ['actions/checkout@v4', 'actions/setup-node@v4', 'node-version: "20"', 'run: make check']) {
-  assert.ok(workflow.includes(phrase), `GitHub Actions workflow must include ${phrase}`);
-}
 
 const makefile = read('Makefile');
 assert.ok(/^check: verify$/m.test(makefile), 'Makefile must expose make check');
@@ -185,13 +212,14 @@ assert.ok(timer.includes('assertPositiveIntegerDuration'), 'timer durations must
 assert.ok(timer.includes("'minutes'"), 'timer minutes must reject invalid durations');
 assert.ok(timer.includes("'seconds'"), 'timer seconds must reject invalid durations');
 assert.ok(timer.includes('must be a positive integer'), 'timer duration errors must stay explicit');
+assert.ok(timer.includes('this.timer === 0'), 'completed timers must restart from their initial duration');
 
 const docs = ['README.md', 'SECURITY.md', 'VISION.md', 'CHANGES.md'].map(read).join('\n');
-for (const phrase of ['npm run contracts', 'local-only', 'remote script', 'local asset', 'notification icon', 'user action', 'close IPC', 'unknown tab', 'window title', 'http/https', 'accessible label', 'timer durations', 'GitHub Actions']) {
+for (const phrase of ['npm run contracts', 'local-only', 'remote script', 'local asset', 'notification icon', 'user action', 'close IPC', 'unknown tab', 'window title', 'http/https', 'accessible label', 'timer durations', 'completed timer', 'GitHub Actions']) {
   assert.ok(docs.toLowerCase().includes(phrase.toLowerCase()), `docs must mention ${phrase}`);
 }
 
-for (const planPath of [LOCAL_ONLY_PLAN, MAIN_PROCESS_PLAN, RENDERER_WIRING_PLAN, TAB_RESET_PLAN, WINDOW_TITLE_PLAN, LOCAL_ASSET_PLAN, NOTIFICATION_ICON_PLAN, GATE_WRAPPER_PLAN, ACCESSIBLE_CONTROL_PLAN, TIMER_DURATION_PLAN, CI_PLAN]) {
+for (const planPath of [LOCAL_ONLY_PLAN, MAIN_PROCESS_PLAN, RENDERER_WIRING_PLAN, TAB_RESET_PLAN, WINDOW_TITLE_PLAN, LOCAL_ASSET_PLAN, NOTIFICATION_ICON_PLAN, GATE_WRAPPER_PLAN, ACCESSIBLE_CONTROL_PLAN, TIMER_DURATION_PLAN, TIMER_RESTART_PLAN, CI_BASELINE_PLAN, HOSTED_NODE_PLAN]) {
   const plan = read(planPath);
   assert.ok(plan.includes('Status: Completed'));
   assert.ok(plan.includes('make check'));
@@ -207,7 +235,9 @@ assert.ok(read(NOTIFICATION_ICON_PLAN).includes('notification icon'));
 assert.ok(read(GATE_WRAPPER_PLAN).includes('make build'));
 assert.ok(read(ACCESSIBLE_CONTROL_PLAN).includes('icon-only controls'));
 assert.ok(read(TIMER_DURATION_PLAN).includes('positive integer'));
-assert.ok(read(CI_PLAN).includes('GitHub Actions'));
+assert.ok(read(TIMER_RESTART_PLAN).includes('initial duration'));
+assert.ok(read(CI_BASELINE_PLAN).includes('GitHub Actions'));
+assert.ok(read(HOSTED_NODE_PLAN).includes('Node 20 and Node 24'));
 assertFile('docs/plans/2026-06-09-external-link-protocol-guard.md');
 const externalLinkPlan = read('docs/plans/2026-06-09-external-link-protocol-guard.md');
 assert.ok(externalLinkPlan.includes('Status: Completed'));

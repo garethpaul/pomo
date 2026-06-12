@@ -21,6 +21,11 @@
         }
 
         startTimer(display) {
+            if (this.timer === 0) {
+                this.minutes = this.initialMinutes;
+                this.seconds = this.initialSeconds;
+            }
+
             this._initializePomotime();
             this.timer = this.pomodoroTime;
             clearInterval(this.pomodoroIntervalId);

@@ -2,12 +2,14 @@
 
 ## 2026-06-10
 
-- Added a GitHub Actions workflow that installs Node 20 and runs `make check`.
-- Extended the local contract checker and docs to require the hosted CI
-  verification path.
+- Added pinned, credential-free, read-only GitHub Actions validation on Node 20
+  and Node 24 without installing the legacy Electron dependency tree.
+- Extended local contracts to preserve the CI action pins, runtime matrix,
+  canonical command, manual dispatch, and no-install boundary.
 - Added timer duration validation so invalid local countdown values are rejected
   before interval state is created.
-
+- Fixed completed timers so pressing Start begins a fresh interval instead of
+  immediately completing again from zero.
 ## 2026-06-09
 
 - Added accessible label validation for icon-only renderer controls.
