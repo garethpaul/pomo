@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'; connect-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <meta name="description" content="">
     <meta name="author" content="">
@@ -26,7 +27,7 @@
     <nav class="navbar navbar-inverse navbar-fixed-top">
       <div class="container">
         <div class="navbar-header">
-          <button type="button" class="navbar-toggle custom-btn" id="close_app" onclick="closeApp();" aria-label="Close Pomo" title="Close Pomo">
+          <button type="button" class="navbar-toggle custom-btn" id="close_app" aria-label="Close Pomo" title="Close Pomo">
             <i class="glyphicon glyphicon-off"></i>
           </button>
           <a class="navbar-brand" href="#">
@@ -124,14 +125,6 @@
 
     <audio id='notiSound' src='audio/alert.wav' loop/>
 
-    <script type="text/javascript">
-    if (typeof module === 'object') {
-      var electron = require('electron');
-      // Require in any additional modules that are Node.js only
-      window.module = module;
-      module = undefined;
-    }
-    </script>
     <script src="js/jquery.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/notification.js"></script>

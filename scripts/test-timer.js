@@ -69,6 +69,20 @@ try {
   callbacks[1]();
   assert.equal(display.textContent, '00:59');
   assert.equal(notifications, 1);
+
+  const resumeDisplay = { textContent: '' };
+  const resumable = new Timer(2);
+  resumable.startTimer(resumeDisplay);
+
+  for (let tick = 0; tick < 55; tick += 1) {
+    callbacks[2]();
+  }
+
+  assert.equal(resumeDisplay.textContent, '01:05');
+  resumable.stopTimer();
+  resumable.startTimer(resumeDisplay);
+  callbacks[3]();
+  assert.equal(resumeDisplay.textContent, '01:04');
 } finally {
   global.setInterval = originalSetInterval;
   global.clearInterval = originalClearInterval;

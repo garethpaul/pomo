@@ -1,16 +1,28 @@
 # Changes
 
+## 2026-06-12
+
+- Replaced floating legacy Electron/menubar dependencies with exact Electron
+  42.4.0 and a committed lockfile that audits with zero findings.
+- Replaced menubar with direct Tray/BrowserWindow ownership while preserving
+  hidden startup, tray toggle, About, close, Quit, and local-only behavior.
+- Added a sandboxed, context-isolated preload bridge; disabled renderer Node
+  integration, navigation, and window creation; and added a restrictive CSP.
+- Added Node 22/24 locked CI and a bounded Ubuntu 24.04 `xvfb` application smoke
+  launch, plus pure Electron lifecycle and preload tests.
+- Fixed paused timers with zero-padded seconds so restart arithmetic remains
+  numeric and resumes from the exact remaining duration.
+
 ## 2026-06-10
 
-- Added pinned, read-only hosted validation on Node 20 and Node 24 without
-  installing the legacy Electron dependency tree.
+- Added pinned, credential-free, read-only GitHub Actions validation on Node 20
+  and Node 24 without installing the legacy Electron dependency tree.
 - Extended local contracts to preserve the CI action pins, runtime matrix,
-  canonical command, and no-install boundary.
+  canonical command, manual dispatch, and no-install boundary.
 - Added timer duration validation so invalid local countdown values are rejected
   before interval state is created.
 - Fixed completed timers so pressing Start begins a fresh interval instead of
   immediately completing again from zero.
-
 ## 2026-06-09
 
 - Added accessible label validation for icon-only renderer controls.

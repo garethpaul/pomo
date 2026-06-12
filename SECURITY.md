@@ -42,10 +42,22 @@ Pomo should remain local-first: do not add hidden remote script loads,
 network-backed timer state, analytics, or external navigation without explicit
 user action. Run `npm run contracts` before changing renderer script loading or
 external-link behavior.
+The maintained desktop baseline is Electron 42.4.0 on Node 22.12 or newer with
+an exact package lock and zero known npm audit findings.
 External links should only open explicit http/https URLs after user clicks.
+The main process must repeat that URL validation, reject credential-bearing
+URLs, deny renderer navigation/window creation, and expose no generic shell or
+IPC primitive to the renderer.
+BrowserWindow must retain context isolation, sandboxing, and disabled Node
+integration. The self-contained preload bridge is limited to close and
+validated external-link commands, and the renderer CSP must keep remote
+connections and scripts disabled.
 The static `npm run build` gate also runs local-only desktop contracts, and the
 Makefile wrappers should keep lint, test, build, verify, and check commands
 available for repository automation.
+GitHub Actions runs `make check` for pushes and pull requests so syntax,
+renderer wiring, local-only, and notification icon guardrails stay enforced
+before merge.
 
 Renderer local asset references should stay relative and point to checked-in
 CSS, JavaScript, image, and audio files. This keeps packaging failures and
@@ -54,13 +66,22 @@ The desktop notification icon should also stay relative and checked in, so
 notifications do not fetch remote artwork.
 Timer durations should stay positive integers so malformed local state cannot
 produce broken countdown behavior.
-Hosted validation uses read-only repository access, pinned actions, and no
-dependency installation so the legacy unlocked Electron tree is not executed
-by CI.
+Paused timer state is converted back to numeric seconds before restarting so
+zero-padded display strings cannot inflate the local countdown.
+Hosted validation uses credential-free, read-only repository access, pinned
+actions, exact lockfile installation, dependency auditing, Node 22/24 pure
+gates, and a bounded Ubuntu 24.04 Electron smoke launch.
 
 ## Dependency and Supply Chain Security
 
-Dependency updates should come from trusted package managers and should keep lockfiles in sync when lockfiles exist. Do not commit credentials, private keys, tokens, generated secrets, or machine-local configuration. If a vulnerability depends on a compromised package, typosquatting risk, insecure transitive dependency, or unsafe build step, include the package name, affected version, and the path through which it is used.
+Dependency updates should come from trusted package managers and must keep
+`package.json` and `package-lock.json` synchronized. Use `npm ci`, run `npm
+audit`, and do not restore floating Electron or menubar ranges. Do not commit
+credentials, private keys, tokens, generated secrets, or machine-local
+configuration. If a vulnerability depends on a compromised package,
+typosquatting risk, insecure transitive dependency, or unsafe build step,
+include the package name, affected version, and the path through which it is
+used.
 
 ## Safe Research Guidelines
 

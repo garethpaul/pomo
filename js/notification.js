@@ -1,13 +1,3 @@
-var ipc;
-
-try {
-  ipc = require('electron').ipcRenderer;
-} catch (error) {
-  ipc = {
-    send: function () {}
-  };
-}
-
 function ensureNotificationPermission(NotificationApi, alertUser) {
   if (!NotificationApi) {
     if (typeof alertUser === 'function') {
@@ -61,7 +51,6 @@ function notifyUser(NotificationApi) {
 }
 
 if (typeof window !== 'undefined') {
-  window.ipc = ipc;
   window.notifyUser = notifyUser;
 }
 
