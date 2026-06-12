@@ -14,6 +14,9 @@ const LOCAL_ASSET_PLAN = 'docs/plans/2026-06-09-local-asset-reference-contract.m
 const NOTIFICATION_ICON_PLAN = 'docs/plans/2026-06-09-notification-icon-asset-contract.md';
 const GATE_WRAPPER_PLAN = 'docs/plans/2026-06-09-gate-wrapper-contract.md';
 const ACCESSIBLE_CONTROL_PLAN = 'docs/plans/2026-06-09-renderer-accessible-controls.md';
+const TIMER_DURATION_PLAN = 'docs/plans/2026-06-10-timer-duration-validation.md';
+const CI_PLAN = 'docs/plans/2026-06-10-ci-baseline.md';
+const CI_WORKFLOW = '.github/workflows/check.yml';
 
 function read(relativePath) {
   return fs.readFileSync(path.join(ROOT, relativePath), 'utf8');
@@ -66,6 +69,9 @@ function rendererAssetReferences(markup) {
   NOTIFICATION_ICON_PLAN,
   GATE_WRAPPER_PLAN,
   ACCESSIBLE_CONTROL_PLAN,
+  TIMER_DURATION_PLAN,
+  CI_PLAN,
+  CI_WORKFLOW,
   'index.html',
   'index.js',
   'js/app.js',
@@ -91,6 +97,11 @@ assert.ok(pkg.scripts.test.includes('node scripts/test-main-process.js'));
 assert.ok(pkg.scripts.test.includes('node scripts/test-app-wiring.js'));
 assert.ok(pkg.scripts.lint.includes('node --check scripts/check-local-contracts.js'));
 assert.ok(pkg.scripts.verify.includes('npm run build'));
+
+const workflow = read(CI_WORKFLOW);
+for (const phrase of ['actions/checkout@v4', 'actions/setup-node@v4', 'node-version: "20"', 'run: make check']) {
+  assert.ok(workflow.includes(phrase), `GitHub Actions workflow must include ${phrase}`);
+}
 
 const makefile = read('Makefile');
 assert.ok(/^check: verify$/m.test(makefile), 'Makefile must expose make check');
@@ -169,12 +180,18 @@ const notificationIconPath = notificationIcon.split(/[?#]/)[0];
 assert.ok(notificationIconPath && !path.isAbsolute(notificationIconPath), 'notification icon must use a relative local path');
 assertFile(notificationIconPath);
 
+const timer = read('js/timer.js');
+assert.ok(timer.includes('assertPositiveIntegerDuration'), 'timer durations must be validated');
+assert.ok(timer.includes("'minutes'"), 'timer minutes must reject invalid durations');
+assert.ok(timer.includes("'seconds'"), 'timer seconds must reject invalid durations');
+assert.ok(timer.includes('must be a positive integer'), 'timer duration errors must stay explicit');
+
 const docs = ['README.md', 'SECURITY.md', 'VISION.md', 'CHANGES.md'].map(read).join('\n');
-for (const phrase of ['npm run contracts', 'local-only', 'remote script', 'local asset', 'notification icon', 'user action', 'close IPC', 'unknown tab', 'window title', 'http/https', 'accessible label']) {
+for (const phrase of ['npm run contracts', 'local-only', 'remote script', 'local asset', 'notification icon', 'user action', 'close IPC', 'unknown tab', 'window title', 'http/https', 'accessible label', 'timer durations', 'GitHub Actions']) {
   assert.ok(docs.toLowerCase().includes(phrase.toLowerCase()), `docs must mention ${phrase}`);
 }
 
-for (const planPath of [LOCAL_ONLY_PLAN, MAIN_PROCESS_PLAN, RENDERER_WIRING_PLAN, TAB_RESET_PLAN, WINDOW_TITLE_PLAN, LOCAL_ASSET_PLAN, NOTIFICATION_ICON_PLAN, GATE_WRAPPER_PLAN, ACCESSIBLE_CONTROL_PLAN]) {
+for (const planPath of [LOCAL_ONLY_PLAN, MAIN_PROCESS_PLAN, RENDERER_WIRING_PLAN, TAB_RESET_PLAN, WINDOW_TITLE_PLAN, LOCAL_ASSET_PLAN, NOTIFICATION_ICON_PLAN, GATE_WRAPPER_PLAN, ACCESSIBLE_CONTROL_PLAN, TIMER_DURATION_PLAN, CI_PLAN]) {
   const plan = read(planPath);
   assert.ok(plan.includes('Status: Completed'));
   assert.ok(plan.includes('make check'));
@@ -189,6 +206,8 @@ assert.ok(read(LOCAL_ASSET_PLAN).includes('local asset references'));
 assert.ok(read(NOTIFICATION_ICON_PLAN).includes('notification icon'));
 assert.ok(read(GATE_WRAPPER_PLAN).includes('make build'));
 assert.ok(read(ACCESSIBLE_CONTROL_PLAN).includes('icon-only controls'));
+assert.ok(read(TIMER_DURATION_PLAN).includes('positive integer'));
+assert.ok(read(CI_PLAN).includes('GitHub Actions'));
 assertFile('docs/plans/2026-06-09-external-link-protocol-guard.md');
 const externalLinkPlan = read('docs/plans/2026-06-09-external-link-protocol-guard.md');
 assert.ok(externalLinkPlan.includes('Status: Completed'));

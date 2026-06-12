@@ -20,10 +20,12 @@ The current focus is:
 Priority:
 
 - Preserve the 25-minute, 5-minute, and 10-minute timer flows
+- Keep timer durations validated as positive integers
 - Keep start, stop, and reset behavior predictable
 - Maintain `make lint`, `make test`, `make build`, `make check`, and
   `npm run verify` for syntax checks, tests, and local desktop contracts
 - Maintain `npm run contracts` for local-only renderer and plan guardrails
+- Keep GitHub Actions aligned with the local Node `make check` baseline
 - Keep close IPC commands explicit and covered by deterministic tests
 - Keep renderer button and tab wiring covered without launching Electron
 - Keep icon-only renderer controls labelled for assistive tooling
@@ -48,6 +50,8 @@ Contribution rules:
 - Do not add background tracking or analytics.
 - Keep desktop permission prompts obvious.
 - Include manual app-run notes for behavior changes.
+- Keep `.github/workflows/check.yml` in sync with the local syntax, test, and
+  contract gates.
 
 ## Security And Responsible Use
 

@@ -1,5 +1,13 @@
 # Changes
 
+## 2026-06-10
+
+- Added a GitHub Actions workflow that installs Node 20 and runs `make check`.
+- Extended the local contract checker and docs to require the hosted CI
+  verification path.
+- Added timer duration validation so invalid local countdown values are rejected
+  before interval state is created.
+
 ## 2026-06-09
 
 - Added accessible label validation for icon-only renderer controls.

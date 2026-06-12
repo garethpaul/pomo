@@ -46,12 +46,17 @@ External links should only open explicit http/https URLs after user clicks.
 The static `npm run build` gate also runs local-only desktop contracts, and the
 Makefile wrappers should keep lint, test, build, verify, and check commands
 available for repository automation.
+GitHub Actions runs `make check` for pushes and pull requests so syntax,
+renderer wiring, local-only, and notification icon guardrails stay enforced
+before merge.
 
 Renderer local asset references should stay relative and point to checked-in
 CSS, JavaScript, image, and audio files. This keeps packaging failures and
 surprise remote fallbacks out of the desktop app.
 The desktop notification icon should also stay relative and checked in, so
 notifications do not fetch remote artwork.
+Timer durations should stay positive integers so malformed local state cannot
+produce broken countdown behavior.
 
 ## Dependency and Supply Chain Security
 

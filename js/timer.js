@@ -1,12 +1,20 @@
 (function (root) {
     'use strict';
 
+    function assertPositiveIntegerDuration(value, label) {
+        if (!Number.isInteger(value) || value <= 0) {
+            throw new TypeError(label + ' must be a positive integer');
+        }
+
+        return value;
+    }
+
     class Timer {
         constructor(minutes, seconds = 60) {
-            this.minutes = minutes;
-            this.seconds = seconds;
-            this.initialMinutes = minutes;
-            this.initialSeconds = seconds;
+            this.minutes = assertPositiveIntegerDuration(minutes, 'minutes');
+            this.seconds = assertPositiveIntegerDuration(seconds, 'seconds');
+            this.initialMinutes = this.minutes;
+            this.initialSeconds = this.seconds;
             this.timer = undefined;
             this.pomodoroTime = undefined;
             this.pomodoroIntervalId = undefined;

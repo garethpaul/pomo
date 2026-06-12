@@ -72,6 +72,8 @@ Detected npm scripts:
 - Renderer wiring tests verify external links only open explicit http/https
   URLs after user clicks.
 - Renderer wiring tests also confirm unknown tab hashes do not reset a timer.
+- Timer tests reject invalid timer durations so zero, negative, fractional, or
+  non-numeric values cannot enter countdown state.
 - Local contract checks confirm the app window title stays branded as Pomo.
 - Local contract checks also verify renderer local asset references point to
   checked-in CSS, JavaScript, image, and audio files.
@@ -86,6 +88,8 @@ Detected npm scripts:
   static build gate for local-only desktop contracts.
 - Run `make lint`, `make test`, `make build`, and `make check` as the
   repository-standard wrappers around the matching npm scripts.
+- GitHub Actions installs Node 20 and runs `make check` for pushes and pull
+  requests.
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
 
@@ -135,6 +139,10 @@ When the required SDK or runtime is unavailable, use static checks and source re
   gate wrapper contract.
 - See `docs/plans/2026-06-09-renderer-accessible-controls.md` for icon-only
   renderer control accessible label coverage.
+- See `docs/plans/2026-06-10-timer-duration-validation.md` for timer duration
+  validation.
+- See `docs/plans/2026-06-10-ci-baseline.md` for the hosted GitHub Actions
+  baseline.
 - See `plans/2026-06-08-notification-regression-tests.md` for the notification
   regression baseline.
 
