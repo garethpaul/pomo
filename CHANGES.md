@@ -1,5 +1,10 @@
 # Changes
 
+## 2026-06-12
+
+- Fixed paused timers with zero-padded seconds so restart arithmetic remains
+  numeric and resumes from the exact remaining duration.
+
 ## 2026-06-10
 
 - Added pinned, credential-free, read-only GitHub Actions validation on Node 20

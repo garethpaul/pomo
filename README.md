@@ -85,6 +85,8 @@ Detected npm scripts:
   non-numeric values cannot enter countdown state.
 - Timer tests confirm a completed timer restarts from its initial duration
   instead of immediately firing another completion notification.
+- Timer tests confirm a paused timer with zero-padded seconds resumes from the
+  exact remaining duration instead of concatenating display strings.
 - Local contract checks confirm the app window title stays branded as Pomo.
 - Local contract checks also verify renderer local asset references point to
   checked-in CSS, JavaScript, image, and audio files.
@@ -156,6 +158,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   baseline.
 - See `docs/plans/2026-06-10-hosted-node-validation.md` for the pinned,
   credential-free, read-only Node 20/24 no-install matrix.
+- See `docs/plans/2026-06-12-timer-pause-resume.md` for exact paused-timer
+  restart coverage.
 - See `plans/2026-06-08-notification-regression-tests.md` for the notification
   regression baseline.
 

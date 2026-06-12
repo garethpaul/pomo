@@ -72,7 +72,7 @@
             if (this.minutes == this.initialMinutes && this.seconds == this.initialSeconds) {
                 this.pomodoroTime = this.minutes * this.seconds;
             } else {
-                this.pomodoroTime = this.minutes * 60 + this.seconds;
+                this.pomodoroTime = Number(this.minutes) * 60 + Number(this.seconds);
             }
         }
     }

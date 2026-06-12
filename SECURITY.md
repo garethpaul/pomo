@@ -57,6 +57,8 @@ The desktop notification icon should also stay relative and checked in, so
 notifications do not fetch remote artwork.
 Timer durations should stay positive integers so malformed local state cannot
 produce broken countdown behavior.
+Paused timer state is converted back to numeric seconds before restarting so
+zero-padded display strings cannot inflate the local countdown.
 Hosted validation uses credential-free, read-only repository access, pinned
 actions, and no dependency installation so the legacy unlocked Electron tree
 is not executed by CI.

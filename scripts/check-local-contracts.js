@@ -16,6 +16,7 @@ const GATE_WRAPPER_PLAN = 'docs/plans/2026-06-09-gate-wrapper-contract.md';
 const ACCESSIBLE_CONTROL_PLAN = 'docs/plans/2026-06-09-renderer-accessible-controls.md';
 const TIMER_DURATION_PLAN = 'docs/plans/2026-06-10-timer-duration-validation.md';
 const TIMER_RESTART_PLAN = 'docs/plans/2026-06-10-completed-timer-restart.md';
+const TIMER_PAUSE_PLAN = 'docs/plans/2026-06-12-timer-pause-resume.md';
 const CI_BASELINE_PLAN = 'docs/plans/2026-06-10-ci-baseline.md';
 const HOSTED_NODE_PLAN = 'docs/plans/2026-06-10-hosted-node-validation.md';
 const CI_WORKFLOW = '.github/workflows/check.yml';
@@ -73,6 +74,7 @@ function rendererAssetReferences(markup) {
   ACCESSIBLE_CONTROL_PLAN,
   TIMER_DURATION_PLAN,
   TIMER_RESTART_PLAN,
+  TIMER_PAUSE_PLAN,
   CI_BASELINE_PLAN,
   HOSTED_NODE_PLAN,
   CI_WORKFLOW,
@@ -213,13 +215,21 @@ assert.ok(timer.includes("'minutes'"), 'timer minutes must reject invalid durati
 assert.ok(timer.includes("'seconds'"), 'timer seconds must reject invalid durations');
 assert.ok(timer.includes('must be a positive integer'), 'timer duration errors must stay explicit');
 assert.ok(timer.includes('this.timer === 0'), 'completed timers must restart from their initial duration');
+assert.ok(timer.includes('Number(this.minutes) * 60 + Number(this.seconds)'), 'paused timers must resume from numeric remaining time');
+
+const timerTests = read('scripts/test-timer.js');
+assert.ok(timerTests.includes("assert.equal(resumeDisplay.textContent, '01:05')"), 'timer tests must pause with zero-padded seconds');
+assert.ok(timerTests.includes("assert.equal(resumeDisplay.textContent, '01:04')"), 'timer tests must resume at the next second');
+
+const readme = read('README.md');
+assert.ok(readme.includes('paused timer with zero-padded seconds'), 'README must document the paused timer regression');
 
 const docs = ['README.md', 'SECURITY.md', 'VISION.md', 'CHANGES.md'].map(read).join('\n');
-for (const phrase of ['npm run contracts', 'local-only', 'remote script', 'local asset', 'notification icon', 'user action', 'close IPC', 'unknown tab', 'window title', 'http/https', 'accessible label', 'timer durations', 'completed timer', 'GitHub Actions']) {
+for (const phrase of ['npm run contracts', 'local-only', 'remote script', 'local asset', 'notification icon', 'user action', 'close IPC', 'unknown tab', 'window title', 'http/https', 'accessible label', 'timer durations', 'completed timer', 'paused timer', 'GitHub Actions']) {
   assert.ok(docs.toLowerCase().includes(phrase.toLowerCase()), `docs must mention ${phrase}`);
 }
 
-for (const planPath of [LOCAL_ONLY_PLAN, MAIN_PROCESS_PLAN, RENDERER_WIRING_PLAN, TAB_RESET_PLAN, WINDOW_TITLE_PLAN, LOCAL_ASSET_PLAN, NOTIFICATION_ICON_PLAN, GATE_WRAPPER_PLAN, ACCESSIBLE_CONTROL_PLAN, TIMER_DURATION_PLAN, TIMER_RESTART_PLAN, CI_BASELINE_PLAN, HOSTED_NODE_PLAN]) {
+for (const planPath of [LOCAL_ONLY_PLAN, MAIN_PROCESS_PLAN, RENDERER_WIRING_PLAN, TAB_RESET_PLAN, WINDOW_TITLE_PLAN, LOCAL_ASSET_PLAN, NOTIFICATION_ICON_PLAN, GATE_WRAPPER_PLAN, ACCESSIBLE_CONTROL_PLAN, TIMER_DURATION_PLAN, TIMER_RESTART_PLAN, TIMER_PAUSE_PLAN, CI_BASELINE_PLAN, HOSTED_NODE_PLAN]) {
   const plan = read(planPath);
   assert.ok(plan.includes('Status: Completed'));
   assert.ok(plan.includes('make check'));
@@ -236,6 +246,7 @@ assert.ok(read(GATE_WRAPPER_PLAN).includes('make build'));
 assert.ok(read(ACCESSIBLE_CONTROL_PLAN).includes('icon-only controls'));
 assert.ok(read(TIMER_DURATION_PLAN).includes('positive integer'));
 assert.ok(read(TIMER_RESTART_PLAN).includes('initial duration'));
+assert.ok(read(TIMER_PAUSE_PLAN).includes('01:05'));
 assert.ok(read(CI_BASELINE_PLAN).includes('GitHub Actions'));
 assert.ok(read(HOSTED_NODE_PLAN).includes('Node 20 and Node 24'));
 assertFile('docs/plans/2026-06-09-external-link-protocol-guard.md');

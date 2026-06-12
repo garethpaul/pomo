@@ -22,6 +22,7 @@ Priority:
 - Preserve the 25-minute, 5-minute, and 10-minute timer flows
 - Keep timer durations validated as positive integers
 - Keep a completed timer restartable from its initial duration
+- Keep paused timers restartable from their exact remaining duration
 - Keep start, stop, and reset behavior predictable
 - Maintain `make lint`, `make test`, `make build`, `make check`, and
   `npm run verify` for syntax checks, tests, and local desktop contracts
