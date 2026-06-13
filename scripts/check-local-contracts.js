@@ -22,6 +22,7 @@ const HOSTED_NODE_PLAN = 'docs/plans/2026-06-10-hosted-node-validation.md';
 const ELECTRON_MIGRATION_PLAN = 'docs/plans/2026-06-12-electron-42-security-migration.md';
 const TRAY_LIFECYCLE_PLAN = 'docs/plans/2026-06-13-tray-lifecycle-regression-tests.md';
 const PRELOAD_URL_TYPE_PLAN = 'docs/plans/2026-06-13-preload-external-url-type-guard.md';
+const IPC_SENDER_PLAN = 'docs/plans/2026-06-13-ipc-sender-identity-guard.md';
 const CI_WORKFLOW = '.github/workflows/check.yml';
 
 function read(relativePath) {
@@ -82,6 +83,8 @@ function rendererAssetReferences(markup) {
   HOSTED_NODE_PLAN,
   ELECTRON_MIGRATION_PLAN,
   TRAY_LIFECYCLE_PLAN,
+  PRELOAD_URL_TYPE_PLAN,
+  IPC_SENDER_PLAN,
   CI_WORKFLOW,
   '.nvmrc',
   'index.html',
@@ -315,7 +318,10 @@ for (const phrase of [
   'trays[0].menu.template[2].click()',
   'events.activate()',
   'windows[0].devToolsOpen = true',
-  'assert.equal(hiddenCloseEvent.prevented, true)'
+  'assert.equal(hiddenCloseEvent.prevented, true)',
+  'assert.equal(isTrustedIpcSender(trustedEvent, windows[0]), true)',
+  "ipcHandlers.openExternal(untrustedEvent, 'https://untrusted.example/')",
+  "ipcListeners.closeApp(untrustedEvent, 'close')"
 ]) {
   assert.ok(electronAppTests.includes(phrase), `Electron application tests must preserve ${phrase}`);
 }
@@ -324,11 +330,11 @@ const readme = read('README.md');
 assert.ok(readme.includes('paused timer with zero-padded seconds'), 'README must document the paused timer regression');
 
 const docs = ['README.md', 'SECURITY.md', 'VISION.md', 'CHANGES.md'].map(read).join('\n');
-for (const phrase of ['npm run contracts', 'local-only', 'remote script', 'local asset', 'notification icon', 'user action', 'close IPC', 'unknown tab', 'window title', 'http/https', 'accessible label', 'timer durations', 'completed timer', 'paused timer', 'tray positioning', 'GitHub Actions', 'Electron 42.4.0', 'Node 22', 'Node 24', 'package-lock.json', 'npm ci', 'context isolation', 'preload', 'Electron smoke']) {
+for (const phrase of ['npm run contracts', 'local-only', 'remote script', 'local asset', 'notification icon', 'user action', 'close IPC', 'IPC sender', 'unknown tab', 'window title', 'http/https', 'accessible label', 'timer durations', 'completed timer', 'paused timer', 'tray positioning', 'GitHub Actions', 'Electron 42.4.0', 'Node 22', 'Node 24', 'package-lock.json', 'npm ci', 'context isolation', 'preload', 'Electron smoke']) {
   assert.ok(docs.toLowerCase().includes(phrase.toLowerCase()), `docs must mention ${phrase}`);
 }
 
-for (const planPath of [LOCAL_ONLY_PLAN, MAIN_PROCESS_PLAN, RENDERER_WIRING_PLAN, TAB_RESET_PLAN, WINDOW_TITLE_PLAN, LOCAL_ASSET_PLAN, NOTIFICATION_ICON_PLAN, GATE_WRAPPER_PLAN, ACCESSIBLE_CONTROL_PLAN, TIMER_DURATION_PLAN, TIMER_RESTART_PLAN, TIMER_PAUSE_PLAN, CI_BASELINE_PLAN, HOSTED_NODE_PLAN, TRAY_LIFECYCLE_PLAN, PRELOAD_URL_TYPE_PLAN]) {
+for (const planPath of [LOCAL_ONLY_PLAN, MAIN_PROCESS_PLAN, RENDERER_WIRING_PLAN, TAB_RESET_PLAN, WINDOW_TITLE_PLAN, LOCAL_ASSET_PLAN, NOTIFICATION_ICON_PLAN, GATE_WRAPPER_PLAN, ACCESSIBLE_CONTROL_PLAN, TIMER_DURATION_PLAN, TIMER_RESTART_PLAN, TIMER_PAUSE_PLAN, CI_BASELINE_PLAN, HOSTED_NODE_PLAN, TRAY_LIFECYCLE_PLAN, PRELOAD_URL_TYPE_PLAN, IPC_SENDER_PLAN]) {
   const plan = read(planPath);
   assert.ok(plan.includes('Status: Completed'));
   assert.ok(plan.includes('make check'));
@@ -351,6 +357,10 @@ assert.ok(read(HOSTED_NODE_PLAN).includes('Node 20 and Node 24'));
 assert.ok(read(HOSTED_NODE_PLAN).includes('superseded'));
 assert.ok(read(TRAY_LIFECYCLE_PLAN).includes('negative coordinates'));
 assert.ok(read(PRELOAD_URL_TYPE_PLAN).includes('non-string'));
+assert.ok(read(IPC_SENDER_PLAN).includes('untrusted sender'));
+assert.ok(read(IPC_SENDER_PLAN).includes('Node 22'));
+assert.ok(read(IPC_SENDER_PLAN).includes('Node 24'));
+assert.ok(read(IPC_SENDER_PLAN).includes('hostile mutations rejected'));
 const electronMigrationPlan = read(ELECTRON_MIGRATION_PLAN);
 assert.deepEqual(electronMigrationPlan.match(/^Status:\s*(.+)$/gm), ['Status: Completed']);
 assert.ok(electronMigrationPlan.includes('## Work Completed'));

@@ -14,6 +14,10 @@ function isExternalHttpUrl(value) {
   }
 }
 
+function isTrustedIpcSender(event, window) {
+  return Boolean(event && window && event.sender === window.webContents);
+}
+
 function createWindowOptions(preloadPath) {
   return {
     width: 278,
@@ -137,10 +141,13 @@ function createPomoApplication(electron, options) {
   }
 
   electron.ipcMain.on('closeApp', function (event, command) {
+    if (!isTrustedIpcSender(event, window)) {
+      return false;
+    }
     handleCloseApp(app, command);
   });
   electron.ipcMain.handle('openExternal', function (event, url) {
-    if (!isExternalHttpUrl(url)) {
+    if (!isTrustedIpcSender(event, window) || !isExternalHttpUrl(url)) {
       return false;
     }
     return Promise.resolve(electron.shell.openExternal(url)).then(function () {
@@ -170,5 +177,6 @@ module.exports = {
   createPomoApplication: createPomoApplication,
   createWindowOptions: createWindowOptions,
   isExternalHttpUrl: isExternalHttpUrl,
+  isTrustedIpcSender: isTrustedIpcSender,
   positionWindow: positionWindow
 };
