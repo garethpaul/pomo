@@ -1,6 +1,6 @@
 # Preload External URL Type Guard
 
-Status: Planned
+Status: Completed
 
 ## Problem
 
@@ -25,6 +25,19 @@ non-string renderer values still cross the IPC boundary unnecessarily.
 - Do not duplicate protocol parsing in the preload or weaken main-process URL
   validation.
 
+## Work Completed
+
+- Added a preload-side string type guard that returns a resolved `false`
+  result without invoking IPC for malformed values.
+- Preserved string forwarding to the authoritative main-process URL validator.
+- Added runtime coverage for null, numeric, object, and valid string values,
+  plus static contracts for the guard, async rejection, and no-IPC assertion.
+- Updated security, change, and maintenance-plan documentation.
+
 ## Verification
 
-Pending implementation.
+- `make check` passed the complete lint, deterministic test, build, and local
+  contract gate on Node 22.22.2 and Node 24.16.0.
+- Temporary runtime and static mutations that inverted the string type guard
+  each failed at the intended regression assertion.
+- `git diff --check` passed for the completed implementation.

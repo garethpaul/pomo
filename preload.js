@@ -7,6 +7,9 @@ contextBridge.exposeInMainWorld('pomoDesktop', Object.freeze({
     ipcRenderer.send('closeApp', 'close');
   },
   openExternal: function (url) {
+    if (typeof url !== 'string') {
+      return Promise.resolve(false);
+    }
     return ipcRenderer.invoke('openExternal', url);
   }
 }));

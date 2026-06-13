@@ -42,11 +42,16 @@ assert.deepEqual(Object.keys(exposed.api).sort(), ['close', 'openExternal']);
 exposed.api.close();
 assert.deepEqual(sent, [{ channel: 'closeApp', value: 'close' }]);
 
-exposed.api.openExternal('https://example.com/').then((result) => {
-  assert.equal(result, true);
+(async function () {
+  for (const value of [null, 42, { url: 'https://example.com/' }]) {
+    assert.equal(await exposed.api.openExternal(value), false);
+  }
+  assert.deepEqual(invoked, [], 'non-string values must not cross the IPC boundary');
+
+  assert.equal(await exposed.api.openExternal('https://example.com/'), true);
   assert.deepEqual(invoked, [{ channel: 'openExternal', value: 'https://example.com/' }]);
   console.log('preload API tests passed.');
-}).catch((error) => {
+})().catch((error) => {
   console.error(error);
   process.exit(1);
 });
