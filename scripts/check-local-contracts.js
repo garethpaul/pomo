@@ -21,6 +21,7 @@ const CI_BASELINE_PLAN = 'docs/plans/2026-06-10-ci-baseline.md';
 const HOSTED_NODE_PLAN = 'docs/plans/2026-06-10-hosted-node-validation.md';
 const ELECTRON_MIGRATION_PLAN = 'docs/plans/2026-06-12-electron-42-security-migration.md';
 const TRAY_LIFECYCLE_PLAN = 'docs/plans/2026-06-13-tray-lifecycle-regression-tests.md';
+const PRELOAD_URL_TYPE_PLAN = 'docs/plans/2026-06-13-preload-external-url-type-guard.md';
 const CI_WORKFLOW = '.github/workflows/check.yml';
 
 function read(relativePath) {
@@ -274,7 +275,13 @@ const preloadRequires = Array.from(
 assert.deepEqual(preloadRequires, ['electron'], 'sandboxed preload may only require Electron');
 assert.ok(preload.includes("exposeInMainWorld('pomoDesktop'"));
 assert.ok(preload.includes("ipcRenderer.send('closeApp', 'close')"));
+assert.ok(preload.includes("typeof url !== 'string'"), 'preload must reject non-string external URLs');
+assert.ok(preload.includes('return Promise.resolve(false);'), 'preload rejection must preserve the async API');
 assert.ok(preload.includes("ipcRenderer.invoke('openExternal', url)"));
+
+const preloadTests = read('scripts/test-preload-api.js');
+assert.ok(preloadTests.includes("[null, 42, { url: 'https://example.com/' }]"), 'preload tests must cover representative non-string values');
+assert.ok(preloadTests.includes("assert.deepEqual(invoked, [], 'non-string values must not cross the IPC boundary')"), 'preload tests must prove rejected values do not invoke IPC');
 
 const notification = read('js/notification.js');
 assert.ok(notification.includes('requestPermission'), 'notification permission prompts must stay explicit');
@@ -321,7 +328,7 @@ for (const phrase of ['npm run contracts', 'local-only', 'remote script', 'local
   assert.ok(docs.toLowerCase().includes(phrase.toLowerCase()), `docs must mention ${phrase}`);
 }
 
-for (const planPath of [LOCAL_ONLY_PLAN, MAIN_PROCESS_PLAN, RENDERER_WIRING_PLAN, TAB_RESET_PLAN, WINDOW_TITLE_PLAN, LOCAL_ASSET_PLAN, NOTIFICATION_ICON_PLAN, GATE_WRAPPER_PLAN, ACCESSIBLE_CONTROL_PLAN, TIMER_DURATION_PLAN, TIMER_RESTART_PLAN, TIMER_PAUSE_PLAN, CI_BASELINE_PLAN, HOSTED_NODE_PLAN, TRAY_LIFECYCLE_PLAN]) {
+for (const planPath of [LOCAL_ONLY_PLAN, MAIN_PROCESS_PLAN, RENDERER_WIRING_PLAN, TAB_RESET_PLAN, WINDOW_TITLE_PLAN, LOCAL_ASSET_PLAN, NOTIFICATION_ICON_PLAN, GATE_WRAPPER_PLAN, ACCESSIBLE_CONTROL_PLAN, TIMER_DURATION_PLAN, TIMER_RESTART_PLAN, TIMER_PAUSE_PLAN, CI_BASELINE_PLAN, HOSTED_NODE_PLAN, TRAY_LIFECYCLE_PLAN, PRELOAD_URL_TYPE_PLAN]) {
   const plan = read(planPath);
   assert.ok(plan.includes('Status: Completed'));
   assert.ok(plan.includes('make check'));
@@ -343,6 +350,7 @@ assert.ok(read(CI_BASELINE_PLAN).includes('GitHub Actions'));
 assert.ok(read(HOSTED_NODE_PLAN).includes('Node 20 and Node 24'));
 assert.ok(read(HOSTED_NODE_PLAN).includes('superseded'));
 assert.ok(read(TRAY_LIFECYCLE_PLAN).includes('negative coordinates'));
+assert.ok(read(PRELOAD_URL_TYPE_PLAN).includes('non-string'));
 const electronMigrationPlan = read(ELECTRON_MIGRATION_PLAN);
 assert.deepEqual(electronMigrationPlan.match(/^Status:\s*(.+)$/gm), ['Status: Completed']);
 assert.ok(electronMigrationPlan.includes('## Work Completed'));
