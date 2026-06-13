@@ -1,6 +1,6 @@
 # Tray Lifecycle Regression Tests
 
-Status: Planned
+Status: Completed
 
 ## Context
 
@@ -45,7 +45,7 @@ smoke test.
 - Do not add browser automation or platform-specific dependencies.
 - Do not merge or close the canonical remediation PR.
 
-## Planned Verification
+## Verification
 
 - `node --check scripts/test-electron-app.js`
 - `node --check scripts/check-local-contracts.js`
@@ -56,3 +56,25 @@ smoke test.
 - `make check`
 - unchanged runtime and dependency file hashes
 - `git diff --check`
+
+## Work Completed
+
+- Added a bottom-edge, negative-coordinate display case that verifies upward
+  placement and horizontal work-area clamping.
+- Added deterministic About and Quit menu action coverage.
+- Added activation, DevTools-aware blur, close-to-hide, and post-quit close
+  lifecycle coverage.
+- Extended local contracts to preserve the new assertions, documentation, and
+  completed plan.
+- Left runtime modules, dependencies, package metadata, and workflows
+  unchanged.
+
+## Verification Results
+
+- `node --check scripts/test-electron-app.js` and
+  `node --check scripts/check-local-contracts.js` passed.
+- `node scripts/test-electron-app.js` passed.
+- `npm run lint`, `npm test`, `npm run build`, and `make check` passed.
+- Runtime, dependency, package, and workflow files have no diff from base
+  commit `59644b33cc777b609ff3007d584c7eee0d4d6961`.
+- `git diff --check` passed.

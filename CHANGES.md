@@ -1,5 +1,11 @@
 # Changes
 
+## 2026-06-13
+
+- Expanded deterministic Electron tests for negative-coordinate tray
+  positioning, About and Quit commands, activation, DevTools-aware blur, and
+  close-to-hide behavior.
+
 ## 2026-06-12
 
 - Replaced floating legacy Electron/menubar dependencies with exact Electron
