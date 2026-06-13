@@ -7,6 +7,7 @@ const {
   createPomoApplication,
   createWindowOptions,
   isExternalHttpUrl,
+  isTrustedIpcSender,
   positionWindow
 } = require('../js/electron-app');
 
@@ -209,6 +210,10 @@ const electron = {
 
   assert.equal(windows.length, 1);
   assert.equal(trays.length, 1);
+  const trustedEvent = { sender: windows[0].webContents };
+  const untrustedEvent = { sender: {} };
+  assert.equal(isTrustedIpcSender(trustedEvent, windows[0]), true);
+  assert.equal(isTrustedIpcSender(untrustedEvent, windows[0]), false);
   assert.equal(windows[0].loadedFile, path.join(__dirname, '..', 'index.html'));
   assert.deepEqual(windows[0].windowOpenHandler({ url: 'https://example.com/' }), { action: 'deny' });
   const navigationEvent = { prevented: false, preventDefault() { this.prevented = true; } };
@@ -236,13 +241,16 @@ const electron = {
   trays[0].trayEvents.click();
   assert.equal(windows[0].visible, true);
 
-  assert.equal(await ipcHandlers.openExternal({}, 'file:///etc/passwd'), false);
-  assert.equal(await ipcHandlers.openExternal({}, 'https://example.com/'), true);
+  assert.equal(await ipcHandlers.openExternal(trustedEvent, 'file:///etc/passwd'), false);
+  assert.equal(await ipcHandlers.openExternal(untrustedEvent, 'https://untrusted.example/'), false);
+  assert.equal(await ipcHandlers.openExternal(trustedEvent, 'https://example.com/'), true);
   assert.deepEqual(openedUrls, ['https://example.com/']);
 
-  ipcListeners.closeApp({}, 'noop');
+  ipcListeners.closeApp(trustedEvent, 'noop');
   assert.equal(quitCount, 1);
-  ipcListeners.closeApp({}, 'close');
+  ipcListeners.closeApp(untrustedEvent, 'close');
+  assert.equal(quitCount, 1);
+  ipcListeners.closeApp(trustedEvent, 'close');
   assert.equal(quitCount, 2);
 
   windows[0].devToolsOpen = true;

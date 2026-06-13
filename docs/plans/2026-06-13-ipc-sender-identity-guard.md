@@ -1,6 +1,6 @@
 # Bind Privileged IPC to the Application Window
 
-Status: Pending
+Status: Completed
 
 ## Context
 
@@ -16,6 +16,7 @@ one local, isolated window today; binding privileged handlers to that window's
 - Preserve trusted renderer behavior, command validation, URL validation, and
   shell error propagation.
 - Add application-level regression tests for trusted and untrusted events.
+- Keep an explicit untrusted sender regression for both privileged channels.
 - Protect the implementation, test cases, documentation, and completed plan in
   the dependency-free contract gate.
 
@@ -38,8 +39,27 @@ one local, isolated window today; binding privileged handlers to that window's
 
 ## Work Completed
 
-Pending implementation.
+- Added `isTrustedIpcSender` and bound `closeApp` plus `openExternal` to the
+  application window's `webContents` before command or URL handling.
+- Extended the fake-Electron application test with trusted and unrelated sender
+  events for both privileged channels.
+- Protected the implementation tests, documentation, and completed plan in the
+  local-only contract checker.
 
 ## Verification Results
 
-Pending implementation and validation.
+- Node 22 and Node 24 `make check` passed in network-disabled, read-only
+  containers, including syntax, all deterministic tests, and local-only
+  contracts.
+- The focused fake-Electron application test passed trusted and untrusted
+  sender cases for both privileged channels.
+- Seven hostile mutations rejected sender-comparison and handler-guard removal,
+  missing untrusted tests, documentation drift, plan status drift, and
+  verification-evidence drift.
+- `npm audit --ignore-scripts --audit-level=low` reported zero vulnerabilities,
+  and `npm pack --dry-run --json` produced a 26-file package manifest.
+- The real Electron 42 `xvfb` smoke was not run locally because this worktree
+  intentionally has no installed Electron binary; the existing hosted smoke job
+  remains the exact-head runtime gate.
+- `git diff --check` and the secret, captured-prompt, generated-artifact,
+  dependency, and workflow scans passed.

@@ -2,6 +2,8 @@
 
 ## 2026-06-13
 
+- Bound close and external-link IPC to the application window's `webContents`
+  and added trusted/untrusted sender regression coverage.
 - Rejected non-string external URL values in the sandboxed preload before they
   can cross the IPC boundary, with runtime and static regression coverage.
 - Expanded deterministic Electron tests for negative-coordinate tray

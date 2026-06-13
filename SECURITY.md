@@ -52,8 +52,9 @@ BrowserWindow must retain context isolation, sandboxing, and disabled Node
 integration. The self-contained preload bridge is limited to close and
 validated external-link commands. It rejects non-string external URL values
 before IPC, while the main process remains responsible for complete URL and
-protocol validation. The renderer CSP must keep remote connections and scripts
-disabled.
+protocol validation. Privileged IPC is bound to the application window's
+`webContents`, so unrelated IPC senders cannot reuse those handlers. The
+renderer CSP must keep remote connections and scripts disabled.
 The static `npm run build` gate also runs local-only desktop contracts, and the
 Makefile wrappers should keep lint, test, build, verify, and check commands
 available for repository automation.
