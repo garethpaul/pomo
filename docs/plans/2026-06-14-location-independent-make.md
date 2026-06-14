@@ -1,6 +1,6 @@
 # Make Repository Gates Location Independent
 
-Status: Planned
+Status: Completed
 
 ## Context
 
@@ -33,8 +33,21 @@ same engineering gate.
 - `npm audit`, `npm pack --dry-run --json`, `git diff --check`, and secret,
   captured-prompt, generated-artifact, dependency, and workflow scans
 
-## Work Planned
+## Work Completed
 
-- Add an override-protected absolute repository root to the Makefile.
-- Prefix each executable recipe with a change to that root.
-- Extend the local-only checker with exact root and recipe contracts.
+- Added an override-protected absolute repository root to the Makefile.
+- Prefixed each executable recipe with a change to that root.
+- Extended the local-only checker with exact root and recipe contracts.
+
+## Verification Results
+
+- Node 22.22.2 and Node 24.16.0 passed every Make alias from both the repository
+  root and an unrelated directory, including full `make check` runs with
+  `REPO_ROOT=/tmp` supplied on the command line.
+- Five hostile mutations rejected removal of override protection and the
+  rooted lint, test, build, and verify recipes.
+- `npm audit --ignore-scripts --audit-level=low` reported zero vulnerabilities,
+  and `npm pack --dry-run --json` produced the expected 26-file package
+  manifest without writing an archive.
+- `git diff --check` and the secret, captured-prompt, generated-artifact,
+  dependency, and workflow scans passed.
