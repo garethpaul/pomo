@@ -105,6 +105,8 @@ Detected npm scripts:
   relative asset.
 - Denied notification permission is a stable fail-closed state: startup and
   timer completion do not request permission again after the user declines it.
+- Notification permission request failures are contained whether the browser
+  throws synchronously or rejects its permission promise.
 - Local contract checks verify icon-only renderer controls keep accessible
   labels and matching tooltip titles.
 - Local contract checks verify the npm and Makefile gate wrappers expose lint,

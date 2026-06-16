@@ -48,6 +48,8 @@ Priority:
 - Keep the desktop notification icon checked in and relative
 - Treat denied notification permission as fail-closed without repeated
   startup or timer-completion requests
+- Contain notification permission request failures without retrying prompts or
+  interrupting the timer lifecycle
 - Maintain local notification behavior without network dependencies
 - Keep tray/menu behavior visible in the main process
 

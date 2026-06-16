@@ -1,6 +1,6 @@
 # Notification Permission Request Failure Boundary
 
-status: planned
+status: completed
 
 ## Context
 
@@ -47,3 +47,26 @@ boundary rather than destabilizing the timer application.
   containment, return semantics, test execution, guidance, and plan evidence.
 - Audit the exact diff, generated artifacts, dependencies, credentials,
   conflicts, modes, package contents, and whitespace before commit and push.
+
+## Work Completed
+
+- Wrapped the default-state permission request so synchronous throws return
+  false instead of escaping application startup or timer completion.
+- Attached a rejection handler to promise-like permission results without
+  awaiting, retrying, or changing successful prompt return semantics.
+- Added asynchronous failure regressions, mutation-sensitive local contracts,
+  synchronized guidance, and this completed evidence record.
+
+## Verification Completed
+
+- Node 22.22.1 and Node 24.16.0 passed syntax checks and the complete
+  deterministic test suite.
+- The exact lockfile audit reported zero vulnerabilities on both Node lanes,
+  and the package dry run reported the same expected 26 files and byte size.
+- Seven isolated hostile mutations were rejected across synchronous throws,
+  rejected permission promises, success return semantics, test invocation,
+  rejection observation, guidance, and completed plan status.
+- Repository `make check` and the absolute-Makefile gate from `/tmp` passed on
+  both Node 22.22.1 and Node 24.16.0.
+- Exact diff, generated-artifact, dependency, credential, conflict-marker,
+  binary, mode, package-content, and whitespace audits passed before commit.
