@@ -6,6 +6,10 @@ const path = require('node:path');
 const vm = require('node:vm');
 
 const source = fs.readFileSync(path.join(__dirname, '..', 'js', 'app.js'), 'utf8');
+const notificationSource = fs.readFileSync(
+  path.join(__dirname, '..', 'js', 'notification.js'),
+  'utf8'
+);
 
 const displays = {
   '#time': { textContent: '' },
@@ -192,5 +196,35 @@ context.__closeApp();
 assert.equal(closeCalls, 1);
 clickHandlers.get('#close_app')();
 assert.equal(closeCalls, 2);
+
+let domReadyHandler;
+let deniedPermissionRequests = 0;
+const notificationContext = {
+  console,
+  document: {
+    addEventListener(eventName, handler) {
+      assert.equal(eventName, 'DOMContentLoaded');
+      domReadyHandler = handler;
+    }
+  },
+  Notification: {
+    permission: 'denied',
+    requestPermission() {
+      deniedPermissionRequests += 1;
+    }
+  },
+  alert() {
+    throw new Error('denied notification permission must not alert');
+  },
+  window: {}
+};
+vm.createContext(notificationContext);
+vm.runInContext(notificationSource, notificationContext, {
+  filename: 'js/notification.js'
+});
+assert.equal(typeof domReadyHandler, 'function');
+domReadyHandler();
+assert.equal(deniedPermissionRequests, 0);
+assert.equal(typeof notificationContext.window.notifyUser, 'function');
 
 console.log('renderer wiring tests passed.');

@@ -1,6 +1,6 @@
 # Notification Denied-Permission Boundary
 
-status: in_progress
+status: completed
 
 ## Context
 
@@ -58,13 +58,22 @@ reject permission-state regression.
 
 ## Verification
 
-- Run focused notification and app-wiring tests.
-- Run `npm run verify`, repository Make gates, and external-directory Make
-  gates with the exact lockfile.
-- Reject isolated mutations for denied-state retry, default-state suppression,
-  missing direct/DOM tests, guidance, and plan status.
-- Audit the exact diff, generated artifacts, credential patterns, dependency
-  and workflow drift, file modes, package contents, and whitespace.
+- The focused notification and app-wiring tests passed, including direct and
+  DOMContentLoaded denied-state coverage.
+- `npm run verify`, repository `make check`, and the absolute Makefile invoked
+  from an external directory passed with the exact lockfile.
+- `npm audit --audit-level=low` reported zero vulnerabilities, and `npm pack
+  --dry-run --json` reported the expected 26-file package.
+- Six isolated hostile mutations were rejected for denied-state retry,
+  default-state suppression, missing direct/DOM tests, erased guidance, and
+  premature plan completion.
+- The local Electron smoke could not run on this validation host because its
+  Node 20.19.5 and glibc predate Electron 42's Node 22.12 and installer-binding
+  requirements. The unchanged hosted workflow retains Node 22/24 pure gates
+  and its bounded Ubuntu 24.04 Electron smoke.
+- Exact diff, generated-artifact, credential-pattern, dependency/workflow
+  drift, file-mode, package-content, and whitespace audits completed before
+  commit.
 
 ## Scope Boundaries
 

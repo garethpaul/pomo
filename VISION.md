@@ -46,6 +46,8 @@ Priority:
 - Keep the renderer window title aligned with the Pomo app name
 - Keep renderer local asset references checked in and relative
 - Keep the desktop notification icon checked in and relative
+- Treat denied notification permission as fail-closed without repeated
+  startup or timer-completion requests
 - Maintain local notification behavior without network dependencies
 - Keep tray/menu behavior visible in the main process
 

@@ -69,6 +69,8 @@ CSS, JavaScript, image, and audio files. This keeps packaging failures and
 surprise remote fallbacks out of the desktop app.
 The desktop notification icon should also stay relative and checked in, so
 notifications do not fetch remote artwork.
+Denied notification permission must remain fail-closed without repeated
+permission requests from startup or timer-completion paths.
 Timer durations should stay positive integers so malformed local state cannot
 produce broken countdown behavior.
 Paused timer state is converted back to numeric seconds before restarting so

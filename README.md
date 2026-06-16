@@ -103,6 +103,8 @@ Detected npm scripts:
   checked-in CSS, JavaScript, image, and audio files.
 - Local contract checks verify the desktop notification icon stays a checked-in
   relative asset.
+- Denied notification permission is a stable fail-closed state: startup and
+  timer completion do not request permission again after the user declines it.
 - Local contract checks verify icon-only renderer controls keep accessible
   labels and matching tooltip titles.
 - Local contract checks verify the npm and Makefile gate wrappers expose lint,

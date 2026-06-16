@@ -61,6 +61,8 @@
 - `npm run contracts` also checks the renderer window title so placeholder Bootstrap titles do not ship.
 - `npm run contracts` verifies renderer local asset references stay relative and point to checked-in files.
 - `npm run contracts` verifies the notification icon stays local and checked in.
+- Preserve the denied notification permission boundary; only the browser's
+  default state may call `requestPermission()`.
 - Timer durations must remain positive integers, and a completed timer must
   restart from its configured initial duration.
 - Keep Electron pinned with the lockfile; do not restore menubar or floating
