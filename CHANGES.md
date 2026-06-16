@@ -4,6 +4,8 @@
 
 - Bound privileged close and external-link IPC to the application window's
   current main frame, rejecting child and missing-frame senders.
+- Contained synchronous and asynchronous external launch failures in the main
+  process and preserved a deterministic boolean result for the preload API.
 
 ## 2026-06-13
 

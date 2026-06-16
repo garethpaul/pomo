@@ -76,6 +76,7 @@ const dialogs = [];
 const windows = [];
 const trays = [];
 let quitCount = 0;
+let openExternalFailure;
 
 class FakeWindow {
   constructor(options) {
@@ -198,6 +199,14 @@ const electron = {
   shell: {
     openExternal(url) {
       openedUrls.push(url);
+
+      if (openExternalFailure === 'throw') {
+        throw new Error('platform launch failed');
+      }
+      if (openExternalFailure === 'reject') {
+        return Promise.reject(new Error('platform launch failed'));
+      }
+
       return Promise.resolve();
     }
   }
@@ -258,7 +267,18 @@ const electron = {
   assert.equal(await ipcHandlers.openExternal(missingFrameEvent, 'https://missing-frame.example/'), false);
   assert.equal(await ipcHandlers.openExternal(untrustedEvent, 'https://untrusted.example/'), false);
   assert.equal(await ipcHandlers.openExternal(trustedEvent, 'https://example.com/'), true);
-  assert.deepEqual(openedUrls, ['https://example.com/']);
+  openExternalFailure = 'reject';
+  assert.equal(await ipcHandlers.openExternal(trustedEvent, 'https://rejected.example/'), false);
+  openExternalFailure = 'throw';
+  assert.equal(await ipcHandlers.openExternal(trustedEvent, 'https://throwing.example/'), false);
+  openExternalFailure = undefined;
+  assert.equal(await ipcHandlers.openExternal(trustedEvent, 'https://recovered.example/'), true);
+  assert.deepEqual(openedUrls, [
+    'https://example.com/',
+    'https://rejected.example/',
+    'https://throwing.example/',
+    'https://recovered.example/'
+  ]);
 
   ipcListeners.closeApp(trustedEvent, 'noop');
   assert.equal(quitCount, 1);

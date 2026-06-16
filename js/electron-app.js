@@ -157,9 +157,15 @@ function createPomoApplication(electron, options) {
     if (!isTrustedIpcSender(event, window) || !isExternalHttpUrl(url)) {
       return false;
     }
-    return Promise.resolve(electron.shell.openExternal(url)).then(function () {
-      return true;
-    });
+    return Promise.resolve()
+      .then(function () {
+        return electron.shell.openExternal(url);
+      })
+      .then(function () {
+        return true;
+      }, function () {
+        return false;
+      });
   });
 
   app.on('before-quit', function () {

@@ -1,6 +1,6 @@
 # Contain External Link Launch Failures
 
-Status: Planned
+Status: Completed
 
 ## Context
 
@@ -39,15 +39,30 @@ rejection and makes the exposed boolean success contract unreliable.
 - `CHANGES.md`
 - `docs/plans/2026-06-16-open-external-failure-boundary.md`
 
-## Verification Planned
+## Work Completed
 
-- Run focused Electron application tests, `npm run verify`, and all Make gates
-  from repository and external working directories.
-- Run the exact-lockfile audit and package allowlist checks.
-- Reject isolated mutations for rejected-promise handling, synchronous throws,
-  false-result assertions, URL redaction, guidance, and plan completion.
-- Audit the exact diff, dependencies/workflow, artifacts, modes, conflicts,
-  credentials, and upstream alignment before commit.
+- Deferred `shell.openExternal` invocation into a resolved promise so a
+  synchronous throw enters the same failure boundary as a rejected promise.
+- Converted both launch failure modes to `false` without logging the URL or
+  platform exception, while preserving successful `true` results.
+- Added fake-Electron coverage for resolved, rejected, throwing, and recovered
+  launches, plus static contracts and synchronized project guidance.
+
+## Verification
+
+- `node scripts/test-electron-app.js`, `npm test`, `npm run lint`, and focused
+  `make lint`/`make test` gates passed from the repository and an unrelated
+  directory.
+- `npm audit --ignore-scripts --audit-level=low` reported zero vulnerabilities.
+- `npm pack --dry-run --json` preserved the 26-file package allowlist.
+- Seven isolated hostile mutations were rejected: escaped synchronous throws,
+  propagated rejected promises, an inverted rejected-result assertion, removed
+  throwing and recovery assertions, removed guidance, and reopened plan status.
+- Final `npm run verify` and `make check` gates passed from the repository, and
+  `make check` also passed when invoked from an unrelated directory.
+- Exact diff, dependency/workflow, artifact, mode, conflict, credential, and
+  upstream-alignment audits passed for the eight intended paths; the existing
+  tracked release ZIP remained unchanged.
 
 ## Runtime Boundary
 
