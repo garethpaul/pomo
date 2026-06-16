@@ -1,6 +1,6 @@
 # Bind Privileged IPC to the Application Main Frame
 
-Status: Planned
+Status: Completed
 
 ## Context
 
@@ -52,3 +52,30 @@ Primary references:
 The dependency-free fake-Electron suite exercises the sender contract locally.
 The existing hosted Ubuntu 24.04 `xvfb` job remains the real Electron 42 launch
 gate after push.
+
+## Work Completed
+
+- Required the application window's current `mainFrame` in addition to its
+  `webContents` for both privileged IPC handlers.
+- Added main-frame, child-frame, missing-frame, and unrelated-sender coverage
+  without widening the preload API or accepted URL protocols.
+- Extended local-only source, regression, documentation, and completed-plan
+  contracts.
+
+## Verification Results
+
+- The focused Electron application test, complete npm verification suite, and
+  all Make gates including `make check` passed from repository and external
+  working directories.
+- A read-only, network-disabled Node 24 container passed the absolute Makefile
+  `check` gate; the host Node 20 run provided an additional compatibility
+  signal below the declared Node 22 minimum.
+- `npm audit --ignore-scripts --audit-level=low` reported zero vulnerabilities
+  for the exact lockfile.
+- `npm pack --dry-run --json` retained the intended 26-file, approximately
+  2.0 MB package and excluded release-build artifacts.
+- Six isolated hostile mutations were rejected for webContents identity,
+  main-frame identity, child-frame regression coverage, missing-frame coverage,
+  maintained guidance, and completed plan status.
+- Exact diff, generated-artifact, package/dependency/workflow drift, file-mode,
+  conflict-marker, and credential-pattern audits passed before commit.

@@ -15,7 +15,14 @@ function isExternalHttpUrl(value) {
 }
 
 function isTrustedIpcSender(event, window) {
-  return Boolean(event && window && event.sender === window.webContents);
+  return Boolean(
+    event
+    && event.senderFrame
+    && window
+    && window.webContents
+    && event.sender === window.webContents
+    && event.senderFrame === window.webContents.mainFrame
+  );
 }
 
 function createWindowOptions(preloadPath) {

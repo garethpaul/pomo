@@ -1,5 +1,10 @@
 # Changes
 
+## 2026-06-16
+
+- Bound privileged close and external-link IPC to the application window's
+  current main frame, rejecting child and missing-frame senders.
+
 ## 2026-06-13
 
 - Bound close and external-link IPC to the application window's `webContents`
