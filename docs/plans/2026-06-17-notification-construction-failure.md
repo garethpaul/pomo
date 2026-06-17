@@ -1,6 +1,6 @@
 # Notification Construction Failure Boundary
 
-status: planned
+status: completed
 
 ## Context
 
@@ -67,3 +67,28 @@ than destabilizing timer completion.
   delivery, fixture execution, guidance, and completed plan status.
 - Audit the exact diff, generated artifacts, dependencies, credentials,
   conflicts, modes, package contents, and whitespace before shipment.
+
+## Work Completed
+
+- Contained Notification constructor and close-handler setup failures after the
+  granted-permission check without retrying or changing permission policy.
+- Preserved successful notification content, handler setup, and returned
+  notification identity.
+- Added a throwing constructor regression with exact single-attempt coverage,
+  mutation-sensitive local contracts, README guidance, and changelog evidence.
+
+## Verification Completed
+
+- Node 22.22.3 and Node 24.16.0 passed syntax checks and the complete
+  deterministic test and contract suite in both a Git-aware final-state
+  projection and the exact worktree.
+- Repository `make check` and the absolute-Makefile gate from `/tmp` passed on
+  both supported Node lanes against the exact worktree.
+- Exact lockfile audits reported zero vulnerabilities on both Node lanes, and
+  package dry runs each reported the same 26 files and 2,037,640-byte package.
+- Seven isolated hostile mutations were rejected across exception containment,
+  constructor invocation, successful return behavior, fixture execution,
+  attempt-count assertion, README guidance, and completed plan status.
+- Exact diff, generated-artifact, dependency, workflow, credential,
+  conflict-marker, binary, mode, package-content, and whitespace audits passed
+  for the intended six-file implementation change.

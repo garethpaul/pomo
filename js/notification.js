@@ -54,16 +54,20 @@ function notifyUser(NotificationApi) {
     return;
   }
 
-  var notification = new notificationApi('Wow! Time\'s up', {
-    icon: 'res/big_pomo.png',
-    body: "Hey there! You've been notified!"
-  });
+  try {
+    var notification = new notificationApi('Wow! Time\'s up', {
+      icon: 'res/big_pomo.png',
+      body: "Hey there! You've been notified!"
+    });
 
-  notification.onclose = function(){
-    //notiSound.pause();
+    notification.onclose = function(){
+      //notiSound.pause();
+    }
+
+    return notification;
+  } catch (error) {
+    return;
   }
-
-  return notification;
 }
 
 if (typeof window !== 'undefined') {

@@ -107,6 +107,8 @@ Detected npm scripts:
   timer completion do not request permission again after the user declines it.
 - Notification permission request failures are contained whether the browser
   throws synchronously or rejects its permission promise.
+- Notification construction failures are contained after permission is granted
+  so timer completion cannot leak an operating-system delivery exception.
 - Local contract checks verify icon-only renderer controls keep accessible
   labels and matching tooltip titles.
 - Local contract checks verify the npm and Makefile gate wrappers expose lint,

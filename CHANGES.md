@@ -1,5 +1,10 @@
 # Changes
 
+## 2026-06-17
+
+- Contained granted-permission notification construction failures so renderer
+  timer completion cannot leak repeated operating-system delivery exceptions.
+
 ## 2026-06-16
 
 - Notification permission request failures are contained for both synchronous
