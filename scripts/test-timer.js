@@ -83,6 +83,30 @@ try {
   resumable.startTimer(resumeDisplay);
   callbacks[3]();
   assert.equal(resumeDisplay.textContent, '01:04');
+
+  const throwingDisplay = { textContent: '' };
+  const throwingTimer = new Timer(1);
+  let throwingNotifications = 0;
+  let clearsBeforeThrowingCompletion;
+  global.notifyUser = () => {
+    throwingNotifications += 1;
+    assert.equal(clearedIntervals.length, clearsBeforeThrowingCompletion + 1);
+    assert.equal(clearedIntervals.at(-1), 42);
+    throw new Error('unexpected notification hook failure');
+  };
+
+  throwingTimer.startTimer(throwingDisplay);
+  clearsBeforeThrowingCompletion = clearedIntervals.length;
+  for (let tick = 0; tick < 59; tick += 1) {
+    callbacks[4]();
+  }
+
+  assert.throws(
+    () => callbacks[4](),
+    /unexpected notification hook failure/
+  );
+  assert.equal(throwingDisplay.textContent, '00:00');
+  assert.equal(throwingNotifications, 1);
 } finally {
   global.setInterval = originalSetInterval;
   global.clearInterval = originalClearInterval;

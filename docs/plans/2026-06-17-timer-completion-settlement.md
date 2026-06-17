@@ -2,7 +2,7 @@
 title: Timer Completion Settlement Ordering
 date: 2026-06-17
 type: implementation-plan
-status: in-progress
+status: completed
 ---
 
 # Timer Completion Settlement Ordering
@@ -122,3 +122,31 @@ already completed.
   wiring, so the timer must protect its own lifecycle invariant independently.
 - Propagating an unexpected hook exception is intentional; this plan only
   guarantees cleanup ordering.
+
+## Work Completed
+
+- Moved `stopTimer()` ahead of the optional completion notification hook so
+  interval ownership is settled before renderer side effects begin.
+- Added a throwing notification hook regression that asserts cleanup is
+  observable inside the hook, preserves the propagated exception, and records
+  exactly one attempt.
+- Added source-order, fixture, README, changelog, and completed-plan contracts
+  without changing timer arithmetic, notification policy, IPC, or dependencies.
+
+## Verification Completed
+
+- Node 22.13.0 and Node 24.16.0 passed syntax checks, the complete deterministic
+  test suite, local contracts, `npm run verify`, repository `make check`, and
+  the absolute-Makefile gate from `/tmp` in a Git-backed final-state projection.
+- The same full gates passed from both caller locations against the exact
+  worktree after the completed-plan contract was active.
+- Seven hostile mutations were rejected across settlement order, throwing
+  notification hook execution, cleanup and attempt assertions, README guidance,
+  plan registration, and completed status.
+- Exact lockfile audits found zero vulnerabilities on both Node lanes. Package
+  dry runs each reported 26 files, 2,360,911 unpacked bytes, and a 2,037,686-byte
+  package.
+- Exact diff, dependency, package, artifact, credential, workflow, conflict,
+  binary, mode, and whitespace audits passed before shipment.
+- Hosted Electron 42 smoke remains the application integration boundary; no OS
+  notification is displayed during deterministic validation.
