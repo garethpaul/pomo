@@ -30,6 +30,7 @@ const NOTIFICATION_PERMISSION_PLAN = 'docs/plans/2026-06-16-notification-denied-
 const NOTIFICATION_REQUEST_FAILURE_PLAN = 'docs/plans/2026-06-16-notification-permission-request-failure.md';
 const NOTIFICATION_CONSTRUCTION_FAILURE_PLAN = 'docs/plans/2026-06-17-notification-construction-failure.md';
 const TIMER_COMPLETION_SETTLEMENT_PLAN = 'docs/plans/2026-06-17-timer-completion-settlement.md';
+const UNDICI_ADVISORY_PLAN = 'docs/plans/2026-06-18-undici-advisory-remediation.md';
 const CI_WORKFLOW = '.github/workflows/check.yml';
 
 function read(relativePath) {
@@ -466,6 +467,11 @@ const timerCompletionSettlementPlan = read(TIMER_COMPLETION_SETTLEMENT_PLAN);
 assert.deepEqual(timerCompletionSettlementPlan.match(/^status:\s*(.+)$/gm), ['status: completed']);
 for (const phrase of ['throwing notification hook', 'settlement order', 'hostile mutations', 'make check', 'Exact diff']) {
   assert.ok(timerCompletionSettlementPlan.includes(phrase), `timer completion settlement plan must preserve ${phrase}`);
+}
+const undiciAdvisoryPlan = read(UNDICI_ADVISORY_PLAN);
+assert.deepEqual(undiciAdvisoryPlan.match(/^status:\s*(.+)$/gm), ['status: completed']);
+for (const phrase of ['7.28.0', 'zero vulnerabilities', '27774816051', '27774828870', 'Exact diff']) {
+  assert.ok(undiciAdvisoryPlan.includes(phrase), `undici advisory plan must preserve ${phrase}`);
 }
 const electronMigrationPlan = read(ELECTRON_MIGRATION_PLAN);
 assert.deepEqual(electronMigrationPlan.match(/^Status:\s*(.+)$/gm), ['Status: Completed']);

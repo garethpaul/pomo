@@ -2,7 +2,7 @@
 title: Undici Advisory Remediation
 date: 2026-06-18
 type: implementation-plan
-status: in_progress
+status: completed
 ---
 
 # Undici Advisory Remediation
@@ -50,12 +50,21 @@ changing Electron, application behavior, or public APIs.
 - Audit the exact diff for whitespace, generated artifacts, credentials, and
   unrelated dependency changes.
 
-## Current Evidence
+## Work Completed
 
 - A lockfile-only audit fix changed only the `undici` version, resolved URL,
   and integrity value from 7.27.2 to 7.28.0.
+- Added a local contract that rejects restoration of a vulnerable `undici`
+  lockfile entry and recorded the advisory response in `CHANGES.md`.
+- Preserved Electron 42.4.0, the package manifest, and application behavior.
+
+## Verification Completed
+
 - `npm audit` reports zero vulnerabilities after the update.
 - The timer and local-contract gates pass from the repository and an external
   directory under the available Node 20.19.5 host. This host is below the
   supported Node 22.12 floor, so it is not full package-gate evidence.
-- Supported-runtime hosted verification is pending.
+- Push run `27774816051` and pull-request run `27774828870` each passed the
+  locked Node 22 and Node 24 audit and verification jobs plus the Electron 42
+  Ubuntu application smoke on exact head `337e855d336ba03c452b4fb899895ab73dfce950`.
+- Exact diff, whitespace, generated-artifact, and credential scans passed.
