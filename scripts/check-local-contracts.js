@@ -188,6 +188,11 @@ assert.equal(Boolean(lock.packages['node_modules/menubar']), false, 'lockfile mu
 assert.equal(Boolean(lock.packages['node_modules/devtron']), false, 'lockfile must not restore devtron');
 assert.equal(Boolean(lock.packages['node_modules/gulp']), false, 'lockfile must not restore gulp');
 assert.equal(Boolean(lock.packages['node_modules/electron-packager']), false, 'lockfile must not restore electron-packager');
+assert.equal(
+  lock.packages['node_modules/undici'].version,
+  '7.28.0',
+  'lockfile must retain the patched undici release'
+);
 
 const makefile = read('Makefile');
 assert.ok(

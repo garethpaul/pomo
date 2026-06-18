@@ -1,5 +1,10 @@
 # Changes
 
+## 2026-06-18
+
+- Raised the locked transitive `undici` dependency to 7.28.0 to close the
+  TLS certificate-validation and shared-cache disclosure advisories.
+
 ## 2026-06-17
 
 - Settled completed timer intervals before notification dispatch and added a
