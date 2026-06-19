@@ -96,6 +96,9 @@ Detected npm scripts:
   non-numeric values cannot enter countdown state.
 - Timer tests confirm a completed timer restarts from its initial duration
   instead of immediately firing another completion notification.
+- Timer completion settles interval ownership before notification dispatch, so
+  an unexpected renderer hook failure cannot leave the completed countdown
+  scheduled.
 - Timer tests confirm a paused timer with zero-padded seconds resumes from the
   exact remaining duration instead of concatenating display strings.
 - Local contract checks confirm the app window title stays branded as Pomo.

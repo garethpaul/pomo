@@ -2,6 +2,8 @@
 
 ## 2026-06-17
 
+- Settled completed timer intervals before notification dispatch and added a
+  throwing-hook regression that verifies cleanup ordering.
 - Contained granted-permission notification construction failures so renderer
   timer completion cannot leak repeated operating-system delivery exceptions.
 

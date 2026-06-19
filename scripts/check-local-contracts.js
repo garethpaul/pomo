@@ -29,6 +29,7 @@ const OPEN_EXTERNAL_FAILURE_PLAN = 'docs/plans/2026-06-16-open-external-failure-
 const NOTIFICATION_PERMISSION_PLAN = 'docs/plans/2026-06-16-notification-denied-permission-boundary.md';
 const NOTIFICATION_REQUEST_FAILURE_PLAN = 'docs/plans/2026-06-16-notification-permission-request-failure.md';
 const NOTIFICATION_CONSTRUCTION_FAILURE_PLAN = 'docs/plans/2026-06-17-notification-construction-failure.md';
+const TIMER_COMPLETION_SETTLEMENT_PLAN = 'docs/plans/2026-06-17-timer-completion-settlement.md';
 const CI_WORKFLOW = '.github/workflows/check.yml';
 
 function read(relativePath) {
@@ -351,10 +352,17 @@ assert.ok(timer.includes("'seconds'"), 'timer seconds must reject invalid durati
 assert.ok(timer.includes('must be a positive integer'), 'timer duration errors must stay explicit');
 assert.ok(timer.includes('this.timer === 0'), 'completed timers must restart from their initial duration');
 assert.ok(timer.includes('Number(this.minutes) * 60 + Number(this.seconds)'), 'paused timers must resume from numeric remaining time');
+const timerCompletionBranch = timer.slice(timer.indexOf('if (this.minutes == 0 && this.seconds == 0)'));
+const completionStopIndex = timerCompletionBranch.indexOf('this.stopTimer();');
+const completionNotificationIndex = timerCompletionBranch.indexOf("typeof root.notifyUser === 'function'");
+assert.ok(completionStopIndex >= 0 && completionNotificationIndex >= 0 && completionStopIndex < completionNotificationIndex, 'completed timers must settle interval ownership before notification dispatch');
 
 const timerTests = read('scripts/test-timer.js');
 assert.ok(timerTests.includes("assert.equal(resumeDisplay.textContent, '01:05')"), 'timer tests must pause with zero-padded seconds');
 assert.ok(timerTests.includes("assert.equal(resumeDisplay.textContent, '01:04')"), 'timer tests must resume at the next second');
+assert.ok(timerTests.includes("throw new Error('unexpected notification hook failure')"), 'timer tests must exercise an unexpected completion hook failure');
+assert.ok(timerTests.includes('assert.equal(clearedIntervals.length, clearsBeforeThrowingCompletion + 1)'), 'timer tests must prove cleanup precedes notification dispatch');
+assert.ok(timerTests.includes('assert.equal(throwingNotifications, 1)'), 'timer tests must preserve exactly one failing notification attempt');
 
 const electronAppTests = read('scripts/test-electron-app.js');
 for (const phrase of [
@@ -383,6 +391,7 @@ for (const phrase of [
 const readme = read('README.md');
 assert.ok(readme.includes('paused timer with zero-padded seconds'), 'README must document the paused timer regression');
 assert.ok(readme.toLowerCase().includes('notification construction failures'), 'README must document notification construction failures');
+assert.ok(readme.includes('settles interval ownership before notification dispatch'), 'README must document timer completion settlement ordering');
 
 const docs = ['README.md', 'SECURITY.md', 'VISION.md', 'CHANGES.md'].map(read).join('\n');
 for (const phrase of ['npm run contracts', 'local-only', 'remote script', 'local asset', 'notification icon', 'denied notification permission', 'notification permission request failures', 'notification construction failures', 'user action', 'close IPC', 'IPC sender', 'main frame', 'child and missing-frame', 'external launch failure', 'unknown tab', 'window title', 'http/https', 'accessible label', 'timer durations', 'completed timer', 'paused timer', 'tray positioning', 'GitHub Actions', 'Electron 42.4.0', 'Node 22', 'Node 24', 'package-lock.json', 'npm ci', 'context isolation', 'preload', 'Electron smoke']) {
@@ -447,6 +456,11 @@ const notificationConstructionFailurePlan = read(NOTIFICATION_CONSTRUCTION_FAILU
 assert.deepEqual(notificationConstructionFailurePlan.match(/^status:\s*(.+)$/gm), ['status: completed']);
 for (const phrase of ['throwing constructor', 'successful notification', 'zero vulnerabilities', 'hostile mutations', 'make check', 'Exact diff']) {
   assert.ok(notificationConstructionFailurePlan.includes(phrase), `notification construction failure plan must preserve ${phrase}`);
+}
+const timerCompletionSettlementPlan = read(TIMER_COMPLETION_SETTLEMENT_PLAN);
+assert.deepEqual(timerCompletionSettlementPlan.match(/^status:\s*(.+)$/gm), ['status: completed']);
+for (const phrase of ['throwing notification hook', 'settlement order', 'hostile mutations', 'make check', 'Exact diff']) {
+  assert.ok(timerCompletionSettlementPlan.includes(phrase), `timer completion settlement plan must preserve ${phrase}`);
 }
 const electronMigrationPlan = read(ELECTRON_MIGRATION_PLAN);
 assert.deepEqual(electronMigrationPlan.match(/^Status:\s*(.+)$/gm), ['Status: Completed']);

@@ -44,10 +44,10 @@
                 display.textContent = this.minutes + ":" + this.seconds;
 
                 if (this.minutes == 0 && this.seconds == 0) {
+                    this.stopTimer();
                     if (typeof root.notifyUser === 'function') {
                         root.notifyUser();
                     }
-                    this.stopTimer();
                 }
             }, 1000);
         }
