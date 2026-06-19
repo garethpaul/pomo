@@ -78,6 +78,8 @@ Detected npm scripts:
 - Main-process tests cover secure BrowserWindow options, tray positioning and
   toggle behavior, navigation denial, external-link validation, and guarded
   close IPC without importing Electron.
+- Privileged close and external-link IPC accepts only the application window's
+  `webContents`; unrelated IPC senders are rejected before command handling.
 - Preload tests execute the shipped sandbox-compatible bridge and constrain it
   to close and external-link commands.
 - Electron application tests cover tray positioning on positive and negative
@@ -174,6 +176,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   restart coverage.
 - See `docs/plans/2026-06-13-preload-external-url-type-guard.md` for the
   preload-side non-string external URL guard.
+- See `docs/plans/2026-06-13-ipc-sender-identity-guard.md` for privileged IPC
+  sender binding.
 - See `plans/2026-06-08-notification-regression-tests.md` for the notification
   regression baseline.
 

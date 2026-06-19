@@ -33,6 +33,7 @@ Priority:
 - Maintain `npm run contracts` for local-only renderer and plan guardrails
 - Keep GitHub Actions aligned with the local Node `make check` baseline
 - Keep close IPC commands explicit and covered by deterministic tests
+- Bind privileged IPC commands to the application window sender identity
 - Keep context isolation and sandboxing enabled, Node integration disabled,
   renderer navigation/window creation denied, and the preload bridge narrow
 - Keep renderer button and tab wiring covered without launching Electron
