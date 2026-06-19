@@ -6,6 +6,8 @@
   current main frame, rejecting child and missing-frame senders.
 - Contained synchronous and asynchronous external launch failures in the main
   process and preserved a deterministic boolean result for the preload API.
+- Stopped startup and timer completion from retrying denied notification
+  permission while preserving the default-state prompt and granted delivery.
 
 ## 2026-06-13
 

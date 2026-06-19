@@ -4,6 +4,7 @@ const assert = require('node:assert/strict');
 
 const {
   ensureNotificationPermission,
+  requestNotificationPermissionIfDefault,
   notifyUser
 } = require('../js/notification');
 
@@ -33,6 +34,10 @@ assert.equal(
   false
 );
 assert.equal(requestedPermission, true);
+assert.equal(
+  requestNotificationPermissionIfDefault(permissionPromptNotification),
+  true
+);
 
 let constructedNotification;
 function GrantedNotification(title, options) {
@@ -66,5 +71,13 @@ const deniedNotification = {
   }
 };
 
+assert.equal(
+  ensureNotificationPermission(deniedNotification),
+  false
+);
 assert.equal(notifyUser(deniedNotification), undefined);
-assert.equal(notifyPermissionRequested, true);
+assert.equal(
+  requestNotificationPermissionIfDefault(deniedNotification),
+  false
+);
+assert.equal(notifyPermissionRequested, false);

@@ -1,3 +1,12 @@
+function requestNotificationPermissionIfDefault(NotificationApi) {
+  if (NotificationApi.permission !== 'default') {
+    return false;
+  }
+
+  NotificationApi.requestPermission();
+  return true;
+}
+
 function ensureNotificationPermission(NotificationApi, alertUser) {
   if (!NotificationApi) {
     if (typeof alertUser === 'function') {
@@ -6,12 +15,12 @@ function ensureNotificationPermission(NotificationApi, alertUser) {
     return false;
   }
 
-  if (NotificationApi.permission !== "granted") {
-    NotificationApi.requestPermission();
-    return false;
+  if (NotificationApi.permission === 'granted') {
+    return true;
   }
 
-  return true;
+  requestNotificationPermissionIfDefault(NotificationApi);
+  return false;
 }
 
 if (typeof document !== 'undefined') {
@@ -33,8 +42,8 @@ function notifyUser(NotificationApi) {
     return;
   }
 
-  if (notificationApi.permission !== "granted") {
-    notificationApi.requestPermission();
+  if (notificationApi.permission !== 'granted') {
+    requestNotificationPermissionIfDefault(notificationApi);
     return;
   }
 
@@ -57,6 +66,7 @@ if (typeof window !== 'undefined') {
 if (typeof module === 'object' && module.exports) {
   module.exports = {
     ensureNotificationPermission: ensureNotificationPermission,
+    requestNotificationPermissionIfDefault: requestNotificationPermissionIfDefault,
     notifyUser: notifyUser
   };
 }
