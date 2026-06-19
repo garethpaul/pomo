@@ -1,15 +1,17 @@
 .PHONY: check lint test build verify
 
+override REPO_ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+
 check: verify
 
 lint:
-	npm run lint
+	cd "$(REPO_ROOT)" && npm run lint
 
 test:
-	npm test
+	cd "$(REPO_ROOT)" && npm test
 
 build:
-	npm run build
+	cd "$(REPO_ROOT)" && npm run build
 
 verify:
-	npm run verify
+	cd "$(REPO_ROOT)" && npm run verify

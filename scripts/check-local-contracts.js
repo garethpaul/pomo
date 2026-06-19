@@ -23,6 +23,7 @@ const ELECTRON_MIGRATION_PLAN = 'docs/plans/2026-06-12-electron-42-security-migr
 const TRAY_LIFECYCLE_PLAN = 'docs/plans/2026-06-13-tray-lifecycle-regression-tests.md';
 const PRELOAD_URL_TYPE_PLAN = 'docs/plans/2026-06-13-preload-external-url-type-guard.md';
 const IPC_SENDER_PLAN = 'docs/plans/2026-06-13-ipc-sender-identity-guard.md';
+const LOCATION_INDEPENDENT_MAKE_PLAN = 'docs/plans/2026-06-14-location-independent-make.md';
 const CI_WORKFLOW = '.github/workflows/check.yml';
 
 function read(relativePath) {
@@ -85,6 +86,7 @@ function rendererAssetReferences(markup) {
   TRAY_LIFECYCLE_PLAN,
   PRELOAD_URL_TYPE_PLAN,
   IPC_SENDER_PLAN,
+  LOCATION_INDEPENDENT_MAKE_PLAN,
   CI_WORKFLOW,
   '.nvmrc',
   'index.html',
@@ -177,11 +179,15 @@ assert.equal(Boolean(lock.packages['node_modules/gulp']), false, 'lockfile must 
 assert.equal(Boolean(lock.packages['node_modules/electron-packager']), false, 'lockfile must not restore electron-packager');
 
 const makefile = read('Makefile');
+assert.ok(
+  /^override REPO_ROOT := \$\(abspath \$\(dir \$\(lastword \$\(MAKEFILE_LIST\)\)\)\)$/m.test(makefile),
+  'Makefile must resolve an override-protected repository root from its own path'
+);
 assert.ok(/^check: verify$/m.test(makefile), 'Makefile must expose make check');
-assert.ok(/^lint:\n\tnpm run lint$/m.test(makefile), 'Makefile must expose npm lint');
-assert.ok(/^test:\n\tnpm test$/m.test(makefile), 'Makefile must expose npm test');
-assert.ok(/^build:\n\tnpm run build$/m.test(makefile), 'Makefile must expose npm build');
-assert.ok(/^verify:\n\tnpm run verify$/m.test(makefile), 'Makefile must expose npm verify');
+assert.ok(/^lint:\n\tcd "\$\(REPO_ROOT\)" && npm run lint$/m.test(makefile), 'Makefile must root npm lint');
+assert.ok(/^test:\n\tcd "\$\(REPO_ROOT\)" && npm test$/m.test(makefile), 'Makefile must root npm test');
+assert.ok(/^build:\n\tcd "\$\(REPO_ROOT\)" && npm run build$/m.test(makefile), 'Makefile must root npm build');
+assert.ok(/^verify:\n\tcd "\$\(REPO_ROOT\)" && npm run verify$/m.test(makefile), 'Makefile must root npm verify');
 
 const main = read('index.js');
 assert.ok(main.includes("require('./js/electron-app')"));
@@ -334,7 +340,7 @@ for (const phrase of ['npm run contracts', 'local-only', 'remote script', 'local
   assert.ok(docs.toLowerCase().includes(phrase.toLowerCase()), `docs must mention ${phrase}`);
 }
 
-for (const planPath of [LOCAL_ONLY_PLAN, MAIN_PROCESS_PLAN, RENDERER_WIRING_PLAN, TAB_RESET_PLAN, WINDOW_TITLE_PLAN, LOCAL_ASSET_PLAN, NOTIFICATION_ICON_PLAN, GATE_WRAPPER_PLAN, ACCESSIBLE_CONTROL_PLAN, TIMER_DURATION_PLAN, TIMER_RESTART_PLAN, TIMER_PAUSE_PLAN, CI_BASELINE_PLAN, HOSTED_NODE_PLAN, TRAY_LIFECYCLE_PLAN, PRELOAD_URL_TYPE_PLAN, IPC_SENDER_PLAN]) {
+for (const planPath of [LOCAL_ONLY_PLAN, MAIN_PROCESS_PLAN, RENDERER_WIRING_PLAN, TAB_RESET_PLAN, WINDOW_TITLE_PLAN, LOCAL_ASSET_PLAN, NOTIFICATION_ICON_PLAN, GATE_WRAPPER_PLAN, ACCESSIBLE_CONTROL_PLAN, TIMER_DURATION_PLAN, TIMER_RESTART_PLAN, TIMER_PAUSE_PLAN, CI_BASELINE_PLAN, HOSTED_NODE_PLAN, TRAY_LIFECYCLE_PLAN, PRELOAD_URL_TYPE_PLAN, IPC_SENDER_PLAN, LOCATION_INDEPENDENT_MAKE_PLAN]) {
   const plan = read(planPath);
   assert.ok(plan.includes('Status: Completed'));
   assert.ok(plan.includes('make check'));
@@ -361,6 +367,10 @@ assert.ok(read(IPC_SENDER_PLAN).includes('untrusted sender'));
 assert.ok(read(IPC_SENDER_PLAN).includes('Node 22'));
 assert.ok(read(IPC_SENDER_PLAN).includes('Node 24'));
 assert.ok(read(IPC_SENDER_PLAN).includes('hostile mutations rejected'));
+assert.ok(read(LOCATION_INDEPENDENT_MAKE_PLAN).includes('unrelated directory'));
+assert.ok(read(LOCATION_INDEPENDENT_MAKE_PLAN).includes('Node 22'));
+assert.ok(read(LOCATION_INDEPENDENT_MAKE_PLAN).includes('Node 24'));
+assert.ok(read(LOCATION_INDEPENDENT_MAKE_PLAN).includes('hostile mutations rejected'));
 const electronMigrationPlan = read(ELECTRON_MIGRATION_PLAN);
 assert.deepEqual(electronMigrationPlan.match(/^Status:\s*(.+)$/gm), ['Status: Completed']);
 assert.ok(electronMigrationPlan.includes('## Work Completed'));
