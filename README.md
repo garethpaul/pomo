@@ -80,6 +80,9 @@ Detected npm scripts:
   close IPC without importing Electron.
 - Preload tests execute the shipped sandbox-compatible bridge and constrain it
   to close and external-link commands.
+- Electron application tests cover tray positioning on positive and negative
+  displays, About and Quit commands, activation, blur, and close-to-hide
+  lifecycle behavior.
 - Renderer wiring tests cover start, stop, reset, tab reset, external-link, and
   close-command handlers without launching Electron.
 - Renderer wiring tests verify external links only open explicit http/https

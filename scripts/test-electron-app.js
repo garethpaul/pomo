@@ -48,10 +48,30 @@ positionWindow({
 });
 assert.deepEqual(positioned, [{ x: 746, y: 24 }]);
 
+const negativeDisplayPosition = [];
+positionWindow({
+  getBounds() {
+    return { x: -1900, y: 1000, width: 24, height: 24 };
+  }
+}, {
+  getBounds() {
+    return { width: 278, height: 250 };
+  },
+  setPosition(x, y) {
+    negativeDisplayPosition.push({ x, y });
+  }
+}, {
+  getDisplayNearestPoint() {
+    return { workArea: { x: -1920, y: 0, width: 1920, height: 1080 } };
+  }
+});
+assert.deepEqual(negativeDisplayPosition, [{ x: -1920, y: 750 }]);
+
 const events = {};
 const ipcHandlers = {};
 const ipcListeners = {};
 const openedUrls = [];
+const dialogs = [];
 const windows = [];
 const trays = [];
 let quitCount = 0;
@@ -62,6 +82,7 @@ class FakeWindow {
     this.visible = false;
     this.windowEvents = {};
     this.webContentsEvents = {};
+    this.devToolsOpen = false;
     this.webContents = {
       on: (name, handler) => {
         this.webContentsEvents[name] = handler;
@@ -69,7 +90,7 @@ class FakeWindow {
       once: (name, handler) => {
         this.loadHandler = handler;
       },
-      isDevToolsOpened: () => false,
+      isDevToolsOpened: () => this.devToolsOpen,
       setWindowOpenHandler: (handler) => {
         this.windowOpenHandler = handler;
       }
@@ -154,7 +175,9 @@ const electron = {
     }
   },
   dialog: {
-    showMessageBox() {}
+    showMessageBox(options) {
+      dialogs.push(options);
+    }
   },
   ipcMain: {
     handle(name, handler) {
@@ -194,23 +217,46 @@ const electron = {
   assert.equal(trays[0].tooltip, 'Pomo');
   assert.equal(trays[0].menu.template.length, 3);
 
-  trays[0].trayEvents.click();
+  trays[0].menu.template[0].click();
+  assert.deepEqual(dialogs, [{
+    title: 'Pomo',
+    type: 'info',
+    message: 'A pomodoro app in your menubar/tray.',
+    buttons: ['Close']
+  }]);
+  trays[0].menu.template[2].click();
+  assert.equal(quitCount, 1);
+
+  events.activate();
   assert.equal(windows[0].visible, true);
   assert.equal(windows[0].focused, true);
+
   trays[0].trayEvents.click();
   assert.equal(windows[0].visible, false);
+  trays[0].trayEvents.click();
+  assert.equal(windows[0].visible, true);
 
   assert.equal(await ipcHandlers.openExternal({}, 'file:///etc/passwd'), false);
   assert.equal(await ipcHandlers.openExternal({}, 'https://example.com/'), true);
   assert.deepEqual(openedUrls, ['https://example.com/']);
 
   ipcListeners.closeApp({}, 'noop');
-  assert.equal(quitCount, 0);
-  ipcListeners.closeApp({}, 'close');
   assert.equal(quitCount, 1);
+  ipcListeners.closeApp({}, 'close');
+  assert.equal(quitCount, 2);
 
+  windows[0].devToolsOpen = true;
   windows[0].visible = true;
   windows[0].windowEvents.blur();
+  assert.equal(windows[0].visible, true);
+  windows[0].devToolsOpen = false;
+  windows[0].windowEvents.blur();
+  assert.equal(windows[0].visible, false);
+
+  windows[0].visible = true;
+  const hiddenCloseEvent = { prevented: false, preventDefault() { this.prevented = true; } };
+  windows[0].windowEvents.close(hiddenCloseEvent);
+  assert.equal(hiddenCloseEvent.prevented, true);
   assert.equal(windows[0].visible, false);
 
   events['before-quit']();

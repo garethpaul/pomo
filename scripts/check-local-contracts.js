@@ -20,6 +20,7 @@ const TIMER_PAUSE_PLAN = 'docs/plans/2026-06-12-timer-pause-resume.md';
 const CI_BASELINE_PLAN = 'docs/plans/2026-06-10-ci-baseline.md';
 const HOSTED_NODE_PLAN = 'docs/plans/2026-06-10-hosted-node-validation.md';
 const ELECTRON_MIGRATION_PLAN = 'docs/plans/2026-06-12-electron-42-security-migration.md';
+const TRAY_LIFECYCLE_PLAN = 'docs/plans/2026-06-13-tray-lifecycle-regression-tests.md';
 const CI_WORKFLOW = '.github/workflows/check.yml';
 
 function read(relativePath) {
@@ -79,6 +80,7 @@ function rendererAssetReferences(markup) {
   CI_BASELINE_PLAN,
   HOSTED_NODE_PLAN,
   ELECTRON_MIGRATION_PLAN,
+  TRAY_LIFECYCLE_PLAN,
   CI_WORKFLOW,
   '.nvmrc',
   'index.html',
@@ -299,15 +301,27 @@ const timerTests = read('scripts/test-timer.js');
 assert.ok(timerTests.includes("assert.equal(resumeDisplay.textContent, '01:05')"), 'timer tests must pause with zero-padded seconds');
 assert.ok(timerTests.includes("assert.equal(resumeDisplay.textContent, '01:04')"), 'timer tests must resume at the next second');
 
+const electronAppTests = read('scripts/test-electron-app.js');
+for (const phrase of [
+  "assert.deepEqual(negativeDisplayPosition, [{ x: -1920, y: 750 }])",
+  'trays[0].menu.template[0].click()',
+  'trays[0].menu.template[2].click()',
+  'events.activate()',
+  'windows[0].devToolsOpen = true',
+  'assert.equal(hiddenCloseEvent.prevented, true)'
+]) {
+  assert.ok(electronAppTests.includes(phrase), `Electron application tests must preserve ${phrase}`);
+}
+
 const readme = read('README.md');
 assert.ok(readme.includes('paused timer with zero-padded seconds'), 'README must document the paused timer regression');
 
 const docs = ['README.md', 'SECURITY.md', 'VISION.md', 'CHANGES.md'].map(read).join('\n');
-for (const phrase of ['npm run contracts', 'local-only', 'remote script', 'local asset', 'notification icon', 'user action', 'close IPC', 'unknown tab', 'window title', 'http/https', 'accessible label', 'timer durations', 'completed timer', 'paused timer', 'GitHub Actions', 'Electron 42.4.0', 'Node 22', 'Node 24', 'package-lock.json', 'npm ci', 'context isolation', 'preload', 'Electron smoke']) {
+for (const phrase of ['npm run contracts', 'local-only', 'remote script', 'local asset', 'notification icon', 'user action', 'close IPC', 'unknown tab', 'window title', 'http/https', 'accessible label', 'timer durations', 'completed timer', 'paused timer', 'tray positioning', 'GitHub Actions', 'Electron 42.4.0', 'Node 22', 'Node 24', 'package-lock.json', 'npm ci', 'context isolation', 'preload', 'Electron smoke']) {
   assert.ok(docs.toLowerCase().includes(phrase.toLowerCase()), `docs must mention ${phrase}`);
 }
 
-for (const planPath of [LOCAL_ONLY_PLAN, MAIN_PROCESS_PLAN, RENDERER_WIRING_PLAN, TAB_RESET_PLAN, WINDOW_TITLE_PLAN, LOCAL_ASSET_PLAN, NOTIFICATION_ICON_PLAN, GATE_WRAPPER_PLAN, ACCESSIBLE_CONTROL_PLAN, TIMER_DURATION_PLAN, TIMER_RESTART_PLAN, TIMER_PAUSE_PLAN, CI_BASELINE_PLAN, HOSTED_NODE_PLAN]) {
+for (const planPath of [LOCAL_ONLY_PLAN, MAIN_PROCESS_PLAN, RENDERER_WIRING_PLAN, TAB_RESET_PLAN, WINDOW_TITLE_PLAN, LOCAL_ASSET_PLAN, NOTIFICATION_ICON_PLAN, GATE_WRAPPER_PLAN, ACCESSIBLE_CONTROL_PLAN, TIMER_DURATION_PLAN, TIMER_RESTART_PLAN, TIMER_PAUSE_PLAN, CI_BASELINE_PLAN, HOSTED_NODE_PLAN, TRAY_LIFECYCLE_PLAN]) {
   const plan = read(planPath);
   assert.ok(plan.includes('Status: Completed'));
   assert.ok(plan.includes('make check'));
@@ -328,6 +342,7 @@ assert.ok(read(TIMER_PAUSE_PLAN).includes('01:05'));
 assert.ok(read(CI_BASELINE_PLAN).includes('GitHub Actions'));
 assert.ok(read(HOSTED_NODE_PLAN).includes('Node 20 and Node 24'));
 assert.ok(read(HOSTED_NODE_PLAN).includes('superseded'));
+assert.ok(read(TRAY_LIFECYCLE_PLAN).includes('negative coordinates'));
 const electronMigrationPlan = read(ELECTRON_MIGRATION_PLAN);
 assert.deepEqual(electronMigrationPlan.match(/^Status:\s*(.+)$/gm), ['Status: Completed']);
 assert.ok(electronMigrationPlan.includes('## Work Completed'));

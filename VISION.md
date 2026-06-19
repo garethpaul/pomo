@@ -28,6 +28,8 @@ Priority:
 - Run locked and audited verification on Node 22 and Node 24 in hosted CI with
   credential-free checkout, read-only permissions, and pinned actions
 - Keep a bounded Ubuntu Electron 42 smoke launch in hosted verification
+- Keep tray positioning, menu commands, and window lifecycle behavior covered
+  by deterministic Node tests
 - Maintain `npm run contracts` for local-only renderer and plan guardrails
 - Keep GitHub Actions aligned with the local Node `make check` baseline
 - Keep close IPC commands explicit and covered by deterministic tests
