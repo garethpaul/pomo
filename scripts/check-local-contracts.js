@@ -27,6 +27,7 @@ const LOCATION_INDEPENDENT_MAKE_PLAN = 'docs/plans/2026-06-14-location-independe
 const IPC_MAIN_FRAME_PLAN = 'docs/plans/2026-06-16-ipc-main-frame-identity-guard.md';
 const OPEN_EXTERNAL_FAILURE_PLAN = 'docs/plans/2026-06-16-open-external-failure-boundary.md';
 const NOTIFICATION_PERMISSION_PLAN = 'docs/plans/2026-06-16-notification-denied-permission-boundary.md';
+const NOTIFICATION_REQUEST_FAILURE_PLAN = 'docs/plans/2026-06-16-notification-permission-request-failure.md';
 const CI_WORKFLOW = '.github/workflows/check.yml';
 
 function read(relativePath) {
@@ -93,6 +94,7 @@ function rendererAssetReferences(markup) {
   IPC_MAIN_FRAME_PLAN,
   OPEN_EXTERNAL_FAILURE_PLAN,
   NOTIFICATION_PERMISSION_PLAN,
+  NOTIFICATION_REQUEST_FAILURE_PLAN,
   CI_WORKFLOW,
   '.nvmrc',
   'index.html',
@@ -308,11 +310,18 @@ assert.ok(notification.includes('requestPermission'), 'notification permission p
 assert.ok(notification.includes("NotificationApi.permission !== 'default'"), 'only default notification permission may be requested');
 assert.ok(notification.includes("NotificationApi.permission === 'granted'"), 'granted notification permission must remain explicit');
 assert.ok(notification.includes('requestNotificationPermissionIfDefault(notificationApi)'), 'notification delivery must share the default-only request boundary');
+assert.ok(notification.includes('try {'), 'notification permission requests must contain synchronous failures');
+assert.ok(notification.includes("typeof permissionRequest.then === 'function'"), 'notification permission requests must detect promise-like results');
+assert.ok(notification.includes('Promise.resolve(permissionRequest).catch(function () {})'), 'notification permission requests must contain rejected promises');
 assert.ok(!notification.includes('fetch(') && !notification.includes('XMLHttpRequest'), 'notifications must stay local-only');
 
 const notificationTests = read('scripts/test-notification.js');
 assert.ok(notificationTests.includes('ensureNotificationPermission(deniedNotification)'), 'notification tests must cover denied permission');
 assert.ok(notificationTests.includes('assert.equal(notifyPermissionRequested, false)'), 'notification tests must prove denied permission is not requested again');
+assert.ok(notificationTests.includes('runPermissionRequestFailureAssertions'), 'notification tests must exercise permission request failures');
+assert.ok(notificationTests.includes('runPermissionRequestFailureAssertions().catch(error => {'), 'notification failure assertions must execute and surface test failures');
+assert.ok(notificationTests.includes("process.once('unhandledRejection', captureUnhandledRejection)"), 'notification tests must observe rejected permission promises');
+assert.ok(notificationTests.includes('assert.equal(requestNotificationPermissionIfDefault(throwingRequest), false)'), 'notification tests must contain synchronous permission failures');
 
 const appWiringTests = read('scripts/test-app-wiring.js');
 assert.ok(appWiringTests.includes("permission: 'denied'"), 'renderer wiring tests must exercise denied notification permission');
@@ -367,8 +376,11 @@ const readme = read('README.md');
 assert.ok(readme.includes('paused timer with zero-padded seconds'), 'README must document the paused timer regression');
 
 const docs = ['README.md', 'SECURITY.md', 'VISION.md', 'CHANGES.md'].map(read).join('\n');
-for (const phrase of ['npm run contracts', 'local-only', 'remote script', 'local asset', 'notification icon', 'denied notification permission', 'user action', 'close IPC', 'IPC sender', 'main frame', 'child and missing-frame', 'external launch failure', 'unknown tab', 'window title', 'http/https', 'accessible label', 'timer durations', 'completed timer', 'paused timer', 'tray positioning', 'GitHub Actions', 'Electron 42.4.0', 'Node 22', 'Node 24', 'package-lock.json', 'npm ci', 'context isolation', 'preload', 'Electron smoke']) {
+for (const phrase of ['npm run contracts', 'local-only', 'remote script', 'local asset', 'notification icon', 'denied notification permission', 'notification permission request failures', 'user action', 'close IPC', 'IPC sender', 'main frame', 'child and missing-frame', 'external launch failure', 'unknown tab', 'window title', 'http/https', 'accessible label', 'timer durations', 'completed timer', 'paused timer', 'tray positioning', 'GitHub Actions', 'Electron 42.4.0', 'Node 22', 'Node 24', 'package-lock.json', 'npm ci', 'context isolation', 'preload', 'Electron smoke']) {
   assert.ok(docs.toLowerCase().includes(phrase.toLowerCase()), `docs must mention ${phrase}`);
+}
+for (const path of ['README.md', 'SECURITY.md', 'VISION.md', 'CHANGES.md']) {
+  assert.ok(read(path).toLowerCase().includes('notification permission request failures'), `${path} must document notification permission request failures`);
 }
 
 for (const planPath of [LOCAL_ONLY_PLAN, MAIN_PROCESS_PLAN, RENDERER_WIRING_PLAN, TAB_RESET_PLAN, WINDOW_TITLE_PLAN, LOCAL_ASSET_PLAN, NOTIFICATION_ICON_PLAN, GATE_WRAPPER_PLAN, ACCESSIBLE_CONTROL_PLAN, TIMER_DURATION_PLAN, TIMER_RESTART_PLAN, TIMER_PAUSE_PLAN, CI_BASELINE_PLAN, HOSTED_NODE_PLAN, TRAY_LIFECYCLE_PLAN, PRELOAD_URL_TYPE_PLAN, IPC_SENDER_PLAN, LOCATION_INDEPENDENT_MAKE_PLAN, IPC_MAIN_FRAME_PLAN, OPEN_EXTERNAL_FAILURE_PLAN]) {
@@ -416,6 +428,11 @@ const notificationPermissionPlan = read(NOTIFICATION_PERMISSION_PLAN);
 assert.deepEqual(notificationPermissionPlan.match(/^status:\s*(.+)$/gm), ['status: completed']);
 for (const phrase of ['focused notification and app-wiring tests passed', 'npm run verify', 'external directory', 'Six isolated hostile mutations', 'Exact diff']) {
   assert.ok(notificationPermissionPlan.includes(phrase), `notification permission plan must preserve ${phrase}`);
+}
+const notificationRequestFailurePlan = read(NOTIFICATION_REQUEST_FAILURE_PLAN);
+assert.deepEqual(notificationRequestFailurePlan.match(/^status:\s*(.+)$/gm), ['status: completed']);
+for (const phrase of ['synchronous throws', 'rejected permission promises', 'Seven isolated hostile mutations', 'make check', 'Exact diff']) {
+  assert.ok(notificationRequestFailurePlan.includes(phrase), `notification request failure plan must preserve ${phrase}`);
 }
 const electronMigrationPlan = read(ELECTRON_MIGRATION_PLAN);
 assert.deepEqual(electronMigrationPlan.match(/^Status:\s*(.+)$/gm), ['Status: Completed']);

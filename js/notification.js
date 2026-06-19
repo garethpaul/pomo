@@ -3,8 +3,15 @@ function requestNotificationPermissionIfDefault(NotificationApi) {
     return false;
   }
 
-  NotificationApi.requestPermission();
-  return true;
+  try {
+    var permissionRequest = NotificationApi.requestPermission();
+    if (permissionRequest && typeof permissionRequest.then === 'function') {
+      Promise.resolve(permissionRequest).catch(function () {});
+    }
+    return true;
+  } catch (error) {
+    return false;
+  }
 }
 
 function ensureNotificationPermission(NotificationApi, alertUser) {

@@ -71,6 +71,8 @@ The desktop notification icon should also stay relative and checked in, so
 notifications do not fetch remote artwork.
 Denied notification permission must remain fail-closed without repeated
 permission requests from startup or timer-completion paths.
+Notification permission request failures must remain contained so browser
+throws or rejected permission promises cannot destabilize the timer lifecycle.
 Timer durations should stay positive integers so malformed local state cannot
 produce broken countdown behavior.
 Paused timer state is converted back to numeric seconds before restarting so

@@ -81,3 +81,37 @@ assert.equal(
   false
 );
 assert.equal(notifyPermissionRequested, false);
+
+async function runPermissionRequestFailureAssertions() {
+  let unhandledRejection;
+  function captureUnhandledRejection(error) {
+    unhandledRejection = error;
+  }
+  process.once('unhandledRejection', captureUnhandledRejection);
+
+  const rejectedRequest = {
+    permission: 'default',
+    requestPermission() {
+      return Promise.reject(new Error('permission prompt rejected'));
+    }
+  };
+
+  assert.equal(requestNotificationPermissionIfDefault(rejectedRequest), true);
+  await new Promise(resolve => setImmediate(resolve));
+  process.removeListener('unhandledRejection', captureUnhandledRejection);
+  assert.equal(unhandledRejection, undefined);
+
+  const throwingRequest = {
+    permission: 'default',
+    requestPermission() {
+      throw new Error('permission prompt threw');
+    }
+  };
+
+  assert.equal(requestNotificationPermissionIfDefault(throwingRequest), false);
+}
+
+runPermissionRequestFailureAssertions().catch(error => {
+  console.error(error);
+  process.exit(1);
+});

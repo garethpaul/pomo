@@ -2,6 +2,8 @@
 
 ## 2026-06-16
 
+- Notification permission request failures are contained for both synchronous
+  browser throws and rejected permission promises.
 - Bound privileged close and external-link IPC to the application window's
   current main frame, rejecting child and missing-frame senders.
 - Contained synchronous and asynchronous external launch failures in the main
