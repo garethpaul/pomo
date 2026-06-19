@@ -172,6 +172,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   Electron 42, preload isolation, lockfile, and hosted smoke migration.
 - See `docs/plans/2026-06-12-timer-pause-resume.md` for exact paused-timer
   restart coverage.
+- See `docs/plans/2026-06-13-preload-external-url-type-guard.md` for the
+  preload-side non-string external URL guard.
 - See `plans/2026-06-08-notification-regression-tests.md` for the notification
   regression baseline.
 

@@ -2,6 +2,8 @@
 
 ## 2026-06-13
 
+- Rejected non-string external URL values in the sandboxed preload before they
+  can cross the IPC boundary, with runtime and static regression coverage.
 - Expanded deterministic Electron tests for negative-coordinate tray
   positioning, About and Quit commands, activation, DevTools-aware blur, and
   close-to-hide behavior.
