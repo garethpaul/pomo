@@ -82,6 +82,19 @@ assert.equal(
 );
 assert.equal(notifyPermissionRequested, false);
 
+let constructionAttempts = 0;
+function ThrowingNotification() {
+  constructionAttempts += 1;
+  throw new Error('notification construction failed');
+}
+ThrowingNotification.permission = 'granted';
+ThrowingNotification.requestPermission = () => {
+  throw new Error('requestPermission should not be called when granted');
+};
+
+assert.equal(notifyUser(ThrowingNotification), undefined);
+assert.equal(constructionAttempts, 1);
+
 async function runPermissionRequestFailureAssertions() {
   let unhandledRejection;
   function captureUnhandledRejection(error) {
