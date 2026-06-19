@@ -84,7 +84,9 @@ class FakeWindow {
     this.windowEvents = {};
     this.webContentsEvents = {};
     this.devToolsOpen = false;
+    const mainFrame = { url: 'file:///pomo/index.html' };
     this.webContents = {
+      mainFrame,
       on: (name, handler) => {
         this.webContentsEvents[name] = handler;
       },
@@ -210,9 +212,19 @@ const electron = {
 
   assert.equal(windows.length, 1);
   assert.equal(trays.length, 1);
-  const trustedEvent = { sender: windows[0].webContents };
-  const untrustedEvent = { sender: {} };
+  const trustedEvent = {
+    sender: windows[0].webContents,
+    senderFrame: windows[0].webContents.mainFrame
+  };
+  const childFrameEvent = {
+    sender: windows[0].webContents,
+    senderFrame: { url: 'file:///pomo/child.html' }
+  };
+  const missingFrameEvent = { sender: windows[0].webContents };
+  const untrustedEvent = { sender: {}, senderFrame: {} };
   assert.equal(isTrustedIpcSender(trustedEvent, windows[0]), true);
+  assert.equal(isTrustedIpcSender(childFrameEvent, windows[0]), false);
+  assert.equal(isTrustedIpcSender(missingFrameEvent, windows[0]), false);
   assert.equal(isTrustedIpcSender(untrustedEvent, windows[0]), false);
   assert.equal(windows[0].loadedFile, path.join(__dirname, '..', 'index.html'));
   assert.deepEqual(windows[0].windowOpenHandler({ url: 'https://example.com/' }), { action: 'deny' });
@@ -242,11 +254,17 @@ const electron = {
   assert.equal(windows[0].visible, true);
 
   assert.equal(await ipcHandlers.openExternal(trustedEvent, 'file:///etc/passwd'), false);
+  assert.equal(await ipcHandlers.openExternal(childFrameEvent, 'https://child.example/'), false);
+  assert.equal(await ipcHandlers.openExternal(missingFrameEvent, 'https://missing-frame.example/'), false);
   assert.equal(await ipcHandlers.openExternal(untrustedEvent, 'https://untrusted.example/'), false);
   assert.equal(await ipcHandlers.openExternal(trustedEvent, 'https://example.com/'), true);
   assert.deepEqual(openedUrls, ['https://example.com/']);
 
   ipcListeners.closeApp(trustedEvent, 'noop');
+  assert.equal(quitCount, 1);
+  ipcListeners.closeApp(childFrameEvent, 'close');
+  assert.equal(quitCount, 1);
+  ipcListeners.closeApp(missingFrameEvent, 'close');
   assert.equal(quitCount, 1);
   ipcListeners.closeApp(untrustedEvent, 'close');
   assert.equal(quitCount, 1);

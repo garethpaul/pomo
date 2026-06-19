@@ -79,7 +79,7 @@ Detected npm scripts:
   toggle behavior, navigation denial, external-link validation, and guarded
   close IPC without importing Electron.
 - Privileged close and external-link IPC accepts only the application window's
-  `webContents`; unrelated IPC senders are rejected before command handling.
+  current main frame; child, missing-frame, and unrelated senders are rejected.
 - Preload tests execute the shipped sandbox-compatible bridge and constrain it
   to close and external-link commands.
 - Electron application tests cover tray positioning on positive and negative
@@ -178,6 +178,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   preload-side non-string external URL guard.
 - See `docs/plans/2026-06-13-ipc-sender-identity-guard.md` for privileged IPC
   sender binding.
+- See `docs/plans/2026-06-16-ipc-main-frame-identity-guard.md` for privileged
+  IPC sender and main-frame binding.
 - See `plans/2026-06-08-notification-regression-tests.md` for the notification
   regression baseline.
 
