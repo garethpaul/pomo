@@ -25,6 +25,7 @@ const PRELOAD_URL_TYPE_PLAN = 'docs/plans/2026-06-13-preload-external-url-type-g
 const IPC_SENDER_PLAN = 'docs/plans/2026-06-13-ipc-sender-identity-guard.md';
 const LOCATION_INDEPENDENT_MAKE_PLAN = 'docs/plans/2026-06-14-location-independent-make.md';
 const IPC_MAIN_FRAME_PLAN = 'docs/plans/2026-06-16-ipc-main-frame-identity-guard.md';
+const OPEN_EXTERNAL_FAILURE_PLAN = 'docs/plans/2026-06-16-open-external-failure-boundary.md';
 const CI_WORKFLOW = '.github/workflows/check.yml';
 
 function read(relativePath) {
@@ -89,6 +90,7 @@ function rendererAssetReferences(markup) {
   IPC_SENDER_PLAN,
   LOCATION_INDEPENDENT_MAKE_PLAN,
   IPC_MAIN_FRAME_PLAN,
+  OPEN_EXTERNAL_FAILURE_PLAN,
   CI_WORKFLOW,
   '.nvmrc',
   'index.html',
@@ -219,6 +221,8 @@ assert.ok(/on\('will-navigate'[\s\S]*event\.preventDefault\(\)/.test(electronApp
 assert.ok(electronApp.includes('event.sender === window.webContents'), 'privileged IPC must require the application window sender');
 assert.ok(electronApp.includes('event.senderFrame === window.webContents.mainFrame'), 'privileged IPC must require the application main frame');
 assert.ok(electronApp.includes('&& event.senderFrame'), 'privileged IPC must reject missing sender frames');
+assert.ok(/return Promise\.resolve\(\)[\s\S]*return electron\.shell\.openExternal\(url\)/.test(electronApp), 'external launches must capture synchronous platform failures');
+assert.ok(/return true;[\s\S]*function \(\) \{[\s\S]*return false;/.test(electronApp), 'external launch rejections must resolve to false');
 
 const mainProcess = read('js/main-process.js');
 assert.ok(mainProcess.includes("command !== 'close'"), 'close IPC must require the explicit close command');
@@ -336,6 +340,11 @@ for (const phrase of [
   "ipcHandlers.openExternal(childFrameEvent, 'https://child.example/')",
   "ipcListeners.closeApp(childFrameEvent, 'close')",
   "ipcHandlers.openExternal(untrustedEvent, 'https://untrusted.example/')",
+  "openExternalFailure = 'reject'",
+  "assert.equal(await ipcHandlers.openExternal(trustedEvent, 'https://rejected.example/'), false)",
+  "openExternalFailure = 'throw'",
+  "assert.equal(await ipcHandlers.openExternal(trustedEvent, 'https://throwing.example/'), false)",
+  "assert.equal(await ipcHandlers.openExternal(trustedEvent, 'https://recovered.example/'), true)",
   "ipcListeners.closeApp(untrustedEvent, 'close')"
 ]) {
   assert.ok(electronAppTests.includes(phrase), `Electron application tests must preserve ${phrase}`);
@@ -345,11 +354,11 @@ const readme = read('README.md');
 assert.ok(readme.includes('paused timer with zero-padded seconds'), 'README must document the paused timer regression');
 
 const docs = ['README.md', 'SECURITY.md', 'VISION.md', 'CHANGES.md'].map(read).join('\n');
-for (const phrase of ['npm run contracts', 'local-only', 'remote script', 'local asset', 'notification icon', 'user action', 'close IPC', 'IPC sender', 'main frame', 'child and missing-frame', 'unknown tab', 'window title', 'http/https', 'accessible label', 'timer durations', 'completed timer', 'paused timer', 'tray positioning', 'GitHub Actions', 'Electron 42.4.0', 'Node 22', 'Node 24', 'package-lock.json', 'npm ci', 'context isolation', 'preload', 'Electron smoke']) {
+for (const phrase of ['npm run contracts', 'local-only', 'remote script', 'local asset', 'notification icon', 'user action', 'close IPC', 'IPC sender', 'main frame', 'child and missing-frame', 'external launch failure', 'unknown tab', 'window title', 'http/https', 'accessible label', 'timer durations', 'completed timer', 'paused timer', 'tray positioning', 'GitHub Actions', 'Electron 42.4.0', 'Node 22', 'Node 24', 'package-lock.json', 'npm ci', 'context isolation', 'preload', 'Electron smoke']) {
   assert.ok(docs.toLowerCase().includes(phrase.toLowerCase()), `docs must mention ${phrase}`);
 }
 
-for (const planPath of [LOCAL_ONLY_PLAN, MAIN_PROCESS_PLAN, RENDERER_WIRING_PLAN, TAB_RESET_PLAN, WINDOW_TITLE_PLAN, LOCAL_ASSET_PLAN, NOTIFICATION_ICON_PLAN, GATE_WRAPPER_PLAN, ACCESSIBLE_CONTROL_PLAN, TIMER_DURATION_PLAN, TIMER_RESTART_PLAN, TIMER_PAUSE_PLAN, CI_BASELINE_PLAN, HOSTED_NODE_PLAN, TRAY_LIFECYCLE_PLAN, PRELOAD_URL_TYPE_PLAN, IPC_SENDER_PLAN, LOCATION_INDEPENDENT_MAKE_PLAN, IPC_MAIN_FRAME_PLAN]) {
+for (const planPath of [LOCAL_ONLY_PLAN, MAIN_PROCESS_PLAN, RENDERER_WIRING_PLAN, TAB_RESET_PLAN, WINDOW_TITLE_PLAN, LOCAL_ASSET_PLAN, NOTIFICATION_ICON_PLAN, GATE_WRAPPER_PLAN, ACCESSIBLE_CONTROL_PLAN, TIMER_DURATION_PLAN, TIMER_RESTART_PLAN, TIMER_PAUSE_PLAN, CI_BASELINE_PLAN, HOSTED_NODE_PLAN, TRAY_LIFECYCLE_PLAN, PRELOAD_URL_TYPE_PLAN, IPC_SENDER_PLAN, LOCATION_INDEPENDENT_MAKE_PLAN, IPC_MAIN_FRAME_PLAN, OPEN_EXTERNAL_FAILURE_PLAN]) {
   const plan = read(planPath);
   assert.ok(plan.includes('Status: Completed'));
   assert.ok(plan.includes('make check'));
@@ -384,6 +393,11 @@ const ipcMainFramePlan = read(IPC_MAIN_FRAME_PLAN);
 assert.deepEqual(ipcMainFramePlan.match(/^Status:\s*(.+)$/gm), ['Status: Completed']);
 for (const phrase of ['Node 24', 'zero vulnerabilities', '26-file', 'Six isolated hostile mutations', 'Exact diff']) {
   assert.ok(ipcMainFramePlan.includes(phrase), `IPC main-frame plan must preserve ${phrase}`);
+}
+const openExternalFailurePlan = read(OPEN_EXTERNAL_FAILURE_PLAN);
+assert.deepEqual(openExternalFailurePlan.match(/^Status:\s*(.+)$/gm), ['Status: Completed']);
+for (const phrase of ['synchronous throw', 'rejected promise', 'zero vulnerabilities', 'Seven isolated hostile mutations', 'Exact diff']) {
+  assert.ok(openExternalFailurePlan.includes(phrase), `external launch failure plan must preserve ${phrase}`);
 }
 const electronMigrationPlan = read(ELECTRON_MIGRATION_PLAN);
 assert.deepEqual(electronMigrationPlan.match(/^Status:\s*(.+)$/gm), ['Status: Completed']);

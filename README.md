@@ -80,6 +80,8 @@ Detected npm scripts:
   close IPC without importing Electron.
 - Privileged close and external-link IPC accepts only the application window's
   current main frame; child, missing-frame, and unrelated senders are rejected.
+- An external launch failure, including a synchronous platform throw or
+  rejected promise, resolves to `false` inside the main process.
 - Preload tests execute the shipped sandbox-compatible bridge and constrain it
   to close and external-link commands.
 - Electron application tests cover tray positioning on positive and negative
@@ -180,6 +182,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   sender binding.
 - See `docs/plans/2026-06-16-ipc-main-frame-identity-guard.md` for privileged
   IPC sender and main-frame binding.
+- See `docs/plans/2026-06-16-open-external-failure-boundary.md` for external
+  launch failure containment.
 - See `plans/2026-06-08-notification-regression-tests.md` for the notification
   regression baseline.
 
