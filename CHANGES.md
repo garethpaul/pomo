@@ -1,16 +1,61 @@
 # Changes
 
+## 2026-06-18
+
+- Raised the locked transitive `undici` dependency to 7.28.0 to close the
+  TLS certificate-validation and shared-cache disclosure advisories.
+
+## 2026-06-17
+
+- Settled completed timer intervals before notification dispatch and added a
+  throwing-hook regression that verifies cleanup ordering.
+- Contained granted-permission notification construction failures so renderer
+  timer completion cannot leak repeated operating-system delivery exceptions.
+
+## 2026-06-16
+
+- Notification permission request failures are contained for both synchronous
+  browser throws and rejected permission promises.
+- Bound privileged close and external-link IPC to the application window's
+  current main frame, rejecting child and missing-frame senders.
+- Contained synchronous and asynchronous external launch failures in the main
+  process and preserved a deterministic boolean result for the preload API.
+- Stopped startup and timer completion from retrying denied notification
+  permission while preserving the default-state prompt and granted delivery.
+
+## 2026-06-13
+
+- Bound close and external-link IPC to the application window's `webContents`
+  and added trusted/untrusted sender regression coverage.
+- Rejected non-string external URL values in the sandboxed preload before they
+  can cross the IPC boundary, with runtime and static regression coverage.
+- Expanded deterministic Electron tests for negative-coordinate tray
+  positioning, About and Quit commands, activation, DevTools-aware blur, and
+  close-to-hide behavior.
+
+## 2026-06-12
+
+- Replaced floating legacy Electron/menubar dependencies with exact Electron
+  42.4.0 and a committed lockfile that audits with zero findings.
+- Replaced menubar with direct Tray/BrowserWindow ownership while preserving
+  hidden startup, tray toggle, About, close, Quit, and local-only behavior.
+- Added a sandboxed, context-isolated preload bridge; disabled renderer Node
+  integration, navigation, and window creation; and added a restrictive CSP.
+- Added Node 22/24 locked CI and a bounded Ubuntu 24.04 `xvfb` application smoke
+  launch, plus pure Electron lifecycle and preload tests.
+- Fixed paused timers with zero-padded seconds so restart arithmetic remains
+  numeric and resumes from the exact remaining duration.
+
 ## 2026-06-10
 
-- Added pinned, read-only hosted validation on Node 20 and Node 24 without
-  installing the legacy Electron dependency tree.
+- Added pinned, credential-free, read-only GitHub Actions validation on Node 20
+  and Node 24 without installing the legacy Electron dependency tree.
 - Extended local contracts to preserve the CI action pins, runtime matrix,
-  canonical command, and no-install boundary.
+  canonical command, manual dispatch, and no-install boundary.
 - Added timer duration validation so invalid local countdown values are rejected
   before interval state is created.
 - Fixed completed timers so pressing Start begins a fresh interval instead of
   immediately completing again from zero.
-
 ## 2026-06-09
 
 - Added accessible label validation for icon-only renderer controls.

@@ -6,6 +6,10 @@ const path = require('node:path');
 const vm = require('node:vm');
 
 const source = fs.readFileSync(path.join(__dirname, '..', 'js', 'app.js'), 'utf8');
+const notificationSource = fs.readFileSync(
+  path.join(__dirname, '..', 'js', 'notification.js'),
+  'utf8'
+);
 
 const displays = {
   '#time': { textContent: '' },
@@ -18,7 +22,7 @@ const delegatedHandlers = [];
 const directHandlers = new Map();
 const visibility = new Map();
 const openedUrls = [];
-const ipcMessages = [];
+let closeCalls = 0;
 
 function last(values) {
   return values[values.length - 1];
@@ -96,23 +100,17 @@ function jqueryStub(target) {
 const context = {
   console,
   document: documentStub,
-  ipc: {
-    send(channel, payload) {
-      ipcMessages.push({ channel, payload });
-    }
-  },
-  require(moduleName) {
-    assert.equal(moduleName, 'electron');
-    return {
-      shell: {
-        openExternal(url) {
-          openedUrls.push(url);
-        }
-      }
-    };
-  },
   window: {
-    PomoTimer: FakeTimer
+    PomoTimer: FakeTimer,
+    pomoDesktop: {
+      close() {
+        closeCalls += 1;
+      },
+      openExternal(url) {
+        openedUrls.push(url);
+        return Promise.resolve(true);
+      }
+    }
   },
   $: jqueryStub
 };
@@ -195,6 +193,38 @@ assert.deepEqual(
 );
 
 context.__closeApp();
-assert.deepEqual(ipcMessages, [{ channel: 'closeApp', payload: 'close' }]);
+assert.equal(closeCalls, 1);
+clickHandlers.get('#close_app')();
+assert.equal(closeCalls, 2);
+
+let domReadyHandler;
+let deniedPermissionRequests = 0;
+const notificationContext = {
+  console,
+  document: {
+    addEventListener(eventName, handler) {
+      assert.equal(eventName, 'DOMContentLoaded');
+      domReadyHandler = handler;
+    }
+  },
+  Notification: {
+    permission: 'denied',
+    requestPermission() {
+      deniedPermissionRequests += 1;
+    }
+  },
+  alert() {
+    throw new Error('denied notification permission must not alert');
+  },
+  window: {}
+};
+vm.createContext(notificationContext);
+vm.runInContext(notificationSource, notificationContext, {
+  filename: 'js/notification.js'
+});
+assert.equal(typeof domReadyHandler, 'function');
+domReadyHandler();
+assert.equal(deniedPermissionRequests, 0);
+assert.equal(typeof notificationContext.window.notifyUser, 'function');
 
 console.log('renderer wiring tests passed.');

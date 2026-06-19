@@ -44,10 +44,10 @@
                 display.textContent = this.minutes + ":" + this.seconds;
 
                 if (this.minutes == 0 && this.seconds == 0) {
+                    this.stopTimer();
                     if (typeof root.notifyUser === 'function') {
                         root.notifyUser();
                     }
-                    this.stopTimer();
                 }
             }, 1000);
         }
@@ -72,7 +72,7 @@
             if (this.minutes == this.initialMinutes && this.seconds == this.initialSeconds) {
                 this.pomodoroTime = this.minutes * this.seconds;
             } else {
-                this.pomodoroTime = this.minutes * 60 + this.seconds;
+                this.pomodoroTime = Number(this.minutes) * 60 + Number(this.seconds);
             }
         }
     }

@@ -1,6 +1,9 @@
 'use strict';
-const shell = require('electron').shell;
 const Timer = window.PomoTimer;
+const desktop = window.pomoDesktop || {
+    close: function () {},
+    openExternal: function () { return Promise.resolve(false); }
+};
 
 var display = document.querySelector('#time');
 var display_short = document.querySelector('#time_short');
@@ -14,7 +17,7 @@ $(document).on('click', 'a[href^="http"]', function (event) {
     event.preventDefault();
 
     if (isExternalHttpUrl(this.href)) {
-        shell.openExternal(this.href);
+        desktop.openExternal(this.href);
     }
 });
 
@@ -87,8 +90,10 @@ $('#long_reset').click(() => {
 
 
 function closeApp() {
-    ipc.send('closeApp', 'close');
+    desktop.close();
 }
+
+$('#close_app').click(closeApp);
 
 $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
     let activeTab = e.target.toString();

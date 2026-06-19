@@ -14,8 +14,8 @@ This README is based on the checked-in source, manifests, scripts, and repositor
 - `README.md` - project overview and local usage notes
 - `CHANGES.md` - notable maintenance changes
 - `Makefile` - local verification entry points
-- `.github/workflows/check.yml` - hosted no-install Node verification
-- `package.json` - JavaScript dependency and script metadata
+- `.github/workflows/check.yml` - locked Node verification and Electron smoke
+- `package.json` / `package-lock.json` - exact Electron dependency metadata
 - `css` - source or example code
 - `js` - source or example code
 - `plans` - completed maintenance plans
@@ -35,7 +35,7 @@ Additional scan context:
 ### Prerequisites
 
 - Git
-- Node.js and npm
+- Node.js 22.12 or newer and npm
 - `make` for the local verification wrapper
 
 ### Setup
@@ -43,22 +43,23 @@ Additional scan context:
 ```bash
 git clone https://github.com/garethpaul/pomo.git
 cd pomo
+npm ci
 make check
 ```
 
-The verification suite uses Node built-ins and checked-in files, so it does not
-require dependency installation. Running the Electron app still requires its
-legacy, unlocked dependencies; review and pin compatible versions in an
-isolated environment before using `npm install` and `npm start`.
+The lockfile pins Electron 42.4.0. `npm ci` reproduces that graph, and `npm
+audit` should report zero findings before the app is run or packaged.
 
 ## Running or Using the Project
 
-- After deliberately installing compatible legacy dependencies in an isolated
-  environment, run `npm start` for the desktop app.
+- Run `npm start` for the desktop app after `npm ci`.
+- On Linux with `xvfb`, run `npm run smoke` for a bounded real application
+  launch that exits after the renderer reaches `did-finish-load`.
 
 Detected npm scripts:
 
 - `npm run start` - `electron index.js`
+- `npm run smoke` - `xvfb-run -a node scripts/smoke-electron.js`
 - `npm run contracts` - `node scripts/check-local-contracts.js`
 - `npm run lint` - `node --check index.js && node --check js/main-process.js && node --check js/notification.js && node --check js/timer.js && node --check js/app.js && node --check scripts/test-timer.js && node --check scripts/test-notification.js && node --check scripts/test-main-process.js && node --check scripts/test-app-wiring.js && node --check scripts/check-local-contracts.js`
 - `npm run test` - `node scripts/test-timer.js && node scripts/test-notification.js && node scripts/test-main-process.js && node scripts/test-app-wiring.js`
@@ -67,15 +68,25 @@ Detected npm scripts:
 
 ## Testing and Verification
 
-- GitHub Actions runs the dependency-free gate on Node 20 and Node 24 for
-  pushes to `master` and pull requests.
-- Hosted checks intentionally do not install the legacy Electron dependencies;
-  syntax, behavior, wiring, and asset contracts use Node built-ins only.
+- GitHub Actions installs the exact lockfile with scripts disabled, audits it,
+  and runs the pure gate on Node 22 and Node 24 for pushes and pull requests.
+- A separate bounded Ubuntu 24.04 job installs Electron and launches the real
+  application under `xvfb`.
 - Run `npm test` for deterministic timer, notification, main-process, and
   renderer wiring regression coverage.
 - Run `npm run contracts` for the local-only renderer and canonical plan checks.
-- Main-process tests cover guarded close IPC handling and tray callback wiring
-  without launching Electron.
+- Main-process tests cover secure BrowserWindow options, tray positioning and
+  toggle behavior, navigation denial, external-link validation, and guarded
+  close IPC without importing Electron.
+- Privileged close and external-link IPC accepts only the application window's
+  current main frame; child, missing-frame, and unrelated senders are rejected.
+- An external launch failure, including a synchronous platform throw or
+  rejected promise, resolves to `false` inside the main process.
+- Preload tests execute the shipped sandbox-compatible bridge and constrain it
+  to close and external-link commands.
+- Electron application tests cover tray positioning on positive and negative
+  displays, About and Quit commands, activation, blur, and close-to-hide
+  lifecycle behavior.
 - Renderer wiring tests cover start, stop, reset, tab reset, external-link, and
   close-command handlers without launching Electron.
 - Renderer wiring tests verify external links only open explicit http/https
@@ -85,11 +96,22 @@ Detected npm scripts:
   non-numeric values cannot enter countdown state.
 - Timer tests confirm a completed timer restarts from its initial duration
   instead of immediately firing another completion notification.
+- Timer completion settles interval ownership before notification dispatch, so
+  an unexpected renderer hook failure cannot leave the completed countdown
+  scheduled.
+- Timer tests confirm a paused timer with zero-padded seconds resumes from the
+  exact remaining duration instead of concatenating display strings.
 - Local contract checks confirm the app window title stays branded as Pomo.
 - Local contract checks also verify renderer local asset references point to
   checked-in CSS, JavaScript, image, and audio files.
 - Local contract checks verify the desktop notification icon stays a checked-in
   relative asset.
+- Denied notification permission is a stable fail-closed state: startup and
+  timer completion do not request permission again after the user declines it.
+- Notification permission request failures are contained whether the browser
+  throws synchronously or rejects its permission promise.
+- Notification construction failures are contained after permission is granted
+  so timer completion cannot leak an operating-system delivery exception.
 - Local contract checks verify icon-only renderer controls keep accessible
   labels and matching tooltip titles.
 - Local contract checks verify the npm and Makefile gate wrappers expose lint,
@@ -99,6 +121,8 @@ Detected npm scripts:
   static build gate for local-only desktop contracts.
 - Run `make lint`, `make test`, `make build`, and `make check` as the
   repository-standard wrappers around the matching npm scripts.
+- GitHub Actions runs locked `make check` gates on Node 22 and Node 24 plus the
+  Electron 42 smoke for pushes, pull requests, and manual dispatches.
 
 When the required SDK or runtime is unavailable, use static checks and source review first, then verify on a machine that has the matching platform toolchain.
 
@@ -122,6 +146,9 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - `npm run contracts` verifies renderer local asset references stay relative
   and point to checked-in files.
 - `npm run contracts` verifies the notification icon stays local and checked in.
+- The renderer runs with context isolation, sandboxing, no Node integration, a
+  restrictive Content Security Policy, denied navigation/window creation, and
+  a two-command preload bridge.
 
 ## Maintenance Notes
 
@@ -150,8 +177,22 @@ When the required SDK or runtime is unavailable, use static checks and source re
   renderer control accessible label coverage.
 - See `docs/plans/2026-06-10-timer-duration-validation.md` for timer duration
   validation.
-- See `docs/plans/2026-06-10-hosted-node-validation.md` for the pinned,
-  read-only Node 20/24 no-install matrix.
+- See `docs/plans/2026-06-10-ci-baseline.md` for the hosted GitHub Actions
+  baseline.
+- See `docs/plans/2026-06-10-hosted-node-validation.md` for the historical
+  no-install matrix that the locked Electron validation superseded.
+- See `docs/plans/2026-06-12-electron-42-security-migration.md` for the
+  Electron 42, preload isolation, lockfile, and hosted smoke migration.
+- See `docs/plans/2026-06-12-timer-pause-resume.md` for exact paused-timer
+  restart coverage.
+- See `docs/plans/2026-06-13-preload-external-url-type-guard.md` for the
+  preload-side non-string external URL guard.
+- See `docs/plans/2026-06-13-ipc-sender-identity-guard.md` for privileged IPC
+  sender binding.
+- See `docs/plans/2026-06-16-ipc-main-frame-identity-guard.md` for privileged
+  IPC sender and main-frame binding.
+- See `docs/plans/2026-06-16-open-external-failure-boundary.md` for external
+  launch failure containment.
 - See `plans/2026-06-08-notification-regression-tests.md` for the notification
   regression baseline.
 

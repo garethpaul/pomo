@@ -4,6 +4,7 @@ const assert = require('node:assert/strict');
 
 const {
   ensureNotificationPermission,
+  requestNotificationPermissionIfDefault,
   notifyUser
 } = require('../js/notification');
 
@@ -33,6 +34,10 @@ assert.equal(
   false
 );
 assert.equal(requestedPermission, true);
+assert.equal(
+  requestNotificationPermissionIfDefault(permissionPromptNotification),
+  true
+);
 
 let constructedNotification;
 function GrantedNotification(title, options) {
@@ -66,5 +71,60 @@ const deniedNotification = {
   }
 };
 
+assert.equal(
+  ensureNotificationPermission(deniedNotification),
+  false
+);
 assert.equal(notifyUser(deniedNotification), undefined);
-assert.equal(notifyPermissionRequested, true);
+assert.equal(
+  requestNotificationPermissionIfDefault(deniedNotification),
+  false
+);
+assert.equal(notifyPermissionRequested, false);
+
+let constructionAttempts = 0;
+function ThrowingNotification() {
+  constructionAttempts += 1;
+  throw new Error('notification construction failed');
+}
+ThrowingNotification.permission = 'granted';
+ThrowingNotification.requestPermission = () => {
+  throw new Error('requestPermission should not be called when granted');
+};
+
+assert.equal(notifyUser(ThrowingNotification), undefined);
+assert.equal(constructionAttempts, 1);
+
+async function runPermissionRequestFailureAssertions() {
+  let unhandledRejection;
+  function captureUnhandledRejection(error) {
+    unhandledRejection = error;
+  }
+  process.once('unhandledRejection', captureUnhandledRejection);
+
+  const rejectedRequest = {
+    permission: 'default',
+    requestPermission() {
+      return Promise.reject(new Error('permission prompt rejected'));
+    }
+  };
+
+  assert.equal(requestNotificationPermissionIfDefault(rejectedRequest), true);
+  await new Promise(resolve => setImmediate(resolve));
+  process.removeListener('unhandledRejection', captureUnhandledRejection);
+  assert.equal(unhandledRejection, undefined);
+
+  const throwingRequest = {
+    permission: 'default',
+    requestPermission() {
+      throw new Error('permission prompt threw');
+    }
+  };
+
+  assert.equal(requestNotificationPermissionIfDefault(throwingRequest), false);
+}
+
+runPermissionRequestFailureAssertions().catch(error => {
+  console.error(error);
+  process.exit(1);
+});

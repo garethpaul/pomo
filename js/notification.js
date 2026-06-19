@@ -1,11 +1,17 @@
-var ipc;
+function requestNotificationPermissionIfDefault(NotificationApi) {
+  if (NotificationApi.permission !== 'default') {
+    return false;
+  }
 
-try {
-  ipc = require('electron').ipcRenderer;
-} catch (error) {
-  ipc = {
-    send: function () {}
-  };
+  try {
+    var permissionRequest = NotificationApi.requestPermission();
+    if (permissionRequest && typeof permissionRequest.then === 'function') {
+      Promise.resolve(permissionRequest).catch(function () {});
+    }
+    return true;
+  } catch (error) {
+    return false;
+  }
 }
 
 function ensureNotificationPermission(NotificationApi, alertUser) {
@@ -16,12 +22,12 @@ function ensureNotificationPermission(NotificationApi, alertUser) {
     return false;
   }
 
-  if (NotificationApi.permission !== "granted") {
-    NotificationApi.requestPermission();
-    return false;
+  if (NotificationApi.permission === 'granted') {
+    return true;
   }
 
-  return true;
+  requestNotificationPermissionIfDefault(NotificationApi);
+  return false;
 }
 
 if (typeof document !== 'undefined') {
@@ -43,31 +49,35 @@ function notifyUser(NotificationApi) {
     return;
   }
 
-  if (notificationApi.permission !== "granted") {
-    notificationApi.requestPermission();
+  if (notificationApi.permission !== 'granted') {
+    requestNotificationPermissionIfDefault(notificationApi);
     return;
   }
 
-  var notification = new notificationApi('Wow! Time\'s up', {
-    icon: 'res/big_pomo.png',
-    body: "Hey there! You've been notified!"
-  });
+  try {
+    var notification = new notificationApi('Wow! Time\'s up', {
+      icon: 'res/big_pomo.png',
+      body: "Hey there! You've been notified!"
+    });
 
-  notification.onclose = function(){
-    //notiSound.pause();
+    notification.onclose = function(){
+      //notiSound.pause();
+    }
+
+    return notification;
+  } catch (error) {
+    return;
   }
-
-  return notification;
 }
 
 if (typeof window !== 'undefined') {
-  window.ipc = ipc;
   window.notifyUser = notifyUser;
 }
 
 if (typeof module === 'object' && module.exports) {
   module.exports = {
     ensureNotificationPermission: ensureNotificationPermission,
+    requestNotificationPermissionIfDefault: requestNotificationPermissionIfDefault,
     notifyUser: notifyUser
   };
 }
