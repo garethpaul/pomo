@@ -196,15 +196,38 @@ assert.equal(
 );
 
 const makefile = read('Makefile');
+assert.ok(/^override SHELL := \/bin\/sh\noverride \.SHELLFLAGS := -c$/m.test(makefile), 'Makefile must pin its recipe shell');
 assert.ok(
-  /^override REPO_ROOT := \$\(abspath \$\(dir \$\(lastword \$\(MAKEFILE_LIST\)\)\)\)$/m.test(makefile),
-  'Makefile must resolve an override-protected repository root from its own path'
+  /^ifneq \(\$\(origin MAKEFILE_LIST\),file\)\n\$\(error MAKEFILE_LIST must not be overridden\)$/m.test(makefile),
+  'Makefile must reject caller-controlled MAKEFILE_LIST values'
 );
+assert.ok(/^ifneq \(\$\(strip \$\(MAKEFILES\)\),\)\n\$\(error MAKEFILES must not be set\)$/m.test(makefile), 'Makefile must reject preloaded makefiles');
+assert.ok(
+  /^override REPO_ROOT := \$\(shell path=/m.test(makefile) &&
+    makefile.includes('/usr/bin/dirname') &&
+    makefile.includes('/bin/pwd -P'),
+  'Makefile must canonicalize an override-protected repository root from its own path'
+);
+assert.ok(/^export REPO_ROOT$/m.test(makefile), 'Makefile must pass the canonical root through the environment');
 assert.ok(/^check: verify$/m.test(makefile), 'Makefile must expose make check');
-assert.ok(/^lint:\n\tcd "\$\(REPO_ROOT\)" && npm run lint$/m.test(makefile), 'Makefile must root npm lint');
-assert.ok(/^test:\n\tcd "\$\(REPO_ROOT\)" && npm test$/m.test(makefile), 'Makefile must root npm test');
-assert.ok(/^build:\n\tcd "\$\(REPO_ROOT\)" && npm run build$/m.test(makefile), 'Makefile must root npm build');
-assert.ok(/^verify:\n\tcd "\$\(REPO_ROOT\)" && npm run verify$/m.test(makefile), 'Makefile must root npm verify');
+assert.ok(/^lint:\n\tcd "\$\$REPO_ROOT" && npm run lint$/m.test(makefile), 'Makefile must root npm lint without shell interpolation');
+assert.ok(/^test:\n\tcd "\$\$REPO_ROOT" && npm test$/m.test(makefile), 'Makefile must root npm test without shell interpolation');
+assert.ok(/^build:\n\tcd "\$\$REPO_ROOT" && npm run build$/m.test(makefile), 'Makefile must root npm build without shell interpolation');
+assert.ok(/^root-test:\n\tcd "\$\$REPO_ROOT" && scripts\/test-makefile-root\.sh$/m.test(makefile), 'Makefile must expose the root regression gate');
+assert.ok(/^verify: root-test\n\tcd "\$\$REPO_ROOT" && npm run verify$/m.test(makefile), 'Makefile must root npm verify without shell interpolation');
+
+const rootTest = read('scripts/test-makefile-root.sh');
+assert.ok(rootTest.includes('Pomo'), 'Makefile root test must use a sensitive checkout name');
+assert.ok(rootTest.includes('touch pwned') && rootTest.includes('shell-active checkout path executed'), 'Makefile root test must execute a shell-active checkout regression');
+assert.ok(rootTest.includes('MAKEFILE_LIST must not be overridden'), 'Makefile root test must require the fail-closed diagnostic');
+assert.ok(rootTest.includes('MAKEFILES must not be set'), 'Makefile root test must reject preloaded makefiles');
+assert.ok(rootTest.includes('caller-controlled SHELL executed'), 'Makefile root test must detect shell poisoning');
+
+const rootPlan = read('docs/plans/2026-06-21-safe-make-root.md');
+assert.ok(rootPlan.includes('Status: Completed'), 'safe Make root plan must remain completed');
+assert.ok(rootPlan.includes('five pre-existing public Make targets plus the root regression gate'), 'safe Make root plan must preserve target scope');
+assert.ok(rootPlan.includes('shell-active checkout path'), 'safe Make root plan must preserve hostile-path evidence');
+assert.ok(rootPlan.includes('`MAKEFILE_LIST`, `MAKEFILES`, and `SHELL`'), 'safe Make root plan must preserve control-variable evidence');
 
 const main = read('index.js');
 assert.ok(main.includes("require('./js/electron-app')"));

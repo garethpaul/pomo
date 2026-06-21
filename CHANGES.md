@@ -1,5 +1,11 @@
 # Changes
 
+## 2026-06-21
+
+- Hardened all five pre-existing Make gates against control-variable
+  redirection and shell-active checkout paths without changing Electron
+  application behavior.
+
 ## 2026-06-18
 
 - Raised the locked transitive `undici` dependency to 7.28.0 to close the
