@@ -152,6 +152,10 @@ When the required SDK or runtime is unavailable, use static checks and source re
 
 ## Maintenance Notes
 
+- Make gates reject caller-controlled `MAKEFILE_LIST`, `MAKEFILES`, and
+  `REPO_ROOT` values, pin their shell, and keep checkout paths out of shell
+  source before running npm verification.
+
 - See `SECURITY.md` for vulnerability reporting and safe research guidance.
 - See `VISION.md` for project direction and contribution guardrails.
 - See `CHANGES.md` for maintenance history.
