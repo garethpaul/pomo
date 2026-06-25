@@ -24,12 +24,17 @@
   dubious-ownership protection before the contract could inspect ignores; the
   unchanged rerun as the checkout owner passed, matching hosted ownership.
 - Remaining evidence: hosted Electron/Node/CodeQL and exact-head review.
+- Exact-head Codex review: clean on
+  `a064d6996d22533cd0411b8802f67604cbb3be27` with no actionable findings.
+- Hosted evidence: push and pull-request Node 22/24 locked checks and Electron
+  42 application smoke jobs passed; CodeQL Actions and JavaScript/TypeScript
+  analysis passed.
 - Findings: clone-local excludes are not repository policy, and filesystem-only
   filtering can hide deleted paths that remain in Git's index.
 - Blockers: the host Node 18 runtime is below the declared Node 22 floor;
   supported-runtime validation used cached read-only Node 22/24 containers.
-- Next: run focused and full gates, exact-head Codex review, and hosted checks;
-  merge only when all evidence is clean.
+- Next: rerun exact-head review and hosted checks for this evidence-only update,
+  then merge if they remain clean.
 
 ## 2026-06-25T13:15:39-07:00 — P1 tab timer ownership
 

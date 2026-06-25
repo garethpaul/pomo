@@ -52,3 +52,5 @@ or that a file was not previously force-added.
 - A first root-owned container run stopped on Git's expected dubious-ownership
   protection; the unchanged owner-matched rerun passed.
 - `git diff --check` passed.
+- Exact-head Codex review was clean. Push and pull-request Node 22/24 locked
+  checks, Electron 42 smoke jobs, and CodeQL Actions/JavaScript analysis passed.
