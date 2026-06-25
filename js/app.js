@@ -95,17 +95,43 @@ function closeApp() {
 
 $('#close_app').click(closeApp);
 
+const timerTabs = {
+    pomodoro: {
+        timer: normalTimer,
+        display: '#time',
+        start: '#start',
+        stop: '#stop'
+    },
+    short: {
+        timer: shortTimer,
+        display: '#time_short',
+        start: '#short_start',
+        stop: '#short_stop'
+    },
+    long: {
+        timer: longTimer,
+        display: '#time_long',
+        start: '#long_start',
+        stop: '#long_stop'
+    }
+};
+const timers = [normalTimer, shortTimer, longTimer];
+
 $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
     let activeTab = e.target.toString();
     let nameActiveTab = activeTab.split('#');
+    const activeTimerTab = timerTabs[nameActiveTab[1]];
 
-    if (nameActiveTab[1] == 'pomodoro') {
-        normalTimer.resetTimer('#time');
+    if (!activeTimerTab) {
+        return;
     }
-    else if (nameActiveTab[1] == 'short') {
-        shortTimer.resetTimer('#time_short');
-    }
-    else if (nameActiveTab[1] == 'long') {
-        longTimer.resetTimer('#time_long');
-    }
+
+    timers.forEach(timer => {
+        if (timer !== activeTimerTab.timer) {
+            timer.stopTimer();
+        }
+    });
+    activeTimerTab.timer.resetTimer(activeTimerTab.display);
+    $(activeTimerTab.start).show();
+    $(activeTimerTab.stop).hide();
 })

@@ -42,6 +42,8 @@ Priority:
 - Keep renderer button and tab wiring covered without launching Electron
 - Keep icon-only renderer controls labelled for assistive tooling
 - Keep unknown tab hashes from resetting any timer
+- Keep valid tab switches from leaving hidden countdowns or stale destination
+  controls active
 - Keep renderer external-link opening limited to explicit http/https URLs
 - Keep the renderer window title aligned with the Pomo app name
 - Keep renderer local asset references checked in and relative

@@ -92,6 +92,8 @@ Detected npm scripts:
 - Renderer wiring tests verify external links only open explicit http/https
   URLs after user clicks.
 - Renderer wiring tests also confirm unknown tab hashes do not reset a timer.
+- Valid tab switches stop hidden countdowns, reset the destination timer, and
+  restore its Start control so stale Stop state cannot outlive the interval.
 - Timer tests reject invalid timer durations so zero, negative, fractional, or
   non-numeric values cannot enter countdown state.
 - Timer tests confirm a completed timer restarts from its initial duration
@@ -167,6 +169,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   regression baseline.
 - See `docs/plans/2026-06-09-renderer-tab-reset-guard.md` for the unknown tab
   reset guard.
+- See `docs/plans/2026-06-25-tab-switch-timer-ownership.md` for hidden timer
+  shutdown and destination-control reconciliation on valid tab switches.
 - See `docs/plans/2026-06-09-window-title-contract.md` for the renderer window
   title contract.
 - See `docs/plans/2026-06-09-local-asset-reference-contract.md` for the

@@ -31,6 +31,7 @@ const NOTIFICATION_REQUEST_FAILURE_PLAN = 'docs/plans/2026-06-16-notification-pe
 const NOTIFICATION_CONSTRUCTION_FAILURE_PLAN = 'docs/plans/2026-06-17-notification-construction-failure.md';
 const TIMER_COMPLETION_SETTLEMENT_PLAN = 'docs/plans/2026-06-17-timer-completion-settlement.md';
 const UNDICI_ADVISORY_PLAN = 'docs/plans/2026-06-18-undici-advisory-remediation.md';
+const TAB_TIMER_OWNERSHIP_PLAN = 'docs/plans/2026-06-25-tab-switch-timer-ownership.md';
 const CI_WORKFLOW = '.github/workflows/check.yml';
 
 function read(relativePath) {
@@ -99,6 +100,7 @@ function rendererAssetReferences(markup) {
   NOTIFICATION_PERMISSION_PLAN,
   NOTIFICATION_REQUEST_FAILURE_PLAN,
   NOTIFICATION_CONSTRUCTION_FAILURE_PLAN,
+  TAB_TIMER_OWNERSHIP_PLAN,
   CI_WORKFLOW,
   '.nvmrc',
   'index.html',
@@ -318,7 +320,13 @@ assert.ok(app.includes('desktop.openExternal(this.href);'));
 assert.ok(app.includes('desktop.close();'));
 assert.ok(app.includes("$('#close_app').click(closeApp);"));
 assert.ok(!app.includes("require('electron')"), 'renderer JavaScript must not access Electron directly');
-assert.ok(app.includes("nameActiveTab[1] == 'long'"), 'long timer reset must require the long tab');
+assert.ok(app.includes('const timerTabs = {'), 'valid timer tabs must use explicit ownership metadata');
+assert.ok(app.includes('const timers = [normalTimer, shortTimer, longTimer];'), 'all timer owners must participate in tab transitions');
+assert.ok(app.includes('if (!activeTimerTab)'), 'unknown tabs must remain fail closed');
+assert.ok(app.includes('timer !== activeTimerTab.timer'), 'tab transitions must stop non-active timers');
+assert.ok(app.includes('activeTimerTab.timer.resetTimer(activeTimerTab.display);'), 'the destination timer must reset on entry');
+assert.ok(app.includes('$(activeTimerTab.start).show();'), 'the destination Start control must be restored');
+assert.ok(app.includes('$(activeTimerTab.stop).hide();'), 'the destination Stop control must be hidden');
 assert.ok(!app.includes('setInterval(shell.openExternal'), 'external links must not be opened from background timers');
 
 const preload = read('preload.js');
@@ -364,6 +372,9 @@ assert.ok(notificationTests.includes('assert.equal(constructionAttempts, 1)'), '
 const appWiringTests = read('scripts/test-app-wiring.js');
 assert.ok(appWiringTests.includes("permission: 'denied'"), 'renderer wiring tests must exercise denied notification permission');
 assert.ok(appWiringTests.includes('assert.equal(deniedPermissionRequests, 0)'), 'renderer wiring tests must prove startup does not retry denied permission');
+assert.ok(appWiringTests.includes('switching tabs must stop a countdown that would otherwise continue hidden'), 'renderer tests must reject hidden countdown ownership');
+assert.ok(appWiringTests.includes("assert.equal(visibility.get('#short_start'), 'shown')"), 'renderer tests must restore the destination Start control');
+assert.ok(appWiringTests.includes("assert.equal(visibility.get('#short_stop'), 'hidden')"), 'renderer tests must hide the destination Stop control');
 
 const notificationIconMatch = notification.match(/\bicon:\s*['"]([^'"]+)['"]/);
 assert.ok(notificationIconMatch, 'notification icon must stay configured');
@@ -421,6 +432,7 @@ const readme = read('README.md');
 assert.ok(readme.includes('paused timer with zero-padded seconds'), 'README must document the paused timer regression');
 assert.ok(readme.toLowerCase().includes('notification construction failures'), 'README must document notification construction failures');
 assert.ok(readme.includes('settles interval ownership before notification dispatch'), 'README must document timer completion settlement ordering');
+assert.ok(readme.includes('hidden countdowns'), 'README must document timer ownership across tab switches');
 
 const docs = ['README.md', 'SECURITY.md', 'VISION.md', 'CHANGES.md'].map(read).join('\n');
 for (const phrase of ['npm run contracts', 'local-only', 'remote script', 'local asset', 'notification icon', 'denied notification permission', 'notification permission request failures', 'notification construction failures', 'user action', 'close IPC', 'IPC sender', 'main frame', 'child and missing-frame', 'external launch failure', 'unknown tab', 'window title', 'http/https', 'accessible label', 'timer durations', 'completed timer', 'paused timer', 'tray positioning', 'GitHub Actions', 'Electron 42.4.0', 'Node 22', 'Node 24', 'package-lock.json', 'npm ci', 'context isolation', 'preload', 'Electron smoke']) {
@@ -495,6 +507,11 @@ const undiciAdvisoryPlan = read(UNDICI_ADVISORY_PLAN);
 assert.deepEqual(undiciAdvisoryPlan.match(/^status:\s*(.+)$/gm), ['status: completed']);
 for (const phrase of ['7.28.0', 'zero vulnerabilities', '27774816051', '27774828870', 'Exact diff']) {
   assert.ok(undiciAdvisoryPlan.includes(phrase), `undici advisory plan must preserve ${phrase}`);
+}
+const tabTimerOwnershipPlan = read(TAB_TIMER_OWNERSHIP_PLAN);
+assert.deepEqual(tabTimerOwnershipPlan.match(/^status:\s*(.+)$/gm), ['status: completed']);
+for (const phrase of ['hidden countdown', 'destination controls', 'Six isolated hostile mutations', 'make check', 'Exact diff']) {
+  assert.ok(tabTimerOwnershipPlan.includes(phrase), `tab timer ownership plan must preserve ${phrase}`);
 }
 const electronMigrationPlan = read(ELECTRON_MIGRATION_PLAN);
 assert.deepEqual(electronMigrationPlan.match(/^Status:\s*(.+)$/gm), ['Status: Completed']);

@@ -1,5 +1,31 @@
 # Changes
 
+## 2026-06-25T13:15:39-07:00 — P1 tab timer ownership
+
+- Cycle: inspected the MIT-licensed Electron app, open work, recent lifecycle
+  and security changes, timer state machine, renderer wiring, static contracts,
+  package lock, and hosted Node/Electron lanes before changing behavior.
+- Threads: prioritized timer ownership over dependency or UI polish because a
+  countdown started in one mode continued invisibly after the user selected a
+  different Pomodoro/break tab.
+- Bug: valid tab switches reset only the destination timer. The previous timer
+  retained its interval and could notify unexpectedly, while revisiting a tab
+  could show a stale Stop control for an already reset timer.
+- Files: changed `js/app.js`, `scripts/test-app-wiring.js`,
+  `scripts/check-local-contracts.js`, `README.md`, `VISION.md`, `AGENTS.md`, and
+  `docs/plans/2026-06-25-tab-switch-timer-ownership.md`.
+- Validation: the pre-fix renderer regression failed because the hidden normal
+  timer's stop count did not change; the focused VM test passes after explicit
+  valid-tab ownership and destination-control reconciliation. Six isolated
+  hostile mutations were rejected. Root and external `make check` passed on
+  Node 22.23.1 and Node 24.18.0; both audits reported zero vulnerabilities and
+  both package dry-runs preserved the expected 26-file surface.
+- Blockers: the host Node 18 runtime is below the declared Node 22 floor, so
+  final supported-runtime and package verification must use Node 22/24 lanes;
+  Electron integration remains the hosted smoke gate.
+- Next: reject hostile ownership mutations, run root and external full gates,
+  require clean exact-head Codex review and hosted checks, then merge.
+
 ## 2026-06-21
 
 - Hardened all five pre-existing Make gates against control-variable
