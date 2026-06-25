@@ -1,6 +1,7 @@
 'use strict';
 
 const assert = require('node:assert/strict');
+const { execFileSync } = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -32,6 +33,7 @@ const NOTIFICATION_CONSTRUCTION_FAILURE_PLAN = 'docs/plans/2026-06-17-notificati
 const TIMER_COMPLETION_SETTLEMENT_PLAN = 'docs/plans/2026-06-17-timer-completion-settlement.md';
 const UNDICI_ADVISORY_PLAN = 'docs/plans/2026-06-18-undici-advisory-remediation.md';
 const TAB_TIMER_OWNERSHIP_PLAN = 'docs/plans/2026-06-25-tab-switch-timer-ownership.md';
+const LOCAL_METADATA_PLAN = 'docs/plans/2026-06-25-local-repository-metadata-ignore.md';
 const CI_WORKFLOW = '.github/workflows/check.yml';
 
 function read(relativePath) {
@@ -101,7 +103,9 @@ function rendererAssetReferences(markup) {
   NOTIFICATION_REQUEST_FAILURE_PLAN,
   NOTIFICATION_CONSTRUCTION_FAILURE_PLAN,
   TAB_TIMER_OWNERSHIP_PLAN,
+  LOCAL_METADATA_PLAN,
   CI_WORKFLOW,
+  '.gitignore',
   '.nvmrc',
   'index.html',
   'index.js',
@@ -123,6 +127,29 @@ function rendererAssetReferences(markup) {
   'scripts/smoke-electron.js',
   'VISION.md'
 ].forEach(assertFile);
+
+const activeGitignorePatterns = new Set(
+  read('.gitignore')
+    .split(/\r?\n/)
+    .filter((line) => line && !line.startsWith('#'))
+);
+assert.ok(activeGitignorePatterns.has('.vscode/'), '.gitignore must actively ignore .vscode/');
+assert.ok(activeGitignorePatterns.has('.explore/'), '.gitignore must actively ignore .explore/');
+for (const metadataPath of ['.vscode/', '.explore/', '.explore/REPO_MAP.md']) {
+  assert.doesNotThrow(
+    () => execFileSync('/usr/bin/git', ['check-ignore', '--quiet', metadataPath], {
+      cwd: ROOT,
+      stdio: 'ignore'
+    }),
+    `${metadataPath} must be effectively ignored by Git`
+  );
+}
+const trackedMetadataPaths = execFileSync(
+  '/usr/bin/git',
+  ['ls-files', '--', '.vscode', '.explore'],
+  { cwd: ROOT, encoding: 'utf8' }
+).split('\n').filter(Boolean);
+assert.deepEqual(trackedMetadataPaths, [], '.vscode and .explore must not contain tracked files');
 
 const workflow = read(CI_WORKFLOW);
 const workflowActions = Array.from(
@@ -442,7 +469,7 @@ for (const path of ['README.md', 'SECURITY.md', 'VISION.md', 'CHANGES.md']) {
   assert.ok(read(path).toLowerCase().includes('notification permission request failures'), `${path} must document notification permission request failures`);
 }
 
-for (const planPath of [LOCAL_ONLY_PLAN, MAIN_PROCESS_PLAN, RENDERER_WIRING_PLAN, TAB_RESET_PLAN, WINDOW_TITLE_PLAN, LOCAL_ASSET_PLAN, NOTIFICATION_ICON_PLAN, GATE_WRAPPER_PLAN, ACCESSIBLE_CONTROL_PLAN, TIMER_DURATION_PLAN, TIMER_RESTART_PLAN, TIMER_PAUSE_PLAN, CI_BASELINE_PLAN, HOSTED_NODE_PLAN, TRAY_LIFECYCLE_PLAN, PRELOAD_URL_TYPE_PLAN, IPC_SENDER_PLAN, LOCATION_INDEPENDENT_MAKE_PLAN, IPC_MAIN_FRAME_PLAN, OPEN_EXTERNAL_FAILURE_PLAN]) {
+for (const planPath of [LOCAL_ONLY_PLAN, MAIN_PROCESS_PLAN, RENDERER_WIRING_PLAN, TAB_RESET_PLAN, WINDOW_TITLE_PLAN, LOCAL_ASSET_PLAN, NOTIFICATION_ICON_PLAN, GATE_WRAPPER_PLAN, ACCESSIBLE_CONTROL_PLAN, TIMER_DURATION_PLAN, TIMER_RESTART_PLAN, TIMER_PAUSE_PLAN, CI_BASELINE_PLAN, HOSTED_NODE_PLAN, TRAY_LIFECYCLE_PLAN, PRELOAD_URL_TYPE_PLAN, IPC_SENDER_PLAN, LOCATION_INDEPENDENT_MAKE_PLAN, IPC_MAIN_FRAME_PLAN, OPEN_EXTERNAL_FAILURE_PLAN, LOCAL_METADATA_PLAN]) {
   const plan = read(planPath);
   assert.ok(plan.includes('Status: Completed'));
   assert.ok(plan.includes('make check'));
@@ -473,6 +500,7 @@ assert.ok(read(LOCATION_INDEPENDENT_MAKE_PLAN).includes('unrelated directory'));
 assert.ok(read(LOCATION_INDEPENDENT_MAKE_PLAN).includes('Node 22'));
 assert.ok(read(LOCATION_INDEPENDENT_MAKE_PLAN).includes('Node 24'));
 assert.ok(read(LOCATION_INDEPENDENT_MAKE_PLAN).includes('hostile mutations rejected'));
+assert.ok(read(LOCAL_METADATA_PLAN).includes('git ls-files'));
 const ipcMainFramePlan = read(IPC_MAIN_FRAME_PLAN);
 assert.deepEqual(ipcMainFramePlan.match(/^Status:\s*(.+)$/gm), ['Status: Completed']);
 for (const phrase of ['Node 24', 'zero vulnerabilities', '26-file', 'Six isolated hostile mutations', 'Exact diff']) {

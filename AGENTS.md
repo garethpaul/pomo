@@ -56,6 +56,8 @@
 ## Safety and gotchas
 
 - No required secret or credential file was identified. Keep the app local-only unless a future integration explicitly documents its configuration and privacy behavior.
+- `.explore/` is local maintainer intelligence; keep it ignored and move durable
+  decisions into tracked plans, changes, policies, tests, or source.
 - `npm run contracts` verifies that the renderer does not load remote scripts and that external links stay behind explicit user clicks.
 - `npm run contracts` verifies external-link handling keeps an explicit http/https protocol guard.
 - `npm run contracts` also checks the renderer window title so placeholder Bootstrap titles do not ship.

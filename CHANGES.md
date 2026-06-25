@@ -1,5 +1,36 @@
 # Changes
 
+## 2026-06-25T15:22:00-07:00 — P2 local repository metadata
+
+- Cycle: inspected the MIT-licensed Electron app, current work, timer and
+  notification state, IPC/preload boundaries, package surface, and hosted lanes.
+- Threads: started portable local metadata enforcement; continued local-only
+  package and repository-contract hardening; stopped none.
+- Bug: `.explore/` was hidden only by this clone's private `.git/info/exclude`,
+  so fresh contributor checkouts could report local intelligence as untracked
+  package source or stage it accidentally.
+- Work: added the active rule; strengthened `npm run contracts` with exact
+  active patterns, effective `git check-ignore` probes, and an unfiltered
+  `git ls-files` index query for `.vscode` and `.explore`.
+- Files: changed `.gitignore`, `scripts/check-local-contracts.js`, `README.md`,
+  `SECURITY.md`, `VISION.md`, `AGENTS.md`, and
+  `docs/plans/2026-06-25-local-repository-metadata-ignore.md`.
+- Validation: the red-first contract failed on the absent `.explore/` rule.
+  Focused contracts and renderer/timer tests passed. Root and external
+  `make check` passed in read-only Node 22.23.1 and Node 24.18.0 containers;
+  both audits found zero vulnerabilities and both package dry-runs preserved
+  the 26-file, 2,038,184-byte archive surface. `git diff --check` passed.
+- Validation wrinkle: the first root-owned container triggered Git's
+  dubious-ownership protection before the contract could inspect ignores; the
+  unchanged rerun as the checkout owner passed, matching hosted ownership.
+- Remaining evidence: hosted Electron/Node/CodeQL and exact-head review.
+- Findings: clone-local excludes are not repository policy, and filesystem-only
+  filtering can hide deleted paths that remain in Git's index.
+- Blockers: the host Node 18 runtime is below the declared Node 22 floor;
+  supported-runtime validation used cached read-only Node 22/24 containers.
+- Next: run focused and full gates, exact-head Codex review, and hosted checks;
+  merge only when all evidence is clean.
+
 ## 2026-06-25T13:15:39-07:00 — P1 tab timer ownership
 
 - Cycle: inspected the MIT-licensed Electron app, open work, recent lifecycle
