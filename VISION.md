@@ -53,6 +53,8 @@ Priority:
 - Contain notification permission request failures without retrying prompts or
   interrupting the timer lifecycle
 - Maintain local notification behavior without network dependencies
+- Keep local editor state and maintainer intelligence ignored and out of the
+  tracked package source set
 - Keep tray/menu behavior visible in the main process
 
 Next priorities:

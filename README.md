@@ -148,6 +148,10 @@ When the required SDK or runtime is unavailable, use static checks and source re
 - `npm run contracts` verifies renderer local asset references stay relative
   and point to checked-in files.
 - `npm run contracts` verifies the notification icon stays local and checked in.
+- `npm run contracts` verifies `.vscode/` and `.explore/` are active, effective
+  Git ignores and contain no tracked files. Local metadata is not package
+  source; durable decisions belong in reviewed plans, changes, policies, tests,
+  or source.
 - The renderer runs with context isolation, sandboxing, no Node integration, a
   restrictive Content Security Policy, denied navigation/window creation, and
   a two-command preload bridge.
@@ -171,6 +175,8 @@ When the required SDK or runtime is unavailable, use static checks and source re
   reset guard.
 - See `docs/plans/2026-06-25-tab-switch-timer-ownership.md` for hidden timer
   shutdown and destination-control reconciliation on valid tab switches.
+- See `docs/plans/2026-06-25-local-repository-metadata-ignore.md` for effective
+  local metadata ignore and tracked-index coverage.
 - See `docs/plans/2026-06-09-window-title-contract.md` for the renderer window
   title contract.
 - See `docs/plans/2026-06-09-local-asset-reference-contract.md` for the

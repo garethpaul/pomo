@@ -87,7 +87,9 @@ Dependency updates should come from trusted package managers and must keep
 `package.json` and `package-lock.json` synchronized. Use `npm ci`, run `npm
 audit`, and do not restore floating Electron or menubar ranges. Do not commit
 credentials, private keys, tokens, generated secrets, or machine-local
-configuration. If a vulnerability depends on a compromised package,
+configuration. Keep `.explore/` maintainer intelligence local and copy durable
+security decisions into reviewed plans, changes, policies, tests, or source. If
+a vulnerability depends on a compromised package,
 typosquatting risk, insecure transitive dependency, or unsafe build step,
 include the package name, affected version, and the path through which it is
 used.
