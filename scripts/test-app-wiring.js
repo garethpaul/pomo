@@ -176,6 +176,18 @@ assert.deepEqual(timers[2].resetCalls, ['#time_long']);
 const tabHandler = directHandlers.get('a[data-toggle="tab"]:shown.bs.tab');
 assert.ok(tabHandler, 'tab shown handler must be registered');
 
+clickHandlers.get('#start')();
+clickHandlers.get('#short_start')();
+const stopCountsBeforeSwitch = timers.map(timer => timer.stopCalls);
+tabHandler({ target: { toString: () => 'pomo://app#short' } });
+assert.equal(
+  timers[0].stopCalls,
+  stopCountsBeforeSwitch[0] + 1,
+  'switching tabs must stop a countdown that would otherwise continue hidden'
+);
+assert.equal(visibility.get('#short_start'), 'shown');
+assert.equal(visibility.get('#short_stop'), 'hidden');
+
 tabHandler({ target: { toString: () => 'pomo://app#pomodoro' } });
 tabHandler({ target: { toString: () => 'pomo://app#short' } });
 tabHandler({ target: { toString: () => 'pomo://app#long' } });
