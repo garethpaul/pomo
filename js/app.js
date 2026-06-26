@@ -9,6 +9,11 @@ var display = document.querySelector('#time');
 var display_short = document.querySelector('#time_short');
 var display_long = document.querySelector('#time_long');
 
+function reconcileCompletedTimerControls(startSelector, stopSelector) {
+    $(startSelector).show();
+    $(stopSelector).hide();
+}
+
 function isExternalHttpUrl(url) {
     return /^https?:\/\//i.test(url);
 }
@@ -26,7 +31,9 @@ let normalTimer = new Timer(25);
 
 $('#start').click(() => {
 
-    normalTimer.startTimer(display);
+    normalTimer.startTimer(display, () => {
+        reconcileCompletedTimerControls('#start', '#stop');
+    });
     $('#stop').show();
     $('#start').hide();
 })
@@ -47,7 +54,9 @@ $('#reset').click(() => {
 let shortTimer = new Timer(5);
 
 $('#short_start').click(() => {
-    shortTimer.startTimer(display_short);
+    shortTimer.startTimer(display_short, () => {
+        reconcileCompletedTimerControls('#short_start', '#short_stop');
+    });
     $('#short_stop').show();
     $('#short_start').hide();
 })
@@ -69,7 +78,9 @@ $('#short_reset').click(() => {
 let longTimer = new Timer(10);
 
 $('#long_start').click(() => {
-    longTimer.startTimer(display_long);
+    longTimer.startTimer(display_long, () => {
+        reconcileCompletedTimerControls('#long_start', '#long_stop');
+    });
 
     $('#long_stop').show();
     $('#long_start').hide();

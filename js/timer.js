@@ -20,7 +20,7 @@
             this.pomodoroIntervalId = undefined;
         }
 
-        startTimer(display) {
+        startTimer(display, onComplete) {
             if (this.timer === 0) {
                 this.minutes = this.initialMinutes;
                 this.seconds = this.initialSeconds;
@@ -45,6 +45,9 @@
 
                 if (this.minutes == 0 && this.seconds == 0) {
                     this.stopTimer();
+                    if (typeof onComplete === 'function') {
+                        onComplete();
+                    }
                     if (typeof root.notifyUser === 'function') {
                         root.notifyUser();
                     }

@@ -1,5 +1,33 @@
 # Changes
 
+## 2026-06-26T04:43:00-07:00 — P2 completed timer controls
+
+- Cycle: inspected the timer state machine, renderer button wiring, prior
+  completion settlement work, notification boundaries, package lock, and
+  hosted Node/Electron lanes.
+- Threads: started none; completed the focused renderer-state fix directly.
+- Bug: reaching `00:00` cleared the interval and notified, but left Stop visible
+  and Start hidden until the user clicked Stop or changed tabs.
+- Work: added an optional completion callback after interval cleanup, wired all
+  three timers to restore Start and hide Stop, and preserved notification and
+  restart ordering.
+- Files: changed `js/timer.js`, `js/app.js`, focused timer/renderer tests,
+  durable contracts, public guidance, and
+  `docs/plans/2026-06-26-timer-completion-controls.md`.
+- Validation: timer, renderer, and contract tests failed before implementation.
+  Node 22.23.1 and Node 24.18.0 container runs passed `npm run verify`, zero-high
+  audit, root `make check`, and external-directory Make verification.
+- Validation wrinkle: two initial durable-checker edits referenced fixture and
+  documentation variables before loading them; both were corrected before the
+  full green runs. Host Electron smoke cannot install Electron 42 under Node
+  18.19.1, so the supported hosted smoke remains required before merge.
+- Findings: interval ownership was correct after the earlier settlement fix,
+  but visible control ownership was not reconciled at completion.
+- Blockers: local Node 18 is below the declared Node 22.12 floor; supported
+  Electron runtime validation remains a hosted gate.
+- Next: run exact-head review and hosted Node/Electron/CodeQL checks, then merge
+  only the exact green reviewed head.
+
 ## 2026-06-25T15:22:00-07:00 — P2 local repository metadata
 
 - Cycle: inspected the MIT-licensed Electron app, current work, timer and

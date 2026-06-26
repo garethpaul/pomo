@@ -75,6 +75,9 @@ Notification permission request failures must remain contained so browser
 throws or rejected permission promises cannot destabilize the timer lifecycle.
 Timer durations should stay positive integers so malformed local state cannot
 produce broken countdown behavior.
+Completed timers should reconcile Start/Stop controls only after interval
+ownership is cleared, preventing visible controls from claiming hidden work is
+still active.
 Paused timer state is converted back to numeric seconds before restarting so
 zero-padded display strings cannot inflate the local countdown.
 Hosted validation uses credential-free, read-only repository access, pinned

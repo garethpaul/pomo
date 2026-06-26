@@ -31,6 +31,7 @@ const NOTIFICATION_PERMISSION_PLAN = 'docs/plans/2026-06-16-notification-denied-
 const NOTIFICATION_REQUEST_FAILURE_PLAN = 'docs/plans/2026-06-16-notification-permission-request-failure.md';
 const NOTIFICATION_CONSTRUCTION_FAILURE_PLAN = 'docs/plans/2026-06-17-notification-construction-failure.md';
 const TIMER_COMPLETION_SETTLEMENT_PLAN = 'docs/plans/2026-06-17-timer-completion-settlement.md';
+const TIMER_COMPLETION_CONTROLS_PLAN = 'docs/plans/2026-06-26-timer-completion-controls.md';
 const UNDICI_ADVISORY_PLAN = 'docs/plans/2026-06-18-undici-advisory-remediation.md';
 const TAB_TIMER_OWNERSHIP_PLAN = 'docs/plans/2026-06-25-tab-switch-timer-ownership.md';
 const LOCAL_METADATA_PLAN = 'docs/plans/2026-06-25-local-repository-metadata-ignore.md';
@@ -421,10 +422,21 @@ assert.ok(timer.includes('this.timer === 0'), 'completed timers must restart fro
 assert.ok(timer.includes('Number(this.minutes) * 60 + Number(this.seconds)'), 'paused timers must resume from numeric remaining time');
 const timerCompletionBranch = timer.slice(timer.indexOf('if (this.minutes == 0 && this.seconds == 0)'));
 const completionStopIndex = timerCompletionBranch.indexOf('this.stopTimer();');
+const completionCallbackIndex = timerCompletionBranch.indexOf('onComplete();');
 const completionNotificationIndex = timerCompletionBranch.indexOf("typeof root.notifyUser === 'function'");
 assert.ok(completionStopIndex >= 0 && completionNotificationIndex >= 0 && completionStopIndex < completionNotificationIndex, 'completed timers must settle interval ownership before notification dispatch');
+assert.ok(completionStopIndex < completionCallbackIndex && completionCallbackIndex < completionNotificationIndex, 'completed timers must reconcile controls after cleanup and before notification dispatch');
+assert.ok(timer.includes('startTimer(display, onComplete)'), 'timers must accept an optional completion callback');
+assert.ok(timer.includes("if (typeof onComplete === 'function')"), 'timers must guard optional completion callbacks');
+assert.ok(timer.includes('onComplete();'), 'completed timers must invoke the renderer completion callback');
+assert.ok(app.includes('reconcileCompletedTimerControls'), 'renderer must reconcile completed timer controls');
+for (const selector of ["'#start', '#stop'", "'#short_start', '#short_stop'", "'#long_start', '#long_stop'"]) {
+  assert.ok(app.includes(selector), `renderer completion wiring must include ${selector}`);
+}
+assert.ok(appWiringTests.includes("assert.equal(typeof timers[0].onComplete, 'function')"), 'renderer tests must exercise completion callbacks');
 
 const timerTests = read('scripts/test-timer.js');
+assert.ok(timerTests.includes('assert.equal(completionCallbacks, 1)'), 'timer tests must prove exactly one completion callback');
 assert.ok(timerTests.includes("assert.equal(resumeDisplay.textContent, '01:05')"), 'timer tests must pause with zero-padded seconds');
 assert.ok(timerTests.includes("assert.equal(resumeDisplay.textContent, '01:04')"), 'timer tests must resume at the next second');
 assert.ok(timerTests.includes("throw new Error('unexpected notification hook failure')"), 'timer tests must exercise an unexpected completion hook failure');
@@ -459,6 +471,9 @@ const readme = read('README.md');
 assert.ok(readme.includes('paused timer with zero-padded seconds'), 'README must document the paused timer regression');
 assert.ok(readme.toLowerCase().includes('notification construction failures'), 'README must document notification construction failures');
 assert.ok(readme.includes('settles interval ownership before notification dispatch'), 'README must document timer completion settlement ordering');
+assert.ok(readme.includes("restores that timer's Start control and hides Stop"), 'README must document completed timer controls');
+assert.ok(read('SECURITY.md').includes('Completed timers should reconcile Start/Stop controls'), 'SECURITY must document completed timer control ownership');
+assert.ok(read('VISION.md').includes("Restore each completed timer's Start control"), 'VISION must preserve completed timer controls');
 assert.ok(readme.includes('hidden countdowns'), 'README must document timer ownership across tab switches');
 
 const docs = ['README.md', 'SECURITY.md', 'VISION.md', 'CHANGES.md'].map(read).join('\n');
@@ -530,6 +545,11 @@ const timerCompletionSettlementPlan = read(TIMER_COMPLETION_SETTLEMENT_PLAN);
 assert.deepEqual(timerCompletionSettlementPlan.match(/^status:\s*(.+)$/gm), ['status: completed']);
 for (const phrase of ['throwing notification hook', 'settlement order', 'hostile mutations', 'make check', 'Exact diff']) {
   assert.ok(timerCompletionSettlementPlan.includes(phrase), `timer completion settlement plan must preserve ${phrase}`);
+}
+const timerCompletionControlsPlan = read(TIMER_COMPLETION_CONTROLS_PLAN);
+assert.deepEqual(timerCompletionControlsPlan.match(/^Status:\s*(.+)$/gm), ['Status: Completed']);
+for (const phrase of ['optional completion callback', 'restore Start', 'hide Stop', 'make check']) {
+  assert.ok(timerCompletionControlsPlan.includes(phrase), `timer completion controls plan must preserve ${phrase}`);
 }
 const undiciAdvisoryPlan = read(UNDICI_ADVISORY_PLAN);
 assert.deepEqual(undiciAdvisoryPlan.match(/^status:\s*(.+)$/gm), ['status: completed']);

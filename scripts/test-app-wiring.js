@@ -37,8 +37,9 @@ class FakeTimer {
     timers.push(this);
   }
 
-  startTimer(display) {
+  startTimer(display, onComplete) {
     this.startCalls.push(display);
+    this.onComplete = onComplete;
   }
 
   stopTimer() {
@@ -148,8 +149,12 @@ assert.deepEqual(openedUrls, ['https://example.com/docs']);
 
 clickHandlers.get('#start')();
 assert.deepEqual(timers[0].startCalls, [displays['#time']]);
+assert.equal(typeof timers[0].onComplete, 'function');
 assert.equal(visibility.get('#stop'), 'shown');
 assert.equal(visibility.get('#start'), 'hidden');
+timers[0].onComplete();
+assert.equal(visibility.get('#start'), 'shown');
+assert.equal(visibility.get('#stop'), 'hidden');
 
 clickHandlers.get('#stop')();
 assert.equal(timers[0].stopCalls, 1);
@@ -161,6 +166,10 @@ assert.deepEqual(timers[0].resetCalls, ['#time']);
 
 clickHandlers.get('#short_start')();
 assert.deepEqual(timers[1].startCalls, [displays['#time_short']]);
+assert.equal(typeof timers[1].onComplete, 'function');
+timers[1].onComplete();
+assert.equal(visibility.get('#short_start'), 'shown');
+assert.equal(visibility.get('#short_stop'), 'hidden');
 clickHandlers.get('#short_stop')();
 assert.equal(timers[1].stopCalls, 1);
 clickHandlers.get('#short_reset')();
@@ -168,6 +177,10 @@ assert.deepEqual(timers[1].resetCalls, ['#time_short']);
 
 clickHandlers.get('#long_start')();
 assert.deepEqual(timers[2].startCalls, [displays['#time_long']]);
+assert.equal(typeof timers[2].onComplete, 'function');
+timers[2].onComplete();
+assert.equal(visibility.get('#long_start'), 'shown');
+assert.equal(visibility.get('#long_stop'), 'hidden');
 clickHandlers.get('#long_stop')();
 assert.equal(timers[2].stopCalls, 1);
 clickHandlers.get('#long_reset')();
