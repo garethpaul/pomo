@@ -54,4 +54,7 @@ durable contract tests cover callback count, ordering, and each control pair.
 Node 22.23.1 and Node 24.18.0 passed package verification, zero-high audits,
 root `make check`, and external-directory Make verification. The host Node 18
 runtime cannot install Electron 42, leaving the supported hosted smoke and
-exact-head checks as the final merge gates.
+exact-head checks as the final merge gates. Both hosted Node lanes, both
+Electron smoke triggers, and CodeQL passed on the implementation head. The
+external Codex reviewer was invoked but returned HTTP 401 for missing API
+authentication; manual review found no actionable issue.

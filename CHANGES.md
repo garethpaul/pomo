@@ -21,12 +21,19 @@
   documentation variables before loading them; both were corrected before the
   full green runs. Host Electron smoke cannot install Electron 42 under Node
   18.19.1, so the supported hosted smoke remains required before merge.
+- Exact-head Codex review: invoked on
+  `34f0fd1dcab991c8007f3ec6a43871350b35e3b8`; the external reviewer returned
+  HTTP 401 for missing API authentication, so it was skipped under the standing
+  authentication policy. Manual review found no actionable issue.
+- Hosted evidence: push and pull-request Node 22/24 locked checks and Electron
+  42 application smoke jobs passed; CodeQL Actions and JavaScript/TypeScript
+  analysis passed.
 - Findings: interval ownership was correct after the earlier settlement fix,
   but visible control ownership was not reconciled at completion.
 - Blockers: local Node 18 is below the declared Node 22.12 floor; supported
-  Electron runtime validation remains a hosted gate.
-- Next: run exact-head review and hosted Node/Electron/CodeQL checks, then merge
-  only the exact green reviewed head.
+  runtime validation is covered by the green hosted lanes.
+- Next: rerun exact-head review and hosted checks for this evidence-only update,
+  then merge only the exact green head.
 
 ## 2026-06-25T15:22:00-07:00 — P2 local repository metadata
 
