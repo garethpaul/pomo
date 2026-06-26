@@ -45,11 +45,28 @@
 
                 if (this.minutes == 0 && this.seconds == 0) {
                     this.stopTimer();
+                    let completionFailed = false;
+                    let completionError;
                     if (typeof onComplete === 'function') {
-                        onComplete();
+                        try {
+                            onComplete();
+                        } catch (error) {
+                            completionFailed = true;
+                            completionError = error;
+                        }
                     }
                     if (typeof root.notifyUser === 'function') {
-                        root.notifyUser();
+                        try {
+                            root.notifyUser();
+                        } catch (error) {
+                            if (!completionFailed) {
+                                completionFailed = true;
+                                completionError = error;
+                            }
+                        }
+                    }
+                    if (completionFailed) {
+                        throw completionError;
                     }
                 }
             }, 1000);
