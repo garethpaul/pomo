@@ -1,5 +1,29 @@
 # Changes
 
+## 2026-06-26T13:33:39-07:00 — No-change maintenance audit
+
+- Cycle: inspected all open public work, issues, Dependabot, code-scanning and
+  secret-scanning alerts, dependency audit, remote branch tips, timer and tab
+  ownership, notification settlement, Electron IPC/navigation boundaries,
+  recent plans, and hosted workflow results.
+- Result: no new correctness, security, dependency, CI, or unfinished-work
+  finding survived review; no source, dependency, workflow, or contract change
+  is warranted in this cycle.
+- Prior work: PR #17 merged the completion-callback failure boundary as
+  `f7cd7da6901308c15a54690a17700e4e8771d34d`. Both Node 22 and Node 24 locked
+  jobs, both Electron 42 smoke jobs, CodeQL Actions/JavaScript, and the CodeQL
+  aggregate passed on exact head `034e2e4fd3eff9e18a3579bdfe36fe764c9634b1`.
+- Queue: no public PR, issue, open security alert, or unmerged remote branch tip
+  remains for this repository.
+- Validation: under ephemeral Node 22.23.1, `npm run verify`, zero-vulnerability
+  `npm audit --omit=dev`, root `/usr/bin/make check`, and external-directory
+  Make verification passed. `git diff --check`, current-tree gitleaks, and the
+  65-commit gitleaks history scan also passed with no leaks.
+- Local runtime: system Node 18.19.1 remains below the declared Node 22.12
+  floor and was not treated as authoritative.
+- Next: require exact-head Codex review and hosted checks before merging this
+  audit record.
+
 ## 2026-06-26T04:54:00-07:00 — P2 completion callback failure boundary
 
 - Cycle: inspected timer settlement, newly added completed-control callbacks,
