@@ -104,6 +104,8 @@ Detected npm scripts:
 - Timer completion also restores that timer's Start control and hides Stop
   after interval cleanup, so the visible controls match the settled state at
   `00:00`.
+- Timer notification is still attempted when control reconciliation fails; the
+  first completion-side-effect exception is rethrown only after both attempts.
 - Timer tests confirm a paused timer with zero-padded seconds resumes from the
   exact remaining duration instead of concatenating display strings.
 - Local contract checks confirm the app window title stays branded as Pomo.

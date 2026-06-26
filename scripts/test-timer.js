@@ -67,11 +67,30 @@ try {
   assert.equal(completionCallbacks, 1);
   assert.deepEqual(clearedIntervals, [undefined, 42]);
 
-  countdown.startTimer(display);
-  assert.equal(callbacks.length, 2);
-  assert.deepEqual(clearedIntervals, [undefined, 42, 42]);
+  const throwingCompletionDisplay = { textContent: '' };
+  const throwingCompletionTimer = new Timer(1);
+  let notificationsAfterCompletionFailure = 0;
+  global.notifyUser = () => {
+    notificationsAfterCompletionFailure += 1;
+  };
+  throwingCompletionTimer.startTimer(throwingCompletionDisplay, () => {
+    throw new Error('unexpected completion callback failure');
+  });
+  for (let tick = 0; tick < 59; tick += 1) {
+    callbacks[1]();
+  }
+  assert.throws(
+    () => callbacks[1](),
+    /unexpected completion callback failure/
+  );
+  assert.equal(throwingCompletionDisplay.textContent, '00:00');
+  assert.equal(notificationsAfterCompletionFailure, 1);
 
-  callbacks[1]();
+  countdown.startTimer(display);
+  assert.equal(callbacks.length, 3);
+  assert.deepEqual(clearedIntervals, [undefined, 42, undefined, 42, 42]);
+
+  callbacks[2]();
   assert.equal(display.textContent, '00:59');
   assert.equal(notifications, 1);
 
@@ -80,13 +99,13 @@ try {
   resumable.startTimer(resumeDisplay);
 
   for (let tick = 0; tick < 55; tick += 1) {
-    callbacks[2]();
+    callbacks[3]();
   }
 
   assert.equal(resumeDisplay.textContent, '01:05');
   resumable.stopTimer();
   resumable.startTimer(resumeDisplay);
-  callbacks[3]();
+  callbacks[4]();
   assert.equal(resumeDisplay.textContent, '01:04');
 
   const throwingDisplay = { textContent: '' };
@@ -103,11 +122,11 @@ try {
   throwingTimer.startTimer(throwingDisplay);
   clearsBeforeThrowingCompletion = clearedIntervals.length;
   for (let tick = 0; tick < 59; tick += 1) {
-    callbacks[4]();
+    callbacks[5]();
   }
 
   assert.throws(
-    () => callbacks[4](),
+    () => callbacks[5](),
     /unexpected notification hook failure/
   );
   assert.equal(throwingDisplay.textContent, '00:00');

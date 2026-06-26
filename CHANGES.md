@@ -1,5 +1,25 @@
 # Changes
 
+## 2026-06-26T04:54:00-07:00 — P2 completion callback failure boundary
+
+- Cycle: inspected timer settlement, newly added completed-control callbacks,
+  renderer wiring, notification failure handling, and supported hosted lanes.
+- Bug: a throwing Start/Stop reconciliation callback skipped desktop
+  notification even though interval ownership had already been settled.
+- Work: capture the first completion-side-effect failure, still attempt the
+  independent notification, then rethrow after both attempts; added a focused
+  behavioral regression and durable contracts.
+- Validation: the timer regression failed before implementation with zero
+  notification attempts, then passed while preserving the original callback
+  exception and settled interval. `npm run verify`, root and external-directory
+  `make check`, zero-high `npm audit`, package dry-run, and `git diff --check`
+  pass on the final local tree.
+- Files: changed timer behavior and tests, local contracts, public guidance,
+  agent rules, and a completed implementation plan.
+- Blockers: local Node 18 is below the declared Node 22.12 floor; supported
+  Node 22/24 and Electron smoke remain hosted merge gates.
+- Next: run exact-head review and hosted gates, then merge only the green head.
+
 ## 2026-06-26T04:43:00-07:00 — P2 completed timer controls
 
 - Cycle: inspected the timer state machine, renderer button wiring, prior

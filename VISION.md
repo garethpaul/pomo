@@ -22,6 +22,7 @@ Priority:
 - Keep timer durations validated as positive integers
 - Keep a completed timer restartable from its initial duration
 - Restore each completed timer's Start control after interval cleanup
+- Attempt timer notification even when completed-control reconciliation fails
 - Keep paused timers restartable from their exact remaining duration
 - Keep start, stop, and reset behavior predictable
 - Maintain `make lint`, `make test`, `make build`, `make check`, and

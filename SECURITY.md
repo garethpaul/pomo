@@ -78,6 +78,8 @@ produce broken countdown behavior.
 Completed timers should reconcile Start/Stop controls only after interval
 ownership is cleared, preventing visible controls from claiming hidden work is
 still active.
+A control-reconciliation exception must not suppress notification delivery;
+both side effects are attempted before the first failure is rethrown.
 Paused timer state is converted back to numeric seconds before restarting so
 zero-padded display strings cannot inflate the local countdown.
 Hosted validation uses credential-free, read-only repository access, pinned

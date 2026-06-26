@@ -69,6 +69,8 @@
   and rejected permission promises.
 - Timer durations must remain positive integers, and a completed timer must
   restart from its configured initial duration.
+- Completion control failures must not suppress the independent notification
+  attempt; preserve the first failure after both side effects run.
 - Completed timers must restore Start and hide Stop after interval cleanup and
   before notification dispatch.
 - Valid tab switches must stop hidden countdowns and reconcile the destination

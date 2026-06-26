@@ -32,6 +32,7 @@ const NOTIFICATION_REQUEST_FAILURE_PLAN = 'docs/plans/2026-06-16-notification-pe
 const NOTIFICATION_CONSTRUCTION_FAILURE_PLAN = 'docs/plans/2026-06-17-notification-construction-failure.md';
 const TIMER_COMPLETION_SETTLEMENT_PLAN = 'docs/plans/2026-06-17-timer-completion-settlement.md';
 const TIMER_COMPLETION_CONTROLS_PLAN = 'docs/plans/2026-06-26-timer-completion-controls.md';
+const TIMER_COMPLETION_CALLBACK_FAILURE_PLAN = 'docs/plans/2026-06-26-timer-completion-callback-failure.md';
 const UNDICI_ADVISORY_PLAN = 'docs/plans/2026-06-18-undici-advisory-remediation.md';
 const TAB_TIMER_OWNERSHIP_PLAN = 'docs/plans/2026-06-25-tab-switch-timer-ownership.md';
 const LOCAL_METADATA_PLAN = 'docs/plans/2026-06-25-local-repository-metadata-ignore.md';
@@ -424,8 +425,15 @@ const timerCompletionBranch = timer.slice(timer.indexOf('if (this.minutes == 0 &
 const completionStopIndex = timerCompletionBranch.indexOf('this.stopTimer();');
 const completionCallbackIndex = timerCompletionBranch.indexOf('onComplete();');
 const completionNotificationIndex = timerCompletionBranch.indexOf("typeof root.notifyUser === 'function'");
+const completionFailedIndex = timerCompletionBranch.indexOf('let completionFailed = false;');
+const completionErrorIndex = timerCompletionBranch.indexOf('let completionError;');
+const completionRethrowIndex = timerCompletionBranch.indexOf('throw completionError;');
 assert.ok(completionStopIndex >= 0 && completionNotificationIndex >= 0 && completionStopIndex < completionNotificationIndex, 'completed timers must settle interval ownership before notification dispatch');
 assert.ok(completionStopIndex < completionCallbackIndex && completionCallbackIndex < completionNotificationIndex, 'completed timers must reconcile controls after cleanup and before notification dispatch');
+assert.ok(completionFailedIndex >= 0 && completionFailedIndex < completionErrorIndex && completionErrorIndex < completionCallbackIndex, 'completed timers must capture renderer callback failures');
+assert.ok(timerCompletionBranch.includes('if (!completionFailed)'), 'notification failures must not replace an earlier renderer callback failure');
+assert.ok(timerCompletionBranch.includes('if (completionFailed)'), 'falsy thrown values must still be rethrown after both side effects');
+assert.ok(completionRethrowIndex > completionNotificationIndex, 'completed timers must rethrow the first side-effect failure after notification is attempted');
 assert.ok(timer.includes('startTimer(display, onComplete)'), 'timers must accept an optional completion callback');
 assert.ok(timer.includes("if (typeof onComplete === 'function')"), 'timers must guard optional completion callbacks');
 assert.ok(timer.includes('onComplete();'), 'completed timers must invoke the renderer completion callback');
@@ -442,6 +450,8 @@ assert.ok(timerTests.includes("assert.equal(resumeDisplay.textContent, '01:04')"
 assert.ok(timerTests.includes("throw new Error('unexpected notification hook failure')"), 'timer tests must exercise an unexpected completion hook failure');
 assert.ok(timerTests.includes('assert.equal(clearedIntervals.length, clearsBeforeThrowingCompletion + 1)'), 'timer tests must prove cleanup precedes notification dispatch');
 assert.ok(timerTests.includes('assert.equal(throwingNotifications, 1)'), 'timer tests must preserve exactly one failing notification attempt');
+assert.ok(timerTests.includes("throw new Error('unexpected completion callback failure')"), 'timer tests must exercise a throwing renderer completion callback');
+assert.ok(timerTests.includes('assert.equal(notificationsAfterCompletionFailure, 1)'), 'timer tests must still attempt notification after renderer completion failure');
 
 const electronAppTests = read('scripts/test-electron-app.js');
 for (const phrase of [
@@ -472,8 +482,11 @@ assert.ok(readme.includes('paused timer with zero-padded seconds'), 'README must
 assert.ok(readme.toLowerCase().includes('notification construction failures'), 'README must document notification construction failures');
 assert.ok(readme.includes('settles interval ownership before notification dispatch'), 'README must document timer completion settlement ordering');
 assert.ok(readme.includes("restores that timer's Start control and hides Stop"), 'README must document completed timer controls');
+assert.ok(readme.includes('notification is still attempted when control reconciliation fails'), 'README must document completion callback failure ordering');
 assert.ok(read('SECURITY.md').includes('Completed timers should reconcile Start/Stop controls'), 'SECURITY must document completed timer control ownership');
+assert.ok(read('SECURITY.md').includes('A control-reconciliation exception must not suppress notification delivery'), 'SECURITY must document completion callback failure containment');
 assert.ok(read('VISION.md').includes("Restore each completed timer's Start control"), 'VISION must preserve completed timer controls');
+assert.ok(read('VISION.md').includes('Attempt timer notification even when completed-control reconciliation fails'), 'VISION must preserve completion callback failure ordering');
 assert.ok(readme.includes('hidden countdowns'), 'README must document timer ownership across tab switches');
 
 const docs = ['README.md', 'SECURITY.md', 'VISION.md', 'CHANGES.md'].map(read).join('\n');
@@ -550,6 +563,11 @@ const timerCompletionControlsPlan = read(TIMER_COMPLETION_CONTROLS_PLAN);
 assert.deepEqual(timerCompletionControlsPlan.match(/^Status:\s*(.+)$/gm), ['Status: Completed']);
 for (const phrase of ['optional completion callback', 'restore Start', 'hide Stop', 'make check']) {
   assert.ok(timerCompletionControlsPlan.includes(phrase), `timer completion controls plan must preserve ${phrase}`);
+}
+const timerCompletionCallbackFailurePlan = read(TIMER_COMPLETION_CALLBACK_FAILURE_PLAN);
+assert.deepEqual(timerCompletionCallbackFailurePlan.match(/^Status:\s*(.+)$/gm), ['Status: Completed']);
+for (const phrase of ['first side-effect failure', 'still attempt notification', 'make check']) {
+  assert.ok(timerCompletionCallbackFailurePlan.includes(phrase), `timer completion callback failure plan must preserve ${phrase}`);
 }
 const undiciAdvisoryPlan = read(UNDICI_ADVISORY_PLAN);
 assert.deepEqual(undiciAdvisoryPlan.match(/^status:\s*(.+)$/gm), ['status: completed']);
