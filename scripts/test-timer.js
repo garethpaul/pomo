@@ -44,7 +44,11 @@ try {
 
   const display = { textContent: '' };
   const countdown = new Timer(1);
-  countdown.startTimer(display);
+  let completionCallbacks = 0;
+  countdown.startTimer(display, () => {
+    assert.equal(clearedIntervals.at(-1), 42);
+    completionCallbacks += 1;
+  });
 
   assert.equal(callbacks.length, 1);
   assert.deepEqual(clearedIntervals, [undefined]);
@@ -60,6 +64,7 @@ try {
 
   assert.equal(display.textContent, '00:00');
   assert.equal(notifications, 1);
+  assert.equal(completionCallbacks, 1);
   assert.deepEqual(clearedIntervals, [undefined, 42]);
 
   countdown.startTimer(display);

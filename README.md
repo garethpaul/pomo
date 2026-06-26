@@ -101,6 +101,9 @@ Detected npm scripts:
 - Timer completion settles interval ownership before notification dispatch, so
   an unexpected renderer hook failure cannot leave the completed countdown
   scheduled.
+- Timer completion also restores that timer's Start control and hides Stop
+  after interval cleanup, so the visible controls match the settled state at
+  `00:00`.
 - Timer tests confirm a paused timer with zero-padded seconds resumes from the
   exact remaining duration instead of concatenating display strings.
 - Local contract checks confirm the app window title stays branded as Pomo.

@@ -69,6 +69,8 @@
   and rejected permission promises.
 - Timer durations must remain positive integers, and a completed timer must
   restart from its configured initial duration.
+- Completed timers must restore Start and hide Stop after interval cleanup and
+  before notification dispatch.
 - Valid tab switches must stop hidden countdowns and reconcile the destination
   timer's Start/Stop controls; unknown tabs must remain no-ops.
 - Keep Electron pinned with the lockfile; do not restore menubar or floating
